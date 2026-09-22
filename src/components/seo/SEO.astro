@@ -1,0 +1,161 @@
+---
+/**
+ * Automated metadata matrix.
+ *
+ * Single component responsible for: title formula, clamped description, canonical URL,
+ * OpenGraph, Twitter cards, robots directives, and the JSON-LD graph. Every page routes
+ * its metadata through here so nothing can drift.
+ */
+import { SITE, ADS } from '@config/site';
+import { buildTitle, buildDescription, absoluteUrl } from '@lib/seo';
+import { buildGraph, type JsonLdNode } from '@lib/schema';
+
+interface Props {
+  /** Topic portion of the title; the "| StackPipeline" suffix is appended automatically. */
+  title: string;
+  description: string;
+  /** Path or absolute URL. Defaults to the current page. */
+  canonical?: string;
+  image?: string;
+  imageAlt?: string;
+  /** og:type — "article" for editorial pages, "website" for indexes. */
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+  nofollow?: boolean;
+  publishDate?: Date | string;
+  updatedDate?: Date | string;
+  authorName?: string;
+  section?: string;
+  tags?: string[];
+  /** Pre-built JSON-LD nodes; merged into one @graph. */
+  schema?: Array<JsonLdNode | undefined | false | null>;
+  /** Skip the brand suffix (used on the homepage, which has its own crafted title). */
+  rawTitle?: boolean;
+  /** Preload hint for the LCP image, when it is a static asset. */
+  preloadImage?: string;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  image = SITE.defaultImage,
+  imageAlt = SITE.defaultImageAlt,
+  ogType = 'website',
+  noindex = false,
+  nofollow = false,
+  publishDate,
+  updatedDate,
+  authorName,
+  section,
+  tags = [],
+  schema = [],
+  rawTitle = false,
+  preloadImage,
+} = Astro.props;
+
+const pageTitle = rawTitle ? title : buildTitle(title);
+const metaDescription = buildDescription(description);
+const canonicalUrl = absoluteUrl(canonical ?? Astro.url.pathname);
+const socialImage = absoluteUrl(image);
+
+const robots = [
+  noindex ? 'noindex' : 'index',
+  nofollow ? 'nofollow' : 'follow',
+  'max-image-preview:large',
+  'max-snippet:-1',
+  'max-video-preview:-1',
+].join(', ');
+
+const jsonLd = schema.length ? buildGraph(schema) : null;
+---
+
+{/* Charset and viewport must be the first elements for correct parsing. */}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>{pageTitle}</title>
+<meta name="description" content={metaDescription} />
+<link rel="canonical" href={canonicalUrl} />
+<meta name="robots" content={robots} />
+<meta name="googlebot" content={robots} />
+
+{/*
+  Preconnect to the ad origins so the TLS handshake is already warm when the loader runs.
+  Gated on a configured publisher ID: an unused preconnect costs a DNS+TLS round trip and
+  is flagged by Lighthouse, so it must not ship when AdSense is disabled.
+*/}
+{
+  ADS.client && (
+    <>
+      <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+      <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+      <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossorigin />
+    </>
+  )
+}
+
+{preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
+
+{/* OpenGraph — Facebook, LinkedIn, Slack unfurls. */}
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={metaDescription} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:locale" content={SITE.locale} />
+<meta property="og:image" content={socialImage} />
+<meta property="og:image:secure_url" content={socialImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:image:type" content="image/png" />
+
+{
+  ogType === 'article' && (
+    <>
+      {publishDate && (
+        <meta
+          property="article:published_time"
+          content={new Date(publishDate).toISOString()}
+        />
+      )}
+      {updatedDate && (
+        <meta
+          property="article:modified_time"
+          content={new Date(updatedDate).toISOString()}
+        />
+      )}
+      {authorName && <meta property="article:author" content={authorName} />}
+      {section && <meta property="article:section" content={section} />}
+      {tags.map((tag) => (
+        <meta property="article:tag" content={tag} />
+      ))}
+    </>
+  )
+}
+
+{/* Twitter / X cards. */}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content={SITE.social.xHandle} />
+<meta name="twitter:creator" content={SITE.social.xHandle} />
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={metaDescription} />
+<meta name="twitter:image" content={socialImage} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+{/* Freshness signals consumed by Google's "Last updated" display logic. */}
+{updatedDate && <meta name="last-modified" content={new Date(updatedDate).toISOString()} />}
+{authorName && <meta name="author" content={authorName} />}
+
+{/* PWA-adjacent + browser chrome. */}
+<meta name="theme-color" content={SITE.themeColor} />
+<meta name="format-detection" content="telephone=no" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title={`${SITE.name} — latest guides`} href="/rss.xml" />
+
+{jsonLd && <script type="application/ld+json" is:inline set:html={jsonLd} />}

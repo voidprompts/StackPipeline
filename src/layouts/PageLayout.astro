@@ -1,0 +1,98 @@
+---
+/**
+ * Single-column shell for static pages (legal, about, contact).
+ * Narrow measure, generous vertical rhythm, no ad rail — policy pages should stay clean
+ * for AdSense reviewers.
+ */
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '@components/ui/Breadcrumbs.astro';
+import { breadcrumbsFromPath, formatDate, isoDate } from '@lib/seo';
+import type { JsonLdNode } from '@lib/schema';
+
+interface Props {
+  title: string;
+  heading?: string;
+  description: string;
+  canonical?: string;
+  /** Shown under the <h1> as a "Last updated" line — required on policy pages. */
+  lastUpdated?: string;
+  effectiveDate?: string;
+  noindex?: boolean;
+  schema?: Array<JsonLdNode | undefined | false | null>;
+  pageType?: 'WebPage' | 'AboutPage' | 'ContactPage' | 'CollectionPage';
+  /** Render the body inside a prose container. */
+  prose?: boolean;
+  breadcrumbLeaf?: string;
+}
+
+const {
+  title,
+  heading,
+  description,
+  canonical,
+  lastUpdated,
+  effectiveDate,
+  noindex = false,
+  schema = [],
+  pageType = 'WebPage',
+  prose = true,
+  breadcrumbLeaf,
+} = Astro.props;
+
+const h1 = heading ?? title;
+const trail = breadcrumbsFromPath(Astro.url.pathname, breadcrumbLeaf ?? h1);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  noindex={noindex}
+  schema={schema}
+  pageType={pageType}
+  breadcrumbs={trail}
+  updatedDate={lastUpdated}
+>
+  <div class="sp-shell py-8 lg:py-12">
+    <Breadcrumbs items={trail} class="mb-6" />
+
+    <div class="mx-auto max-w-content">
+      <header class="border-b border-ink-200 pb-7">
+        <h1 class="text-3xl font-bold tracking-tight text-ink-950 sm:text-4xl">{h1}</h1>
+        <p class="mt-3 text-lg leading-relaxed text-ink-600">{description}</p>
+
+        {
+          (lastUpdated || effectiveDate) && (
+            <dl class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              {effectiveDate && (
+                <div class="flex gap-1.5">
+                  <dt class="text-ink-500">Effective:</dt>
+                  <dd class="font-medium text-ink-800">
+                    <time datetime={isoDate(effectiveDate)}>{formatDate(effectiveDate)}</time>
+                  </dd>
+                </div>
+              )}
+              {lastUpdated && (
+                <div class="flex gap-1.5">
+                  <dt class="text-ink-500">Last updated:</dt>
+                  <dd class="font-medium text-ink-800">
+                    <time datetime={isoDate(lastUpdated)}>{formatDate(lastUpdated)}</time>
+                  </dd>
+                </div>
+              )}
+            </dl>
+          )
+        }
+      </header>
+
+      <div
+        class:list={[
+          'mt-8',
+          prose && 'sp-prose prose prose-slate max-w-none prose-headings:scroll-mt-24',
+        ]}
+      >
+        <slot />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,261 @@
+---
+/**
+ * Integration tutorial page — the programmatic template.
+ *
+ * Emits HowTo + Article + FAQPage schema and renders the connector comparison,
+ * step list and troubleshooting table from frontmatter, so a generated file with no
+ * MDX body still produces a complete, useful page.
+ */
+import { getCollection, getEntry, render, type CollectionEntry } from 'astro:content';
+import ArticleLayout from '@layouts/ArticleLayout.astro';
+import AffiliateWidget from '@components/ui/AffiliateWidget.astro';
+import ComparisonTable from '@components/ui/ComparisonTable.astro';
+import StepList from '@components/ui/StepList.astro';
+import FaqSection from '@components/ui/FaqSection.astro';
+import ContentCard from '@components/ui/ContentCard.astro';
+import Callout from '@components/ui/Callout.astro';
+import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
+import {
+  articleSchema,
+  howToSchema,
+  faqSchema,
+  personSchema,
+  toAuthorInput,
+} from '@lib/schema';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('integrations', ({ data }) => !data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'integrations'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+
+const [author, reviewer, softwareA, softwareB] = await Promise.all([
+  getEntry(data.author),
+  data.reviewedBy ? getEntry(data.reviewedBy) : Promise.resolve(undefined),
+  getEntry(data.softwareA),
+  getEntry(data.softwareB),
+]);
+
+if (!author) throw new Error(`Missing author for integration "${entry.id}"`);
+if (!softwareA || !softwareB) throw new Error(`Missing tool reference for "${entry.id}"`);
+
+const { Content, headings } = await render(entry);
+
+const pageUrl = absoluteUrl(`/integrations/${entry.id}/`);
+const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
+
+/** Map an author entry onto the schema helper's input shape. */
+
+const authorInput = toAuthorInput(author);
+const reviewerInput = reviewer ? toAuthorInput(reviewer) : undefined;
+
+const schema = [
+  personSchema(authorInput),
+  reviewerInput && reviewerInput.slug !== authorInput.slug ? personSchema(reviewerInput) : undefined,
+  howToSchema({
+    url: pageUrl,
+    name: data.heading ?? data.title,
+    description: data.description,
+    image: data.image,
+    totalTime: data.totalTime,
+    estimatedCost: data.estimatedCost,
+    supplies: data.supplies,
+    tools: data.tools,
+    steps: data.steps.map((step) => ({ name: step.name, text: step.text, image: step.image })),
+    datePublished: data.publishDate,
+    dateModified: data.updatedDate ?? data.publishDate,
+  }),
+  articleSchema({
+    url: pageUrl,
+    headline: data.heading ?? data.title,
+    description: data.description,
+    image: data.image,
+    datePublished: data.publishDate,
+    dateModified: data.updatedDate ?? data.publishDate,
+    author: authorInput,
+    reviewedBy: reviewerInput,
+    section: 'Integrations',
+    keywords: data.tags,
+  }),
+  data.faq.length > 0 ? faqSchema(data.faq, pageUrl) : undefined,
+];
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Integrations', href: '/integrations/' },
+  { name: `${softwareA.data.name} to ${softwareB.data.name}`, href: `/integrations/${entry.id}/` },
+];
+
+// Related guides: other integrations sharing either tool.
+const allIntegrations = await getCollection('integrations', ({ data: item }) => !item.draft);
+const related = allIntegrations
+  .filter((item) => item.id !== entry.id)
+  .filter(
+    (item) =>
+      item.data.softwareA.id === data.softwareA.id ||
+      item.data.softwareB.id === data.softwareB.id ||
+      item.data.softwareA.id === data.softwareB.id ||
+      item.data.softwareB.id === data.softwareA.id,
+  )
+  .slice(0, 3);
+
+const methodColumns = data.methods.map((method) => method.name);
+const methodRows = data.methods.length
+  ? [
+      { feature: 'Best for', values: data.methods.map((method) => method.bestFor) },
+      { feature: 'Setup time', values: data.methods.map((method) => method.setupTime) },
+      { feature: 'Cost', values: data.methods.map((method) => method.cost) },
+      {
+        feature: 'Code required',
+        values: data.methods.map((method) => (method.codeRequired ? 'Yes' : 'No')),
+      },
+    ]
+  : [];
+---
+
+<ArticleLayout
+  title={data.title}
+  heading={data.heading}
+  description={data.description}
+  image={data.image}
+  imageAlt={data.imageAlt}
+  canonical={data.canonical}
+  noindex={data.noindex}
+  publishDate={data.publishDate}
+  updatedDate={data.updatedDate}
+  lastReviewedDate={data.lastReviewedDate}
+  author={author}
+  reviewer={reviewer}
+  headings={headings}
+  breadcrumbs={breadcrumbs}
+  schema={schema}
+  section="Integrations"
+  tags={data.tags}
+  readingTime={readTime}
+  totalTime={data.totalTime}
+  difficulty={data.difficulty}
+>
+  {/* ---------- Sidebar ---------- */}
+  <Fragment slot="sidebar">
+    <AffiliateWidget
+      tool={softwareA}
+      badge="Recommended"
+      affiliateUrl={data.affiliateLinkA?.url}
+      campaign={data.affiliateLinkA?.campaign ?? `${entry.id}-sidebar`}
+    />
+    <AffiliateWidget
+      tool={softwareB}
+      badge="Also needed"
+      affiliateUrl={data.affiliateLinkB?.url}
+      campaign={data.affiliateLinkB?.campaign ?? `${entry.id}-sidebar-b`}
+    />
+  </Fragment>
+
+  {/* ---------- Body ---------- */}
+  <Content />
+
+  {
+    data.methods.length > 0 && (
+      <>
+        <h2 id="connection-methods">Connection methods compared</h2>
+        <p>
+          There is more than one way to connect {softwareA.data.name} to{' '}
+          {softwareB.data.name}. Pick the row that matches your constraints.
+        </p>
+        <ComparisonTable
+          columns={methodColumns}
+          rows={methodRows}
+          highlightColumn={0}
+          caption={`Methods for connecting ${softwareA.data.name} to ${softwareB.data.name}.`}
+        />
+      </>
+    )
+  }
+
+  <h2 id="step-by-step">
+    Step-by-step: connect {softwareA.data.name} to {softwareB.data.name}
+  </h2>
+  <p>
+    Estimated setup time is {data.totalTime.replace('PT', '').toLowerCase()}. Each step
+    assumes you completed the one before it.
+  </p>
+  <StepList steps={data.steps} headingLevel="h3" />
+
+  {
+    data.troubleshooting.length > 0 && (
+      <>
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <p>These are the failures we see most often on this integration.</p>
+        <div class="not-prose my-6 overflow-hidden rounded-2xl border border-ink-200 shadow-card">
+          <table class="w-full border-collapse text-left text-sm">
+            <caption class="sr-only">
+              Common {softwareA.data.name} to {softwareB.data.name} problems and their fixes
+            </caption>
+            <thead>
+              <tr class="bg-ink-950 text-white">
+                <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">
+                  Problem
+                </th>
+                <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">
+                  Fix
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ink-100">
+              {data.troubleshooting.map((row, index) => (
+                <tr class={index % 2 === 1 ? 'bg-ink-50/50' : 'bg-white'}>
+                  <th scope="row" class="px-4 py-3.5 align-top font-semibold text-ink-900">
+                    {row.problem}
+                  </th>
+                  <td class="px-4 py-3.5 align-top text-ink-700">{row.fix}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    )
+  }
+
+  <Callout variant="shortcut" title={`Skip the setup with ${softwareA.data.name}`}>
+    {softwareA.data.name} has a prebuilt template for this exact workflow.{' '}
+    <a href={data.affiliateLinkA?.url ?? softwareA.data.affiliateUrl ?? softwareA.data.website} rel="sponsored nofollow noopener" target="_blank">
+      Start a free trial
+    </a>{' '}
+    and you can have it running before you finish reading this page.
+  </Callout>
+
+  <FaqSection items={data.faq} />
+
+  {/* ---------- Related ---------- */}
+  <Fragment slot="footer">
+    {
+      related.length > 0 && (
+        <section class="mt-12" aria-labelledby="related-heading">
+          <h2 id="related-heading" class="text-2xl font-bold text-ink-950">
+            Related integration guides
+          </h2>
+          <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((item) => (
+              <ContentCard
+                href={`/integrations/${item.id}/`}
+                title={item.data.heading ?? item.data.title}
+                description={item.data.description}
+                eyebrow="Integration"
+                date={item.data.publishDate}
+                updatedDate={item.data.updatedDate}
+                tags={item.data.tags}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </Fragment>
+</ArticleLayout>

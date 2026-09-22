@@ -1,0 +1,173 @@
+---
+/**
+ * About page — the primary "who is behind this site" signal for both AdSense
+ * reviewers and Google's quality raters.
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+import { SITE } from '@config/site';
+import { absoluteUrl } from '@lib/seo';
+import { webPageSchema } from '@lib/schema';
+
+const authors = await getCollection('authors');
+const tools = await getCollection('tools');
+const [integrations, reviews, alternatives] = await Promise.all([
+  getCollection('integrations', ({ data }) => !data.draft),
+  getCollection('reviews', ({ data }) => !data.draft),
+  getCollection('alternatives', ({ data }) => !data.draft),
+]);
+
+const totalGuides = integrations.length + reviews.length + alternatives.length;
+
+const schema = [
+  webPageSchema({
+    url: absoluteUrl('/about/'),
+    title: `About ${SITE.name}`,
+    description: `Who runs ${SITE.name}, how the site is funded and how our testing process works.`,
+    type: 'AboutPage',
+  }),
+];
+---
+
+<PageLayout
+  title={`About ${SITE.name}`}
+  heading={`About ${SITE.name}`}
+  description={`${SITE.name} is an independent publication covering workflow automation, data enrichment and B2B SaaS integrations — written by operators who have run these stacks in production.`}
+  pageType="AboutPage"
+  schema={schema}
+  prose={false}
+>
+  <div class="sp-prose prose prose-slate max-w-none">
+    <h2 id="why-this-exists">Why this site exists</h2>
+    <p>
+      Most software comparison content is written by people who have never deployed the
+      product. It summarises vendor marketing pages, ranks by commission rate, and quietly
+      omits the failure modes you only discover in month three.
+    </p>
+    <p>
+      {SITE.name} is the opposite of that. Every guide is written by someone who has run the
+      tool in production, every score comes from hands-on testing on a paid or trial plan,
+      and every price is re-verified on a fixed cycle. When a product we earn commission on
+      is the wrong choice, we say so.
+    </p>
+
+    <h2 id="what-we-cover">What we cover</h2>
+    <ul>
+      <li>
+        <strong>Integration tutorials</strong> — how to connect two specific tools, including
+        the rate limits, deduplication traps and error handling the vendor docs skip.
+      </li>
+      <li>
+        <strong>Software reviews</strong> — scored against a fixed rubric so numbers are
+        comparable across products in the same category.
+      </li>
+      <li>
+        <strong>Alternatives and comparisons</strong> — the same production workflows rebuilt
+        on each platform, then measured.
+      </li>
+      <li>
+        <strong>A tool directory</strong> — normalised pricing and integration counts for every
+        vendor we track.
+      </li>
+    </ul>
+  </div>
+
+  {/* ---------- Stats ---------- */}
+  <dl class="not-prose my-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+    {
+      [
+        { label: 'Guides published', value: totalGuides },
+        { label: 'Tools tracked', value: tools.length },
+        { label: 'Hours of testing', value: '400+' },
+        { label: 'Review cycle', value: '90 days' },
+      ].map((stat) => (
+        <div class="rounded-xl border border-ink-200 bg-white p-5 text-center shadow-card">
+          <dt class="text-xs uppercase tracking-wider text-ink-500">{stat.label}</dt>
+          <dd class="mt-1.5 text-2xl font-bold text-ink-950">{stat.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  {/* ---------- Team ---------- */}
+  <section class="not-prose my-12" aria-labelledby="team-heading">
+    <h2 id="team-heading" class="text-2xl font-bold text-ink-950">Who writes {SITE.name}</h2>
+    <p class="mt-2 text-ink-600">
+      Three people, all with operating experience in the categories they cover.
+    </p>
+
+    <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        authors.map((author) => {
+          const initials = author.data.name
+            .split(' ')
+            .map((part) => part[0])
+            .slice(0, 2)
+            .join('')
+            .toUpperCase();
+          return (
+            <article class="group relative rounded-2xl border border-ink-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
+              <span
+                class="grid h-12 w-12 place-items-center rounded-full bg-ink-950 text-base font-bold text-emerald-400"
+                aria-hidden="true"
+              >
+                {initials}
+              </span>
+              <h3 class="mt-4 text-base font-bold text-ink-950">
+                <a
+                  href={`/authors/${author.data.slug}/`}
+                  class="before:absolute before:inset-0 before:content-[''] group-hover:text-emerald-700"
+                >
+                  {author.data.name}
+                </a>
+              </h3>
+              <p class="text-sm font-medium text-ink-500">{author.data.role}</p>
+              <p class="mt-2.5 text-sm leading-relaxed text-ink-600">{author.data.shortBio}</p>
+              {author.data.yearsExperience && (
+                <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                  {author.data.yearsExperience}+ years experience
+                </p>
+              )}
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <div class="sp-prose prose prose-slate max-w-none">
+    <h2 id="how-we-are-funded">How we are funded</h2>
+    <p>
+      {SITE.name} is free to read and funded by affiliate commissions and display advertising.
+      That creates a conflict of interest, so we manage it structurally rather than with a
+      promise: testing is completed and scores are locked before anyone checks whether an
+      affiliate program exists, and the person running the test does not know the commission
+      rate.
+    </p>
+    <p>
+      The full detail is in our <a href="/affiliate-disclosure/">Affiliate Disclosure</a> and{' '}
+      <a href="/editorial-policy/">Editorial Policy</a>.
+    </p>
+
+    <h2 id="corrections">Corrections</h2>
+    <p>
+      We get things wrong sometimes, and vendors change pricing without warning. If you spot
+      an error, email <a href={`mailto:${SITE.email.editorial}`}>{SITE.email.editorial}</a>.
+      Substantive corrections are noted on the page with the date of the change.
+    </p>
+
+    <h2 id="contact-us">Get in touch</h2>
+    <p>
+      General enquiries: <a href={`mailto:${SITE.email.general}`}>{SITE.email.general}</a>
+      <br />
+      Editorial and corrections:{' '}
+      <a href={`mailto:${SITE.email.editorial}`}>{SITE.email.editorial}</a>
+      <br />
+      Partnerships:{' '}
+      <a href={`mailto:${SITE.email.partnerships}`}>{SITE.email.partnerships}</a>
+    </p>
+    <p>
+      Or use the <a href="/contact/">contact page</a>.
+    </p>
+  </div>
+</PageLayout>

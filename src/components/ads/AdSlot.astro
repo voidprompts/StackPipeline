@@ -1,0 +1,98 @@
+---
+/**
+ * Manual AdSense display unit with reserved space.
+ *
+ * Two behaviours:
+ *  - Configured (client + slot present): renders the canonical <ins class="adsbygoogle">
+ *    block plus the push() call.
+ *  - Unconfigured (local dev, preview, pre-approval): renders a neutral reserved-space
+ *    placeholder of the exact same height.
+ *
+ * Either way the slot occupies identical vertical space before and after the ad resolves,
+ * so Cumulative Layout Shift stays at zero — the single biggest CWV risk with display ads.
+ */
+import { ADS } from '@config/site';
+
+type AdFormat = 'in-article' | 'rectangle' | 'leaderboard' | 'sidebar';
+
+interface Props {
+  /** Which configured slot ID to use. */
+  slot?: keyof typeof ADS.slots;
+  /** Explicit slot ID, overrides `slot`. */
+  slotId?: string;
+  format?: AdFormat;
+  /** Sticky behaviour for sidebar rails. */
+  sticky?: boolean;
+  class?: string;
+  /** Hide the "Advertisement" label (only for units that render their own). */
+  hideLabel?: boolean;
+}
+
+const {
+  slot = 'inArticleMid',
+  slotId,
+  format = 'in-article',
+  sticky = false,
+  class: className = '',
+  hideLabel = false,
+} = Astro.props;
+
+const client = ADS.client;
+const resolvedSlot = slotId ?? ADS.slots[slot] ?? '';
+const isLive = Boolean(client && resolvedSlot);
+
+/** AdSense format attributes per placement type. */
+const FORMAT_ATTRS: Record<AdFormat, { format: string; responsive: string; layout?: string }> = {
+  'in-article': { format: 'fluid', responsive: 'true', layout: 'in-article' },
+  rectangle: { format: 'rectangle', responsive: 'true' },
+  leaderboard: { format: 'horizontal', responsive: 'true' },
+  sidebar: { format: 'vertical', responsive: 'true' },
+};
+
+const attrs = FORMAT_ATTRS[format];
+const wrapperClass = [
+  'sp-ad-slot',
+  'rounded-xl border border-dashed border-ink-200/70 bg-ink-50/40 my-8',
+  sticky ? 'lg:sticky lg:top-24' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+{/*
+  role="complementary" + aria-label keeps the unit announced correctly by screen readers
+  without polluting the document outline (accessibility audit requirement).
+*/}
+<aside class={wrapperClass} data-format={format} role="complementary" aria-label="Advertisement">
+  {!hideLabel && <span class="sp-ad-label" aria-hidden="true">Advertisement</span>}
+
+  {
+    isLive ? (
+      <>
+        <ins
+          class="adsbygoogle"
+          style="display:block;width:100%"
+          data-ad-client={client}
+          data-ad-slot={resolvedSlot}
+          data-ad-format={attrs.format}
+          data-full-width-responsive={attrs.responsive}
+          {...(attrs.layout ? { 'data-ad-layout': attrs.layout } : {})}
+        />
+        <script is:inline set:html={'(adsbygoogle = window.adsbygoogle || []).push({});'} />
+      </>
+    ) : (
+      <div
+        class="flex h-full w-full flex-col items-center justify-center gap-1 px-4 py-6 text-center"
+        aria-hidden="true"
+      >
+        <span class="text-xs font-medium uppercase tracking-[0.2em] text-ink-300">
+          Ad slot · {format}
+        </span>
+        <span class="text-[11px] text-ink-300">
+          Reserved space — set PUBLIC_ADSENSE_CLIENT to activate
+        </span>
+      </div>
+    )
+  }
+</aside>

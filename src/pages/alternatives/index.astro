@@ -1,0 +1,77 @@
+---
+/**
+ * Alternatives hub.
+ */
+import ListingLayout from '@layouts/ListingLayout.astro';
+import ContentCard from '@components/ui/ContentCard.astro';
+import { getCollection, getEntry } from 'astro:content';
+import { itemListSchema } from '@lib/schema';
+import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
+
+const entries = await getCollection('alternatives', ({ data }) => !data.draft);
+
+const enriched = await Promise.all(
+  entries.map(async (entry) => {
+    const author = await getEntry(entry.data.author);
+    return { entry, authorName: author?.data.name };
+  }),
+);
+
+const sorted = enriched.sort(
+  (a, b) =>
+    (b.entry.data.updatedDate ?? b.entry.data.publishDate).getTime() -
+    (a.entry.data.updatedDate ?? a.entry.data.publishDate).getTime(),
+);
+
+const schema = [
+  itemListSchema(
+    sorted.map((item, index) => ({
+      position: index + 1,
+      name: item.entry.data.heading ?? item.entry.data.title,
+      description: item.entry.data.description,
+      url: `/alternatives/${item.entry.id}/`,
+    })),
+    absoluteUrl('/alternatives/'),
+    'Software alternatives and comparisons',
+  ),
+];
+---
+
+<ListingLayout
+  title="Alternatives & Comparisons"
+  heading="Software alternatives and comparisons"
+  description="Ranked breakdowns of competing B2B tools, tested on identical workflows so the comparison reflects real differences rather than feature-list marketing."
+  count={entries.length}
+  countLabel="comparisons"
+  schema={schema}
+  breadcrumbLeaf="Alternatives"
+  intro="Every comparison here is built by rebuilding the same set of production workflows on each platform, then measuring build time, cost at volume and behaviour under induced failures."
+>
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      sorted.map((item) => (
+        <ContentCard
+          href={`/alternatives/${item.entry.id}/`}
+          title={item.entry.data.heading ?? item.entry.data.title}
+          description={item.entry.data.description}
+          eyebrow="Comparison"
+          date={item.entry.data.publishDate}
+          updatedDate={item.entry.data.updatedDate}
+          tags={item.entry.data.tags}
+          authorName={item.authorName}
+          featured={item.entry.data.featured}
+          readingTime={item.entry.data.readingTime ?? estimateReadingTime(item.entry.body ?? '')}
+          headingLevel="h3"
+        />
+      ))
+    }
+  </div>
+
+  {
+    entries.length === 0 && (
+      <p class="rounded-xl border border-dashed border-ink-300 bg-ink-50 p-8 text-center text-ink-500">
+        No comparisons published yet.
+      </p>
+    )
+  }
+</ListingLayout>

@@ -1,0 +1,68 @@
+---
+title: "Waterfall Enrichment Explained"
+description: "Why querying data providers in sequence beats any single vendor, how to order the waterfall, and what it actually costs per matched contact."
+heading: "Waterfall Enrichment: Why One Data Provider Is Never Enough"
+schemaType: "Article"
+author: "marcus-oyelaran"
+reviewedBy: "priya-raghunathan"
+publishDate: 2026-04-09
+updatedDate: 2026-09-02
+lastReviewedDate: 2026-09-02
+tags: ["Data enrichment", "Clay", "Outbound", "Automation"]
+faq:
+  - question: "What is waterfall enrichment?"
+    answer: "Waterfall enrichment queries multiple data providers in a defined sequence, stopping at the first one that returns a result for a given field. You only pay for the provider that actually succeeds, and overall match rates improve because no single vendor has complete coverage."
+  - question: "How many providers should be in a waterfall?"
+    answer: "Three to five covers most of the achievable gain. Our testing showed the first three providers capture roughly 85% of total matches; providers six and beyond typically add under two percentage points each while adding latency."
+  - question: "Does waterfall enrichment cost more than a single provider?"
+    answer: "Per lookup, no — you pay only for the successful call. Total spend usually rises because your match rate rises, so you enrich more records successfully. Cost per matched contact almost always falls."
+---
+
+import Callout from '@components/ui/Callout.astro';
+
+No B2B data provider has complete coverage. The best single vendors we have measured top
+out around 78% on work email for a mixed US and European list, and coverage varies
+dramatically by region, company size and seniority. Waterfall enrichment is the
+architectural response to that reality.
+
+## How a waterfall works
+
+A waterfall queries providers in sequence. Provider one is asked for the field; if it
+returns nothing, provider two is asked, and so on until a result comes back or the list is
+exhausted. Crucially, you are only billed for the call that succeeds.
+
+<Callout variant="tip" title="Order by cost-adjusted hit rate">
+Put your cheapest high-coverage provider first, not your most accurate one. The expensive
+specialist should sit at position three or four, where it only runs on the records the
+cheap providers could not resolve.
+</Callout>
+
+## Ordering the sequence
+
+The ordering rule that works: sort by hit rate divided by cost per call, descending. This
+maximises the proportion of records resolved by cheap providers and reserves expensive
+lookups for genuinely hard cases.
+
+Segment the waterfall where your data is heterogeneous. If you sell into both North
+America and Europe, a single ordering will underperform — European coverage rankings
+differ substantially from US rankings, so run two waterfalls keyed on contact region.
+
+## What it costs
+
+Cost per *lookup* rises slightly, because failed calls at earlier positions add overhead.
+Cost per *matched contact* almost always falls, because your denominator improves. In our
+testing the effective cost per verified contact dropped from roughly $0.11 with a single
+premium provider to $0.084 across a seven-provider waterfall — with a 13-point higher
+match rate.
+
+## Where waterfalls do not help
+
+If your list is homogeneous and one provider dominates that segment, a waterfall adds
+complexity for marginal gain. Test with a sample of 500 records before committing.
+
+<Callout variant="warn" title="Verify, do not trust reported match rates">
+Providers report a match whenever they return *something*. That is not the same as
+returning something correct. Manually verify a random sample of at least 200 records
+before you trust any vendor's headline number — reported and actual accuracy routinely
+differ by 5 to 15 percentage points.
+</Callout>

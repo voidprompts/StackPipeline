@@ -1,0 +1,145 @@
+---
+/**
+ * Root HTML shell.
+ *
+ * Owns: document structure, global chrome (skip link, header, footer), the ad loader,
+ * the global entity graph (WebSite + Organization + BreadcrumbList), and analytics.
+ * Every other layout composes this one.
+ */
+import '@/styles/global.css';
+import SEO from '@components/seo/SEO.astro';
+import AdSenseHead from '@components/ads/AdSenseHead.astro';
+import SiteHeader from '@components/layout/SiteHeader.astro';
+import SiteFooter from '@components/layout/SiteFooter.astro';
+import Analytics from '@components/layout/Analytics.astro';
+import { SITE } from '@config/site';
+import { breadcrumbsFromPath, type BreadcrumbEntry } from '@lib/seo';
+import {
+  websiteSchema,
+  organizationSchema,
+  breadcrumbSchema,
+  webPageSchema,
+  imageObjectSchema,
+  type JsonLdNode,
+} from '@lib/schema';
+import { absoluteUrl } from '@lib/seo';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+  imageAlt?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+  rawTitle?: boolean;
+  publishDate?: Date | string;
+  updatedDate?: Date | string;
+  authorName?: string;
+  section?: string;
+  tags?: string[];
+  /** Override the auto-derived breadcrumb trail. */
+  breadcrumbs?: BreadcrumbEntry[];
+  /** Label for the final breadcrumb crumb when auto-deriving. */
+  breadcrumbLeaf?: string;
+  /** Page-specific JSON-LD appended to the global graph. */
+  schema?: Array<JsonLdNode | undefined | false | null>;
+  /** Schema.org type for the WebPage node. */
+  pageType?: 'WebPage' | 'CollectionPage' | 'AboutPage' | 'ContactPage' | 'ItemPage';
+  preloadImage?: string;
+  /** Extra classes on <main>. */
+  mainClass?: string;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  image,
+  imageAlt,
+  ogType = 'website',
+  noindex = false,
+  rawTitle = false,
+  publishDate,
+  updatedDate,
+  authorName,
+  section,
+  tags = [],
+  breadcrumbs,
+  breadcrumbLeaf,
+  schema = [],
+  pageType = 'WebPage',
+  preloadImage,
+  mainClass = '',
+} = Astro.props;
+
+const pageUrl = absoluteUrl(canonical ?? Astro.url.pathname);
+const trail = breadcrumbs ?? breadcrumbsFromPath(Astro.url.pathname, breadcrumbLeaf);
+const hasBreadcrumbs = trail.length > 1;
+
+/**
+ * Global entity graph. Page-level nodes are appended after the shared ones so that
+ * `@id` references (Article -> WebPage -> WebSite -> Organization) always resolve.
+ */
+const graph: Array<JsonLdNode | undefined | false | null> = [
+  organizationSchema(),
+  websiteSchema(),
+  webPageSchema({
+    url: pageUrl,
+    title,
+    description,
+    image,
+    datePublished: publishDate,
+    dateModified: updatedDate,
+    breadcrumbs: hasBreadcrumbs ? trail : undefined,
+    type: pageType,
+  }),
+  image ? imageObjectSchema(pageUrl, image, imageAlt) : undefined,
+  hasBreadcrumbs ? breadcrumbSchema(trail, pageUrl) : undefined,
+  ...schema,
+];
+---
+
+<!doctype html>
+<html lang={SITE.language} class="scroll-smooth">
+  <head>
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonical}
+      image={image}
+      imageAlt={imageAlt}
+      ogType={ogType}
+      noindex={noindex}
+      rawTitle={rawTitle}
+      publishDate={publishDate}
+      updatedDate={updatedDate}
+      authorName={authorName}
+      section={section}
+      tags={tags}
+      schema={graph}
+      preloadImage={preloadImage}
+    />
+    <AdSenseHead />
+    <Analytics />
+    <slot name="head" />
+  </head>
+
+  <body class="flex min-h-screen flex-col bg-white">
+    {/* Skip link: first focusable element, required for keyboard accessibility. */}
+    <a
+      href="#main-content"
+      class="sr-only-focusable absolute left-4 top-4 z-[100] rounded-lg bg-ink-950 px-4 py-2 text-sm font-semibold text-white shadow-lift"
+    >
+      Skip to main content
+    </a>
+
+    <SiteHeader />
+
+    <main id="main-content" class={`flex-1 ${mainClass}`}>
+      <slot />
+    </main>
+
+    <SiteFooter />
+  </body>
+</html>

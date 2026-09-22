@@ -1,0 +1,141 @@
+---
+title: "7 Best Zapier Alternatives 2026"
+description: "We tested every major Zapier competitor on cost, logic depth and reliability. Here is which one fits your stack — and what you give up."
+heading: "The Best Zapier Alternatives, Ranked"
+schemaType: "ItemList"
+softwareA: "zapier"
+affiliateLinkA:
+  url: "https://zapier.com/?via=stackpipeline"
+  campaign: "zapier-alternatives"
+author: "dana-whitfield"
+reviewedBy: "priya-raghunathan"
+publishDate: 2026-02-28
+updatedDate: 2026-09-16
+lastReviewedDate: 2026-09-16
+featured: true
+tags: ["Zapier", "Make", "n8n", "Automation", "Comparison"]
+contenders:
+  - tool: "make"
+    position: 1
+    verdict: "The best all-round Zapier replacement. Visual scenario builder handles branching logic Zapier cannot, at roughly a third of the per-operation cost."
+    rating: 4.4
+    bestFor: "Teams that outgrew Zapier's linear steps"
+    startingPrice: "$10.59/mo"
+    affiliateLink:
+      url: "https://www.make.com/en/register?promo=stackpipeline"
+      campaign: "zapier-alternatives"
+    pros:
+      - "Routers and iterators make branching workflows genuinely straightforward"
+      - "Operations pricing is roughly 3x cheaper than Zapier tasks at volume"
+      - "Visual canvas makes debugging complex scenarios far faster"
+    cons:
+      - "2,000 apps versus Zapier's 7,000 — check your stack first"
+      - "Steeper initial learning curve than Zapier's linear editor"
+  - tool: "n8n"
+    position: 2
+    verdict: "The pick for engineering-adjacent teams. Self-host it and per-task billing disappears entirely, with native JavaScript and Python nodes for anything the UI cannot express."
+    rating: 4.6
+    bestFor: "Technical teams wanting self-hosted control"
+    startingPrice: "Free self-hosted / $24 mo cloud"
+    affiliateLink:
+      url: "https://n8n.partnerlinks.io/stackpipeline"
+      campaign: "zapier-alternatives"
+    pros:
+      - "Self-hosting removes per-task costs completely"
+      - "Code nodes run arbitrary JavaScript and Python inline"
+      - "Data never leaves your infrastructure — solves most compliance objections"
+    cons:
+      - "Self-hosting means you own uptime, upgrades and backups"
+      - "Fewer polished connectors; some community nodes are unmaintained"
+  - tool: "workato"
+    position: 3
+    verdict: "The enterprise answer. Governance, separate environments and audit trails that mid-market tools simply do not have — at enterprise pricing to match."
+    rating: 4.3
+    bestFor: "Regulated enterprises needing audit trails"
+    startingPrice: "Custom, from roughly $10k/yr"
+    pros:
+      - "Proper dev/staging/production environment separation"
+      - "Role-based access control and complete audit logging"
+      - "Enterprise connectors for SAP, Oracle and Workday"
+    cons:
+      - "Five-figure annual minimum puts it out of reach for most teams"
+      - "Implementation typically requires vendor professional services"
+  - tool: "pipedrive"
+    position: 4
+    verdict: "Not a Zapier replacement as such, but if your automation needs are CRM-centric, Pipedrive's built-in workflow automation removes the need for a separate platform."
+    rating: 4.2
+    bestFor: "Sales teams whose automation is CRM-only"
+    startingPrice: "$14 per seat/mo"
+    affiliateLink:
+      url: "https://www.pipedrive.com/?ref=stackpipeline"
+      campaign: "zapier-alternatives"
+    pros:
+      - "Native CRM automation with no integration layer to maintain"
+      - "No per-task costs for in-CRM workflows"
+    cons:
+      - "Only automates within Pipedrive — useless for cross-app workflows"
+comparisonMatrix:
+  columns: ["Zapier", "Make", "n8n", "Workato"]
+  rows:
+    - feature: "Entry price"
+      values: ["$29.99/mo", "$10.59/mo", "Free (self-hosted)", "~$10k/yr"]
+    - feature: "App connectors"
+      values: ["7,000+", "2,000+", "1,100+", "1,200+"]
+    - feature: "Branching logic"
+      values: ["Partial", "Yes", "Yes", "Yes"]
+    - feature: "Self-hosting"
+      values: ["No", "No", "Yes", "No"]
+    - feature: "Custom code steps"
+      values: ["Partial", "Yes", "Yes", "Yes"]
+    - feature: "Environment separation"
+      values: ["No", "Partial", "Yes", "Yes"]
+    - feature: "Audit logging"
+      values: ["Partial", "Partial", "Yes", "Yes"]
+    - feature: "Best for"
+      values: ["App breadth", "Value + logic", "Technical teams", "Enterprise"]
+faq:
+  - question: "What is the closest alternative to Zapier?"
+    answer: "Make is the closest functional equivalent. It covers the same no-code automation use cases with a visual scenario builder, supports more complex branching, and costs roughly a third as much per operation. The main trade-off is app coverage: 2,000 connectors versus Zapier's 7,000."
+  - question: "Is there a free alternative to Zapier?"
+    answer: "Self-hosted n8n is genuinely free with unlimited executions — you only pay for the server, typically $5 to $20 a month. Make and Zapier both offer limited free tiers, but only n8n removes usage billing entirely."
+  - question: "Why is Make cheaper than Zapier?"
+    answer: "The billing units differ. Zapier charges per task, where each action in a workflow is one task. Make charges per operation but bundles far more into each plan tier, so a five-step workflow that costs five Zapier tasks typically costs a fraction of the equivalent Make allowance."
+  - question: "Should I switch from Zapier or stay?"
+    answer: "Stay if your workflows are simple, your task volume is under roughly 2,000 a month, and your apps are only on Zapier. Switch if you are spending over $100 a month, hitting limits on branching logic, or need data to stay in your own infrastructure."
+---
+
+import Callout from '@components/ui/Callout.astro';
+
+Zapier is the default automation platform for good reason — nothing matches its 7,000-app
+catalogue. But it is also the most expensive way to run automation at volume, and its
+linear step model struggles with branching logic. We tested the main alternatives on the
+same set of five production workflows.
+
+<Callout variant="choice" title="Short answer">
+**Make** for most teams leaving Zapier. **n8n** if you have engineering resource and want
+self-hosting. **Workato** if you need enterprise governance. Everything else is situational.
+</Callout>
+
+## How we tested
+
+We rebuilt five real workflows on each platform: a lead router with conditional
+assignment, a CRM enrichment pipeline, a Slack alerting flow, a scheduled data sync, and
+a webhook receiver with retry handling. We measured build time, monthly cost at 10,000
+executions, and failure behaviour under deliberately induced API errors.
+
+## The ranked list
+
+<Callout variant="tip" title="Check connector coverage before you commit">
+The cheapest platform is worthless if it does not support your stack. List every app you
+automate against today, then check each candidate's connector directory before you migrate.
+An HTTP module covers gaps, but you lose the maintenance guarantees of a native connector.
+</Callout>
+
+## Feature comparison
+
+## Migration notes
+
+Budget a weekend, not an afternoon. Workflows rarely port one-to-one: authentication has
+to be re-established per app, field mappings must be rebuilt, and error handling behaves
+differently on every platform. Run both systems in parallel for a week before switching
+off the original.

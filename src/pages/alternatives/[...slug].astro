@@ -1,0 +1,296 @@
+---
+/**
+ * Alternatives / "best X" comparison page.
+ *
+ * Emits ItemList schema (ranked contenders) + Article + FAQPage. Each contender renders
+ * a numbered card with its own affiliate CTA — the highest-CTR layout we run.
+ */
+import { getCollection, getEntry, render, type CollectionEntry } from 'astro:content';
+import ArticleLayout from '@layouts/ArticleLayout.astro';
+import AffiliateWidget from '@components/ui/AffiliateWidget.astro';
+import AffiliateButton from '@components/ui/AffiliateButton.astro';
+import RatingStars from '@components/ui/RatingStars.astro';
+import ComparisonTable from '@components/ui/ComparisonTable.astro';
+import FaqSection from '@components/ui/FaqSection.astro';
+import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
+import {
+  articleSchema,
+  itemListSchema,
+  faqSchema,
+  personSchema,
+  toAuthorInput,
+} from '@lib/schema';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('alternatives', ({ data }) => !data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'alternatives'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+
+const [author, reviewer, softwareA] = await Promise.all([
+  getEntry(data.author),
+  data.reviewedBy ? getEntry(data.reviewedBy) : Promise.resolve(undefined),
+  getEntry(data.softwareA),
+]);
+
+if (!author) throw new Error(`Missing author for "${entry.id}"`);
+if (!softwareA) throw new Error(`Missing softwareA for "${entry.id}"`);
+
+/** Resolve every contender's tool record up-front so the template stays declarative. */
+const contenders = await Promise.all(
+  [...data.contenders]
+    .sort((a, b) => a.position - b.position)
+    .map(async (contender) => ({
+      ...contender,
+      toolEntry: await getEntry(contender.tool),
+    })),
+);
+
+const { Content, headings } = await render(entry);
+
+const pageUrl = absoluteUrl(`/alternatives/${entry.id}/`);
+const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
+
+
+const authorInput = toAuthorInput(author);
+const reviewerInput = reviewer ? toAuthorInput(reviewer) : undefined;
+
+const schema = [
+  personSchema(authorInput),
+  reviewerInput && reviewerInput.slug !== authorInput.slug ? personSchema(reviewerInput) : undefined,
+  itemListSchema(
+    contenders.map((contender) => ({
+      position: contender.position,
+      name: contender.toolEntry?.data.name ?? 'Unknown',
+      description: contender.verdict,
+      url: contender.toolEntry ? `/tools/${contender.toolEntry.data.slug}/` : undefined,
+    })),
+    pageUrl,
+    data.heading ?? data.title,
+  ),
+  articleSchema({
+    url: pageUrl,
+    headline: data.heading ?? data.title,
+    description: data.description,
+    image: data.image,
+    datePublished: data.publishDate,
+    dateModified: data.updatedDate ?? data.publishDate,
+    author: authorInput,
+    reviewedBy: reviewerInput,
+    section: 'Alternatives',
+    keywords: data.tags,
+  }),
+  data.faq.length > 0 ? faqSchema(data.faq, pageUrl) : undefined,
+];
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Alternatives', href: '/alternatives/' },
+  { name: data.heading ?? data.title, href: `/alternatives/${entry.id}/` },
+];
+
+const winner = contenders[0];
+---
+
+<ArticleLayout
+  title={data.title}
+  heading={data.heading}
+  description={data.description}
+  image={data.image}
+  imageAlt={data.imageAlt}
+  canonical={data.canonical}
+  noindex={data.noindex}
+  publishDate={data.publishDate}
+  updatedDate={data.updatedDate}
+  lastReviewedDate={data.lastReviewedDate}
+  author={author}
+  reviewer={reviewer}
+  headings={headings}
+  breadcrumbs={breadcrumbs}
+  schema={schema}
+  section="Alternatives"
+  tags={data.tags}
+  readingTime={readTime}
+>
+  <Fragment slot="sidebar">
+    {
+      winner?.toolEntry && (
+        <AffiliateWidget
+          tool={winner.toolEntry}
+          badge="#1 Pick"
+          verdict={winner.verdict}
+          affiliateUrl={winner.affiliateLink?.url}
+          campaign={winner.affiliateLink?.campaign ?? `${entry.id}-sidebar`}
+        />
+      )
+    }
+  </Fragment>
+
+  <Content />
+
+  {/* ---------- Ranked contenders ---------- */}
+  <h2 id="ranked">The {contenders.length} best options, ranked</h2>
+
+  <ol class="not-prose my-8 space-y-6" role="list">
+    {
+      contenders.map((contender) => {
+        const tool = contender.toolEntry;
+        if (!tool) return null;
+        const href = contender.affiliateLink?.url ?? tool.data.affiliateUrl ?? tool.data.website;
+        const isWinner = contender.position === 1;
+
+        return (
+          <li
+            id={`pick-${contender.position}`}
+            class:list={[
+              'scroll-mt-24 overflow-hidden rounded-2xl border bg-white shadow-card',
+              isWinner ? 'border-emerald-300 ring-1 ring-emerald-100' : 'border-ink-200',
+            ]}
+          >
+            {isWinner && (
+              <p class="bg-emerald-600 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white">
+                Editor's Choice — best overall
+              </p>
+            )}
+
+            <div class="p-5 sm:p-6">
+              <div class="flex flex-wrap items-start justify-between gap-4">
+                <div class="flex min-w-0 items-start gap-3.5">
+                  <span
+                    class="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-lg font-bold text-white"
+                    style={`background-color:${tool.data.brandColor}`}
+                    aria-hidden="true"
+                  >
+                    {contender.position}
+                  </span>
+                  <div class="min-w-0">
+                    <h3 class="text-xl font-bold text-ink-950">
+                      <a href={`/tools/${tool.data.slug}/`} class="hover:text-emerald-700">
+                        {tool.data.name}
+                      </a>
+                    </h3>
+                    <p class="text-sm text-ink-500">
+                      {contender.bestFor ?? tool.data.bestFor ?? tool.data.category}
+                    </p>
+                    {contender.rating && (
+                      <div class="mt-1.5">
+                        <RatingStars value={contender.rating} size="sm" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div class="shrink-0 text-right">
+                  <p class="text-xs text-ink-400">From</p>
+                  <p class="text-lg font-bold text-ink-950">
+                    {contender.startingPrice ?? tool.data.startingPrice}
+                  </p>
+                </div>
+              </div>
+
+              <p class="mt-4 text-[15px] leading-relaxed text-ink-700">{contender.verdict}</p>
+
+              {(contender.pros.length > 0 || contender.cons.length > 0) && (
+                <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                  {contender.pros.length > 0 && (
+                    <div>
+                      <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                        Strengths
+                      </h4>
+                      <ul class="mt-2 space-y-1.5">
+                        {contender.pros.map((pro) => (
+                          <li class="flex gap-2 text-sm text-ink-600">
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="3"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              class="mt-1 shrink-0 text-emerald-600"
+                              aria-hidden="true"
+                            >
+                              <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                            {pro}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {contender.cons.length > 0 && (
+                    <div>
+                      <h4 class="text-xs font-bold uppercase tracking-wider text-ink-500">
+                        Trade-offs
+                      </h4>
+                      <ul class="mt-2 space-y-1.5">
+                        {contender.cons.map((con) => (
+                          <li class="flex gap-2 text-sm text-ink-600">
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="3"
+                              stroke-linecap="round"
+                              class="mt-1 shrink-0 text-ink-400"
+                              aria-hidden="true"
+                            >
+                              <path d="M18 6 6 18M6 6l12 12" />
+                            </svg>
+                            {con}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-ink-100 pt-5">
+                <AffiliateButton
+                  href={href}
+                  product={tool.data.name}
+                  campaign={contender.affiliateLink?.campaign ?? `${entry.id}-pick-${contender.position}`}
+                  variant={isWinner ? 'primary' : 'ghost'}
+                  disclose={false}
+                />
+                <a
+                  href={`/tools/${tool.data.slug}/`}
+                  class="text-sm font-medium text-ink-600 underline underline-offset-4 hover:text-ink-900"
+                >
+                  Full {tool.data.name} breakdown
+                </a>
+              </div>
+            </div>
+          </li>
+        );
+      })
+    }
+  </ol>
+
+  {
+    data.comparisonMatrix && (
+      <>
+        <h2 id="comparison">Side-by-side comparison</h2>
+        <ComparisonTable
+          columns={data.comparisonMatrix.columns}
+          rows={data.comparisonMatrix.rows}
+          highlightColumn={1}
+          caption={`Feature comparison of ${data.comparisonMatrix.columns.join(', ')}.`}
+        />
+      </>
+    )
+  }
+
+  <FaqSection items={data.faq} />
+</ArticleLayout>

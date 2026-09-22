@@ -1,0 +1,163 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import { SITE, LEGAL } from '@config/site';
+---
+
+<PageLayout
+  title="Terms of Service"
+  description={`The terms governing your use of ${SITE.domain}, including acceptable use, intellectual property, affiliate relationships and limitation of liability.`}
+  effectiveDate={LEGAL.effectiveDate}
+  lastUpdated={LEGAL.lastUpdated}
+>
+  <p class="lead">
+    These Terms of Service ("Terms") govern your access to and use of{' '}
+    <strong>{SITE.domain}</strong> (the "Site"), operated by {SITE.legalEntity} ("
+    {SITE.name}", "we", "us" or "our"). By accessing the Site you agree to be bound by these
+    Terms. If you do not agree, please do not use the Site.
+  </p>
+
+  <h2 id="acceptance">1. Acceptance of terms</h2>
+  <p>
+    By accessing or using the Site you confirm that you are at least 16 years old and have
+    the legal capacity to enter into these Terms. If you use the Site on behalf of an
+    organisation, you represent that you have authority to bind that organisation.
+  </p>
+
+  <h2 id="use-of-site">2. Permitted use</h2>
+  <p>You may access and use the Site for lawful, personal and internal business purposes. You agree not to:</p>
+  <ul>
+    <li>Scrape, crawl or harvest content by automated means beyond ordinary search engine indexing</li>
+    <li>Republish, redistribute or resell substantial portions of our content without written permission</li>
+    <li>Attempt to gain unauthorised access to any part of the Site or its infrastructure</li>
+    <li>Interfere with, disrupt or place undue load on the Site or its network</li>
+    <li>Use the Site to transmit malware, spam or other harmful material</li>
+    <li>Remove, obscure or alter any copyright, trademark or attribution notice</li>
+    <li>Frame or mirror the Site without prior written consent</li>
+  </ul>
+
+  <h2 id="intellectual-property">3. Intellectual property</h2>
+  <p>
+    All content on the Site — including text, testing methodology, comparison data, graphics,
+    layout and source code — is the property of {SITE.legalEntity} or its licensors and is
+    protected by copyright and other intellectual property laws.
+  </p>
+  <p>
+    You may quote short excerpts (up to 100 words) for commentary, criticism or news reporting
+    provided you include clear attribution and a direct, followable link to the source page on{' '}
+    {SITE.domain}. Systematic reproduction of our comparison tables or review scores is not
+    permitted without a licence.
+  </p>
+  <p>
+    Third-party trademarks, product names and logos referenced on the Site remain the property
+    of their respective owners. Their use is nominative and does not imply endorsement,
+    affiliation or sponsorship unless explicitly stated.
+  </p>
+
+  <h2 id="affiliate-relationships">4. Affiliate relationships and compensation</h2>
+  <p>
+    The Site contains affiliate links. When you purchase or sign up through one of these
+    links, we may earn a commission at no additional cost to you. These relationships are
+    disclosed on every page containing tracked links and in our{' '}
+    <a href="/affiliate-disclosure/">Affiliate Disclosure</a>.
+  </p>
+  <p>
+    Commission arrangements do not determine review scores, ranking order or editorial
+    recommendations. Our{' '}
+    <a href="/editorial-policy/">Editorial Policy</a> describes the separation between
+    commercial and editorial decisions.
+  </p>
+
+  <h2 id="no-professional-advice">5. No professional advice</h2>
+  <p>
+    Content on the Site is provided for general informational purposes only. It does not
+    constitute legal, financial, tax, security or professional consulting advice. Software
+    pricing, features and terms change frequently and may differ from what is described here.
+  </p>
+  <p>
+    <strong>
+      You are solely responsible for evaluating any tool before purchasing or deploying it,
+      and for the consequences of any configuration you implement based on our guides.
+    </strong>{' '}
+    Always test automation workflows in a non-production environment first.
+  </p>
+
+  <h2 id="accuracy">6. Accuracy and availability</h2>
+  <p>
+    We re-verify pricing and product claims on a regular review cycle, but we do not warrant
+    that any content is complete, current or error-free. Vendors change pricing and features
+    without notice. The Site is provided on an "as available" basis and we do not guarantee
+    uninterrupted access.
+  </p>
+
+  <h2 id="third-party-sites">7. Third-party websites</h2>
+  <p>
+    The Site links to third-party websites we do not control. We are not responsible for
+    their content, products, services, privacy practices or terms. Accessing a third-party
+    site is at your own risk and subject to that site's own terms.
+  </p>
+
+  <h2 id="disclaimer">8. Disclaimer of warranties</h2>
+  <p>
+    THE SITE AND ALL CONTENT ARE PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF
+    ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. WE DO NOT
+    WARRANT THAT THE SITE WILL BE UNINTERRUPTED, SECURE OR ERROR-FREE.
+  </p>
+
+  <h2 id="limitation-of-liability">9. Limitation of liability</h2>
+  <p>
+    TO THE MAXIMUM EXTENT PERMITTED BY LAW, {SITE.legalEntity.toUpperCase()} AND ITS
+    OFFICERS, EMPLOYEES AND CONTRIBUTORS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
+    SPECIAL, CONSEQUENTIAL, EXEMPLARY OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA,
+    BUSINESS OR GOODWILL, ARISING FROM YOUR USE OF OR INABILITY TO USE THE SITE — EVEN IF
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+  </p>
+  <p>
+    OUR TOTAL AGGREGATE LIABILITY FOR ANY CLAIM RELATING TO THE SITE SHALL NOT EXCEED ONE
+    HUNDRED US DOLLARS (USD $100). Some jurisdictions do not allow these exclusions, so they
+    may not apply to you.
+  </p>
+
+  <h2 id="indemnification">10. Indemnification</h2>
+  <p>
+    You agree to indemnify and hold harmless {SITE.legalEntity} from any claims, damages,
+    losses and expenses (including reasonable legal fees) arising from your use of the Site,
+    your violation of these Terms, or your infringement of any third-party right.
+  </p>
+
+  <h2 id="modifications">11. Changes to the Site and Terms</h2>
+  <p>
+    We may modify, suspend or discontinue any part of the Site at any time. We may also
+    revise these Terms; material changes will be reflected in the "Last updated" date above.
+    Continued use after a revision constitutes acceptance.
+  </p>
+
+  <h2 id="termination">12. Termination</h2>
+  <p>
+    We may restrict or terminate your access to the Site at our discretion, without notice,
+    for conduct that violates these Terms or is harmful to other users or to us.
+  </p>
+
+  <h2 id="governing-law">13. Governing law and disputes</h2>
+  <p>
+    These Terms are governed by the laws of {LEGAL.governingLaw}, without regard to conflict
+    of law principles. Any dispute shall be resolved in the state or federal courts located
+    in that jurisdiction, and you consent to their personal jurisdiction.
+  </p>
+
+  <h2 id="severability">14. Severability and entire agreement</h2>
+  <p>
+    If any provision of these Terms is held unenforceable, the remaining provisions remain in
+    full force. These Terms, together with our <a href="/privacy-policy/">Privacy Policy</a>{' '}
+    and <a href="/affiliate-disclosure/">Affiliate Disclosure</a>, constitute the entire
+    agreement between you and {SITE.legalEntity} regarding the Site.
+  </p>
+
+  <h2 id="contact">15. Contact</h2>
+  <address class="not-italic">
+    <strong>{SITE.legalEntity}</strong><br />
+    {SITE.address.streetAddress}<br />
+    {SITE.address.addressLocality}, {SITE.address.addressRegion} {SITE.address.postalCode}<br />
+    Email: <a href={`mailto:${SITE.email.general}`}>{SITE.email.general}</a>
+  </address>
+</PageLayout>

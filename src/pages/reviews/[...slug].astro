@@ -1,0 +1,324 @@
+---
+/**
+ * Software review page.
+ *
+ * Emits Product (SoftwareApplication) + Review + Article + FAQPage schema. The Review
+ * node references the Product node by @id, which is what makes the page eligible for the
+ * star-rating and pros/cons rich results.
+ */
+import { getCollection, getEntry, render, type CollectionEntry } from 'astro:content';
+import ArticleLayout from '@layouts/ArticleLayout.astro';
+import AffiliateWidget from '@components/ui/AffiliateWidget.astro';
+import AffiliateButton from '@components/ui/AffiliateButton.astro';
+import RatingStars from '@components/ui/RatingStars.astro';
+import ProsCons from '@components/ui/ProsCons.astro';
+import FaqSection from '@components/ui/FaqSection.astro';
+import ComparisonTable from '@components/ui/ComparisonTable.astro';
+import { absoluteUrl, formatDate, readingTime as estimateReadingTime } from '@lib/seo';
+import {
+  articleSchema,
+  reviewSchema,
+  softwareProductSchema,
+  faqSchema,
+  personSchema,
+  toAuthorInput,
+} from '@lib/schema';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('reviews', ({ data }) => !data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'reviews'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+
+const [author, reviewer, tool] = await Promise.all([
+  getEntry(data.author),
+  data.reviewedBy ? getEntry(data.reviewedBy) : Promise.resolve(undefined),
+  getEntry(data.tool),
+]);
+
+if (!author) throw new Error(`Missing author for review "${entry.id}"`);
+if (!tool) throw new Error(`Missing tool for review "${entry.id}"`);
+
+const { Content, headings } = await render(entry);
+
+const pageUrl = absoluteUrl(`/reviews/${entry.id}/`);
+const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
+const affiliateUrl = data.affiliateLinkA?.url ?? tool.data.affiliateUrl ?? tool.data.website;
+
+
+const authorInput = toAuthorInput(author);
+const reviewerInput = reviewer ? toAuthorInput(reviewer) : undefined;
+
+const schema = [
+  personSchema(authorInput),
+  reviewerInput && reviewerInput.slug !== authorInput.slug ? personSchema(reviewerInput) : undefined,
+  softwareProductSchema({
+    url: pageUrl,
+    name: tool.data.name,
+    description: tool.data.description,
+    image: data.image,
+    brand: tool.data.name,
+    category: tool.data.category,
+    offerUrl: tool.data.website,
+    price: /\d/.test(tool.data.startingPrice)
+      ? (tool.data.startingPrice.match(/[\d.]+/)?.[0] ?? undefined)
+      : undefined,
+    priceCurrency: 'USD',
+    aggregateRating: { value: data.rating.value, count: data.rating.count, best: data.rating.best },
+    linkedReview: true,
+  }),
+  reviewSchema({
+    url: pageUrl,
+    itemName: tool.data.name,
+    itemUrl: tool.data.website,
+    headline: data.heading ?? data.title,
+    body: data.verdict,
+    rating: { value: data.rating.value, best: data.rating.best, worst: data.rating.worst },
+    author: authorInput,
+    datePublished: data.publishDate,
+    dateModified: data.updatedDate ?? data.publishDate,
+    pros: data.prosCons.pros,
+    cons: data.prosCons.cons,
+  }),
+  articleSchema({
+    url: pageUrl,
+    headline: data.heading ?? data.title,
+    description: data.description,
+    image: data.image,
+    datePublished: data.publishDate,
+    dateModified: data.updatedDate ?? data.publishDate,
+    author: authorInput,
+    reviewedBy: reviewerInput,
+    section: 'Reviews',
+    keywords: data.tags,
+  }),
+  data.faq.length > 0 ? faqSchema(data.faq, pageUrl) : undefined,
+];
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Reviews', href: '/reviews/' },
+  { name: `${tool.data.name} review`, href: `/reviews/${entry.id}/` },
+];
+
+const pricingColumns = data.pricing.map((plan) => plan.plan);
+const pricingRows = data.pricing.length
+  ? [
+      { feature: 'Price', values: data.pricing.map((plan) => plan.price) },
+      { feature: 'Billing', values: data.pricing.map((plan) => plan.billing) },
+      {
+        feature: 'Highlights',
+        values: data.pricing.map((plan) => plan.highlights.join(' · ') || '—'),
+      },
+    ]
+  : [];
+---
+
+<ArticleLayout
+  title={data.title}
+  heading={data.heading}
+  description={data.description}
+  image={data.image}
+  imageAlt={data.imageAlt}
+  canonical={data.canonical}
+  noindex={data.noindex}
+  publishDate={data.publishDate}
+  updatedDate={data.updatedDate}
+  lastReviewedDate={data.lastReviewedDate}
+  author={author}
+  reviewer={reviewer}
+  headings={headings}
+  breadcrumbs={breadcrumbs}
+  schema={schema}
+  section="Reviews"
+  tags={data.tags}
+  readingTime={readTime}
+>
+  <Fragment slot="sidebar">
+    <AffiliateWidget
+      tool={tool}
+      badge={data.rating.value >= 4.5 ? "Editor's Choice" : 'Reviewed'}
+      verdict={data.verdict.slice(0, 140)}
+      affiliateUrl={affiliateUrl}
+      campaign={data.affiliateLinkA?.campaign ?? `${entry.id}-sidebar`}
+    />
+  </Fragment>
+
+  {/* ---------- Verdict box ---------- */}
+  <div class="not-prose mb-10 overflow-hidden rounded-2xl border border-ink-200 shadow-card">
+    <div class="flex flex-col gap-5 bg-ink-950 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-400">
+          Our verdict
+        </p>
+        <p class="mt-2 flex items-baseline gap-2">
+          <span class="text-4xl font-bold text-white">{data.rating.value.toFixed(1)}</span>
+          <span class="text-lg text-ink-400">/ {data.rating.best}</span>
+        </p>
+        <div class="mt-2">
+          <RatingStars value={data.rating.value} best={data.rating.best} showValue={false} />
+        </div>
+      </div>
+      <div class="sm:text-right">
+        <AffiliateButton
+          href={affiliateUrl}
+          product={tool.data.name}
+          campaign={data.affiliateLinkA?.campaign ?? `${entry.id}-verdict`}
+          size="lg"
+          disclose={false}
+        />
+        <p class="mt-2 text-xs text-ink-400">
+          From {tool.data.startingPrice}
+          {tool.data.freeTier && ' · Free tier available'}
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6">
+      <p class="text-[15px] leading-relaxed text-ink-700">{data.verdict}</p>
+
+      {
+        data.rating.breakdown && data.rating.breakdown.length > 0 && (
+          <dl class="mt-5 grid gap-3 border-t border-ink-100 pt-5 sm:grid-cols-2">
+            {data.rating.breakdown.map((item) => (
+              <div>
+                <div class="flex items-center justify-between gap-3">
+                  <dt class="text-sm font-medium text-ink-700">{item.criterion}</dt>
+                  <dd class="shrink-0 text-sm font-bold text-ink-950">{item.score.toFixed(1)}</dd>
+                </div>
+                <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-ink-100">
+                  <div
+                    class="h-full rounded-full bg-emerald-500"
+                    style={`width:${(item.score / data.rating.best) * 100}%`}
+                  />
+                </div>
+                {item.note && <p class="mt-1 text-xs text-ink-500">{item.note}</p>}
+              </div>
+            ))}
+          </dl>
+        )
+      }
+    </div>
+  </div>
+
+  {
+    data.testing && (
+      <aside class="not-prose mb-10 rounded-xl border border-emerald-200 bg-emerald-50/60 p-5">
+        <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-emerald-900">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9 12l2 2 4-4" />
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+          How we tested {tool.data.name}
+        </h2>
+        <dl class="mt-3.5 grid gap-3 text-sm sm:grid-cols-3">
+          <div>
+            <dt class="text-xs text-emerald-800/70">Hours tested</dt>
+            <dd class="font-semibold text-emerald-950">{data.testing.hoursTested}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-emerald-800/70">Plan tested</dt>
+            <dd class="font-semibold text-emerald-950">{data.testing.planTested}</dd>
+          </div>
+          {data.testing.periodStart && data.testing.periodEnd && (
+            <div>
+              <dt class="text-xs text-emerald-800/70">Test period</dt>
+              <dd class="font-semibold text-emerald-950">
+                {formatDate(data.testing.periodStart)} – {formatDate(data.testing.periodEnd)}
+              </dd>
+            </div>
+          )}
+        </dl>
+        {data.testing.methodology && (
+          <p class="mt-3.5 border-t border-emerald-200 pt-3.5 text-sm leading-relaxed text-emerald-900">
+            {data.testing.methodology}
+          </p>
+        )}
+      </aside>
+    )
+  }
+
+  <Content />
+
+  <ProsCons
+    pros={data.prosCons.pros}
+    cons={data.prosCons.cons}
+    title={`${tool.data.name} pros and cons`}
+    headingLevel="h2"
+  />
+
+  {
+    data.pricing.length > 0 && (
+      <>
+        <h2 id="pricing">{tool.data.name} pricing</h2>
+        <p>
+          Pricing verified against the vendor's public pricing page on{' '}
+          {formatDate(data.updatedDate ?? data.publishDate)}.
+        </p>
+        <ComparisonTable
+          columns={pricingColumns}
+          rows={pricingRows}
+          caption={`${tool.data.name} plan comparison.`}
+        />
+      </>
+    )
+  }
+
+  {
+    (data.bestFor.length > 0 || data.notFor.length > 0) && (
+      <>
+        <h2 id="who-should-use">Who should use {tool.data.name}?</h2>
+        <div class="not-prose my-6 grid gap-4 sm:grid-cols-2">
+          {data.bestFor.length > 0 && (
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-800">
+                Buy it if you are
+              </h3>
+              <ul class="mt-3 space-y-2">
+                {data.bestFor.map((item) => (
+                  <li class="flex gap-2.5 text-sm text-ink-700">
+                    <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {data.notFor.length > 0 && (
+            <div class="rounded-xl border border-ink-200 bg-ink-50/60 p-5">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-ink-700">
+                Skip it if you are
+              </h3>
+              <ul class="mt-3 space-y-2">
+                {data.notFor.map((item) => (
+                  <li class="flex gap-2.5 text-sm text-ink-700">
+                    <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-400" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </>
+    )
+  }
+
+  <FaqSection items={data.faq} />
+</ArticleLayout>

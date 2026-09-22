@@ -1,0 +1,194 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+@config '../../tailwind.config.js';
+
+/*
+  StackPipeline global layer.
+
+  Rules here exist to protect Core Web Vitals:
+  - zero web fonts  -> no FOUT/FOIT, no render-blocking font fetch
+  - reserved ad slots -> ads can never shift layout (CLS stays at 0)
+  - scroll-margin on headings -> anchor links from the sticky TOC land correctly
+*/
+
+@layer base {
+  :root {
+    --sp-header-height: 4rem;
+    --sp-content-max: 46rem;
+    color-scheme: light;
+  }
+
+  * {
+    min-width: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    @apply bg-white text-ink-700 font-sans antialiased;
+    /* Prevent horizontal overflow from wide tables/code on mobile. */
+    overflow-x: hidden;
+  }
+
+  /* Sticky-header-aware anchor targets. */
+  :is(h1, h2, h3, h4, h5, h6)[id] {
+    scroll-margin-top: calc(var(--sp-header-height) + 1.5rem);
+  }
+
+  :is(h1, h2, h3, h4, h5, h6) {
+    @apply text-ink-950 font-semibold tracking-tight text-balance;
+  }
+
+  a {
+    @apply underline-offset-4;
+  }
+
+  /* Visible, high-contrast focus ring for keyboard users (accessibility score). */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-emerald-600;
+  }
+
+  ::selection {
+    @apply bg-emerald-200 text-ink-950;
+  }
+
+  /* Images never overflow their container and never shift layout. */
+  img,
+  svg,
+  video {
+    @apply max-w-full h-auto;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* ---------------------------------------------------------------------
+     Ad slots: height is reserved before the AdSense script resolves so the
+     insertion of an ad never triggers a layout shift.
+     --------------------------------------------------------------------- */
+  .sp-ad-slot {
+    @apply relative mx-auto flex w-full items-center justify-center overflow-hidden;
+    contain: layout style;
+  }
+
+  .sp-ad-slot[data-format='in-article'] {
+    min-height: 280px;
+  }
+
+  .sp-ad-slot[data-format='rectangle'] {
+    min-height: 250px;
+  }
+
+  .sp-ad-slot[data-format='leaderboard'] {
+    min-height: 90px;
+  }
+
+  .sp-ad-slot[data-format='sidebar'] {
+    min-height: 600px;
+  }
+
+  @media (max-width: 640px) {
+    .sp-ad-slot[data-format='leaderboard'] {
+      min-height: 100px;
+    }
+
+    .sp-ad-slot[data-format='sidebar'] {
+      min-height: 280px;
+    }
+  }
+
+  .sp-ad-label {
+    @apply absolute left-1/2 top-1 -translate-x-1/2 text-[10px] font-medium uppercase tracking-[0.18em] text-ink-400;
+  }
+
+  /* Shared surface treatments. */
+  .sp-card {
+    @apply rounded-2xl border border-ink-200/80 bg-white shadow-card;
+  }
+
+  .sp-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-xs font-medium text-ink-600;
+  }
+
+  /* Prose refinements for programmatic content. */
+  .sp-prose :where(table) {
+    @apply block overflow-x-auto whitespace-nowrap sm:table sm:w-full sm:whitespace-normal;
+  }
+
+  .sp-prose :where(pre) {
+    @apply rounded-xl border border-ink-800 text-[0.85rem] leading-relaxed;
+  }
+
+  .sp-prose :where(a):not(.sp-cta) {
+    @apply font-medium text-emerald-700 decoration-emerald-300 underline hover:text-emerald-800 hover:decoration-emerald-500;
+  }
+
+  .sp-prose :where(h2) {
+    @apply mt-12 scroll-mt-24 text-2xl sm:text-3xl;
+  }
+
+  .sp-prose :where(h3) {
+    @apply mt-8 scroll-mt-24 text-xl sm:text-2xl;
+  }
+
+  .sp-prose :where(h4) {
+    @apply mt-6 scroll-mt-24 text-lg;
+  }
+}
+
+@layer utilities {
+  .sp-shell {
+    @apply mx-auto w-full max-w-shell px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Hides content visually while keeping it available to screen readers. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Subtle grid backdrop used on hero sections. */
+  .sp-grid-bg {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+}

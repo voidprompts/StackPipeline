@@ -1,0 +1,112 @@
+---
+/**
+ * Index/hub page shell.
+ *
+ * Hero + filter strip + responsive card grid. Uses CollectionPage schema and emits an
+ * ItemList so Google understands the hub -> leaf relationship for the whole section.
+ */
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '@components/ui/Breadcrumbs.astro';
+import AdSlot from '@components/ads/AdSlot.astro';
+import { breadcrumbsFromPath } from '@lib/seo';
+import type { JsonLdNode } from '@lib/schema';
+
+interface Props {
+  title: string;
+  heading?: string;
+  description: string;
+  /** Longer intro paragraph rendered under the hero. */
+  intro?: string;
+  canonical?: string;
+  schema?: Array<JsonLdNode | undefined | false | null>;
+  breadcrumbLeaf?: string;
+  count?: number;
+  countLabel?: string;
+  noindex?: boolean;
+  /**
+   * Heading for the results grid. Rendered as the <h2> between the page <h1> and the
+   * <h3> card titles, so the document outline never skips a level.
+   */
+  sectionHeading?: string;
+  /** Hide the section heading visually while keeping it in the accessibility tree. */
+  sectionHeadingVisible?: boolean;
+}
+
+const {
+  title,
+  heading,
+  description,
+  intro,
+  canonical,
+  schema = [],
+  breadcrumbLeaf,
+  count,
+  countLabel = 'guides',
+  noindex = false,
+  sectionHeading = 'All results',
+  sectionHeadingVisible = false,
+} = Astro.props;
+
+const h1 = heading ?? title;
+const trail = breadcrumbsFromPath(Astro.url.pathname, breadcrumbLeaf ?? h1);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  schema={schema}
+  pageType="CollectionPage"
+  breadcrumbs={trail}
+  noindex={noindex}
+>
+  {/* Hero */}
+  <section class="border-b border-ink-200 bg-ink-950 text-white">
+    <div class="sp-shell py-10 lg:py-14">
+      <Breadcrumbs items={trail} class="mb-5 [&_a]:text-ink-300 [&_a:hover]:text-emerald-400 [&_span]:text-white" />
+
+      <div class="max-w-3xl">
+        <h1 class="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+          {h1}
+        </h1>
+        <p class="mt-4 text-lg leading-relaxed text-ink-200">{description}</p>
+
+        {
+          count !== undefined && (
+            <p class="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-sm text-ink-200">
+              <span class="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-emerald-400" aria-hidden="true" />
+              <strong class="font-semibold text-white">{count.toLocaleString('en-US')}</strong>
+              {countLabel}
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="sp-shell py-10 lg:py-14">
+    {
+      intro && (
+        <div class="sp-prose prose prose-slate mb-10 max-w-3xl">
+          <p class="lead text-lg">{intro}</p>
+        </div>
+      )
+    }
+
+    <section aria-labelledby="listing-results-heading">
+      <h2
+        id="listing-results-heading"
+        class:list={[
+          sectionHeadingVisible
+            ? 'mb-6 text-2xl font-bold text-ink-950'
+            : 'sr-only',
+        ]}
+      >
+        {sectionHeading}
+      </h2>
+      <slot />
+    </section>
+
+    <AdSlot slot="listing" format="leaderboard" class="mt-12" />
+  </div>
+</BaseLayout>

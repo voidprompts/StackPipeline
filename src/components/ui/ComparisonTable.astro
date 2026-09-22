@@ -1,0 +1,206 @@
+---
+/**
+ * Responsive B2B data comparison table.
+ *
+ * Desktop: a real <table> with sticky header + sticky first column, proper <th scope>
+ * attributes and a <caption> so screen readers can navigate it.
+ * Mobile: the same data re-flowed into stacked cards — horizontal scrolling on a phone
+ * is the single most common reason comparison pages lose mobile rankings.
+ */
+interface Row {
+  feature: string;
+  values: string[];
+  /** Optional per-row note rendered under the feature label. */
+  note?: string;
+}
+
+interface Props {
+  columns: string[];
+  rows: Row[];
+  caption?: string;
+  /** Column index (0-based, excluding the feature column) to highlight as the winner. */
+  highlightColumn?: number;
+  class?: string;
+}
+
+const { columns, rows, caption, highlightColumn, class: className = '' } = Astro.props;
+
+/** Render check/cross icons for boolean-ish cell values. */
+function cellKind(value: string): 'yes' | 'no' | 'partial' | 'text' {
+  const normalized = value.trim().toLowerCase();
+  if (['yes', 'true', '✓', 'included', 'native'].includes(normalized)) return 'yes';
+  if (['no', 'false', '✗', '—', '-', 'none', 'not supported'].includes(normalized)) return 'no';
+  if (['partial', 'limited', 'add-on', 'beta'].includes(normalized)) return 'partial';
+  return 'text';
+}
+---
+
+<div class={`not-prose my-8 ${className}`}>
+  {/* ---------- Desktop / tablet ---------- */}
+  <div
+    class="hidden overflow-hidden rounded-2xl border border-ink-200 shadow-card md:block"
+  >
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse text-left text-sm">
+        {caption && <caption class="sr-only">{caption}</caption>}
+        <thead>
+          <tr class="bg-ink-950 text-white">
+            <th
+              scope="col"
+              class="sticky left-0 z-10 bg-ink-950 px-4 py-3.5 text-xs font-semibold uppercase tracking-wider"
+            >
+              Feature
+            </th>
+            {
+              columns.map((column, index) => (
+                <th
+                  scope="col"
+                  class:list={[
+                    'px-4 py-3.5 text-xs font-semibold uppercase tracking-wider whitespace-nowrap',
+                    highlightColumn === index && 'bg-emerald-600',
+                  ]}
+                >
+                  <span class="flex items-center gap-1.5">
+                    {column}
+                    {highlightColumn === index && (
+                      <span class="rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-bold normal-case">
+                        Top pick
+                      </span>
+                    )}
+                  </span>
+                </th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-ink-100">
+          {
+            rows.map((row, rowIndex) => (
+              <tr class={rowIndex % 2 === 1 ? 'bg-ink-50/50' : 'bg-white'}>
+                <th
+                  scope="row"
+                  class:list={[
+                    'sticky left-0 z-10 px-4 py-3.5 align-top font-semibold text-ink-900',
+                    rowIndex % 2 === 1 ? 'bg-ink-50/50' : 'bg-white',
+                  ]}
+                >
+                  {row.feature}
+                  {row.note && (
+                    <span class="mt-0.5 block text-xs font-normal text-ink-500">{row.note}</span>
+                  )}
+                </th>
+                {row.values.map((value, columnIndex) => {
+                  const kind = cellKind(value);
+                  return (
+                    <td
+                      class:list={[
+                        'px-4 py-3.5 align-top text-ink-700',
+                        highlightColumn === columnIndex && 'bg-emerald-50/60',
+                      ]}
+                    >
+                      {kind === 'yes' && (
+                        <span class="inline-flex items-center gap-1.5 font-medium text-emerald-700">
+                          <svg
+                            width="15"
+                            height="15"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M20 6 9 17l-5-5" />
+                          </svg>
+                          Yes
+                        </span>
+                      )}
+                      {kind === 'no' && (
+                        <span class="inline-flex items-center gap-1.5 text-ink-400">
+                          <svg
+                            width="15"
+                            height="15"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M18 6 6 18M6 6l12 12" />
+                          </svg>
+                          No
+                        </span>
+                      )}
+                      {kind === 'partial' && (
+                        <span class="inline-flex items-center gap-1.5 font-medium text-amber-600">
+                          <svg
+                            width="15"
+                            height="15"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M5 12h14" />
+                          </svg>
+                          {value}
+                        </span>
+                      )}
+                      {kind === 'text' && value}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {/* ---------- Mobile: one card per column ---------- */}
+  <div class="space-y-4 md:hidden">
+    {
+      columns.map((column, columnIndex) => (
+        <div
+          class:list={[
+            'overflow-hidden rounded-xl border shadow-card',
+            highlightColumn === columnIndex
+              ? 'border-emerald-300 ring-1 ring-emerald-200'
+              : 'border-ink-200',
+          ]}
+        >
+          <div
+            class:list={[
+              'flex items-center justify-between px-4 py-3',
+              highlightColumn === columnIndex ? 'bg-emerald-600' : 'bg-ink-950',
+            ]}
+          >
+            <h3 class="text-sm font-bold text-white">{column}</h3>
+            {highlightColumn === columnIndex && (
+              <span class="rounded bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white">
+                Top pick
+              </span>
+            )}
+          </div>
+          <dl class="divide-y divide-ink-100">
+            {rows.map((row) => (
+              <div class="flex items-start justify-between gap-4 px-4 py-2.5">
+                <dt class="text-xs font-medium text-ink-500">{row.feature}</dt>
+                <dd class="text-right text-sm font-medium text-ink-900">
+                  {row.values[columnIndex] ?? '—'}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ))
+    }
+  </div>
+
+  {caption && <p class="mt-3 text-xs text-ink-500">{caption}</p>}
+</div>

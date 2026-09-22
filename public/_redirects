@@ -1,0 +1,36 @@
+# Cloudflare Pages redirects. First match wins.
+#
+# Canonical host enforcement: every duplicate entry point 301s to the apex domain so
+# link equity consolidates on one hostname and Search Console reports a single property.
+
+https://www.stackpipeline.com/*    https://stackpipeline.com/:splat    301
+http://stackpipeline.com/*         https://stackpipeline.com/:splat    301
+http://www.stackpipeline.com/*     https://stackpipeline.com/:splat    301
+
+# Common alternate paths people try, pointed at the real sections.
+/integration/*      /integrations/:splat     301
+/review/*           /reviews/:splat          301
+/alternative/*      /alternatives/:splat     301
+/guide/*            /guides/:splat           301
+/tool/*             /tools/:splat            301
+/blog/*             /guides/:splat           301
+
+# Legal page aliases — these exact paths are what AdSense reviewers and
+# compliance scanners most often probe for.
+/privacy            /privacy-policy/         301
+/privacy.html       /privacy-policy/         301
+/terms              /terms-of-service/       301
+/terms.html         /terms-of-service/       301
+/tos                /terms-of-service/       301
+/disclaimer         /affiliate-disclosure/   301
+/disclosure         /affiliate-disclosure/   301
+/cookies            /cookie-policy/          301
+
+# Feed aliases
+/feed               /rss.xml                 301
+/feed.xml           /rss.xml                 301
+/rss                /rss.xml                 301
+
+# Sitemap alias — Astro emits sitemap-index.xml, but /sitemap.xml is what most
+# third-party tools and crawlers request by default.
+/sitemap.xml        /sitemap-index.xml       301

@@ -1,0 +1,88 @@
+---
+/**
+ * Tag archive.
+ *
+ * Only tags with at least MIN_TAG_ENTRIES articles get a page (see src/lib/taxonomy.ts),
+ * so every generated archive is genuinely useful, fully indexable and consistent with
+ * what appears in the sitemap. Tags below the threshold render as unlinked chips.
+ */
+import ListingLayout from '@layouts/ListingLayout.astro';
+import ContentCard from '@components/ui/ContentCard.astro';
+import { getEntry } from 'astro:content';
+import { itemListSchema } from '@lib/schema';
+import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
+import { getIndexableTags, type TaggedItem } from '@lib/taxonomy';
+
+export async function getStaticPaths() {
+  const tags = await getIndexableTags();
+  return tags.map((record) => ({
+    params: { tag: record.slug },
+    props: { tagLabel: record.label, items: record.items },
+  }));
+}
+
+interface Props {
+  tagLabel: string;
+  items: TaggedItem[];
+}
+
+const { tagLabel, items } = Astro.props;
+const tagSlugParam = Astro.params.tag as string;
+
+const withAuthors = await Promise.all(
+  items.map(async (item) => {
+    const author = await getEntry('authors', item.authorId);
+    return { ...item, authorName: author?.data.name };
+  }),
+);
+
+const sorted = withAuthors.sort(
+  (a, b) =>
+    (b.data.updatedDate ?? b.data.publishDate).getTime() -
+    (a.data.updatedDate ?? a.data.publishDate).getTime(),
+);
+
+const description = `Every ${tagLabel} guide, review and comparison on StackPipeline — hands-on tutorials and tested software breakdowns for automation teams.`;
+
+const schema = [
+  itemListSchema(
+    sorted.map((item, index) => ({
+      position: index + 1,
+      name: item.data.heading ?? item.data.title,
+      description: item.data.description,
+      url: `${item.base}/${item.id}/`,
+    })),
+    absoluteUrl(`/tag/${tagSlugParam}/`),
+    `${tagLabel} guides`,
+  ),
+];
+---
+
+<ListingLayout
+  title={`${tagLabel}: All Articles`}
+  heading={`${tagLabel} guides and reviews`}
+  description={description}
+  count={sorted.length}
+  countLabel={sorted.length === 1 ? 'article' : 'articles'}
+  schema={schema}
+  breadcrumbLeaf={tagLabel}
+>
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      sorted.map((item) => (
+        <ContentCard
+          href={`${item.base}/${item.id}/`}
+          title={item.data.heading ?? item.data.title}
+          description={item.data.description}
+          eyebrow={item.type}
+          date={item.data.publishDate}
+          updatedDate={item.data.updatedDate}
+          tags={item.data.tags}
+          authorName={item.authorName}
+          readingTime={item.data.readingTime ?? estimateReadingTime(item.body ?? '')}
+          headingLevel="h3"
+        />
+      ))
+    }
+  </div>
+</ListingLayout>

@@ -1,0 +1,141 @@
+---
+/**
+ * Affiliate disclosure — FTC 16 CFR Part 255 compliance.
+ * Must be reachable in one click from every page (it is, via the footer).
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import { SITE, LEGAL, DISCLOSURE } from '@config/site';
+---
+
+<PageLayout
+  title="Affiliate Disclosure"
+  description={`How ${SITE.name} makes money, which affiliate programs we participate in, and the firewall between commercial relationships and editorial scores.`}
+  effectiveDate={LEGAL.effectiveDate}
+  lastUpdated={LEGAL.lastUpdated}
+>
+  <div
+    class="not-prose mb-8 rounded-xl border-l-4 border-emerald-500 bg-emerald-50/70 p-5"
+    role="note"
+  >
+    <p class="text-sm font-semibold uppercase tracking-wider text-emerald-800">
+      FTC disclosure statement
+    </p>
+    <p class="mt-2 leading-relaxed text-ink-800">{DISCLOSURE.long}</p>
+  </div>
+
+  <h2 id="how-we-make-money">1. How {SITE.name} makes money</h2>
+  <p>
+    {SITE.name} is free to read and carries no paywall. We fund the site two ways:
+  </p>
+  <ul>
+    <li>
+      <strong>Affiliate commissions.</strong> If you sign up for a product through a tracked
+      link on this site, the vendor may pay us a referral fee. You pay exactly the same price
+      — commissions come out of the vendor's margin, never as a surcharge to you.
+    </li>
+    <li>
+      <strong>Display advertising.</strong> We serve ads through Google AdSense and comparable
+      ad exchanges. Advertisers have no access to, or influence over, editorial content.
+    </li>
+  </ul>
+
+  <h2 id="what-this-means">2. What this means when you read a review</h2>
+  <p>
+    An affiliate relationship creates an obvious conflict of interest: we are paid more when
+    we recommend products that convert. We manage that conflict with a hard process rule
+    rather than a promise.
+  </p>
+
+  <h3 id="scoring-firewall">2.1 Scores are locked before monetisation</h3>
+  <p>
+    Testing is completed and scores are recorded before anyone checks whether an affiliate
+    program exists for that product. The writer running the test does not know the commission
+    rate. Affiliate links are added afterwards, by a different person, as a publishing step.
+  </p>
+
+  <h3 id="ranking">2.2 Ranking order is never sold</h3>
+  <p>
+    Position in any "best of" list reflects our tested scores only. We do not accept payment
+    for placement, for inclusion in a comparison, or for a higher ranking. If a vendor asks,
+    we decline and note the request in the article.
+  </p>
+
+  <h3 id="negative-coverage">2.3 We publish negative findings about partners</h3>
+  <p>
+    Several products we hold affiliate relationships with score below competitors we earn
+    nothing from. Where a tool is the wrong choice for a given use case, we say so explicitly
+    in a "skip it if" section — including when we would be paid for the signup.
+  </p>
+
+  <h2 id="programs">3. Affiliate programs we participate in</h2>
+  <p>
+    {SITE.name} participates in affiliate and referral programs operated by software vendors
+    in the workflow automation, CRM and data enrichment categories, including but not limited
+    to Zapier, Make, n8n, HubSpot, Airtable, Clay, Apollo.io and Pipedrive. We may join or
+    leave programs at any time.
+  </p>
+  <p>
+    We also participate in advertising programs where we are compensated for referring
+    traffic. Commission structures vary — some pay a one-off bounty, others a percentage of
+    first-year revenue. The structure is never disclosed to the testing team.
+  </p>
+
+  <h2 id="identifying-links">4. How to identify an affiliate link</h2>
+  <p>Every monetised link on this site is marked in three ways:</p>
+  <ul>
+    <li>
+      A visible disclosure appears next to or directly beneath the call-to-action button
+    </li>
+    <li>
+      The link carries <code>rel="sponsored nofollow"</code> attributes, which is Google's
+      required markup for paid links and is machine-verifiable in the page source
+    </li>
+    <li>
+      A disclosure banner appears near the top of every article that contains tracked links
+    </li>
+  </ul>
+  <p>
+    Links to vendor documentation, pricing pages cited as evidence, and third-party research
+    are <strong>not</strong> affiliate links and carry no tracking.
+  </p>
+
+  <h2 id="cookies">5. Affiliate cookies</h2>
+  <p>
+    Clicking an affiliate link may place a cookie from the destination vendor on your device
+    so they can attribute a later signup to us. Cookie duration is set by the vendor and
+    typically ranges from 30 to 90 days. We receive aggregate conversion reports — counts and
+    commission totals — not your personal information. See our{' '}
+    <a href="/privacy-policy/">Privacy Policy</a> and <a href="/cookie-policy/">Cookie Policy</a>.
+  </p>
+
+  <h2 id="your-choice">6. You can avoid affiliate links entirely</h2>
+  <p>
+    If you would rather not use them, navigate to the vendor directly by typing their domain
+    into your browser. You will get the same product at the same price. We would rather you
+    trust the analysis than click the button.
+  </p>
+
+  <h2 id="ftc-compliance">7. Regulatory compliance</h2>
+  <p>
+    This disclosure is made in accordance with the United States Federal Trade Commission's{' '}
+    <a
+      href="https://www.ftc.gov/business-guidance/resources/ftcs-endorsement-guides-what-people-are-asking"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      16 CFR Part 255: Guides Concerning the Use of Endorsements and Testimonials in
+      Advertising
+    </a>
+    . We also comply with the UK Competition and Markets Authority guidance on clearly
+    labelling paid promotion.
+  </p>
+
+  <h2 id="questions">8. Questions</h2>
+  <p>
+    If anything here is unclear, or you believe a link is not properly disclosed, email{' '}
+    <a href={`mailto:${SITE.email.editorial}`}>{SITE.email.editorial}</a> and we will correct
+    it. Partnership enquiries go to{' '}
+    <a href={`mailto:${SITE.email.partnerships}`}>{SITE.email.partnerships}</a> — note that
+    buying a link or a ranking is not something we offer.
+  </p>
+</PageLayout>

@@ -1,0 +1,37 @@
+---
+/**
+ * Analytics tags.
+ *
+ * Both providers are optional and render nothing unless configured, keeping local builds
+ * and Lighthouse runs free of third-party requests. GA4 is loaded with `async` and the
+ * consent-mode default set to denied for EEA traffic, which is what keeps the property
+ * compliant with the AdSense EU user consent policy.
+ */
+import { ANALYTICS } from '@config/site';
+
+const { ga4, plausibleDomain } = ANALYTICS;
+
+const consentBootstrap = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',region:['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH'],wait_for_update:500});
+gtag('consent','default',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});
+gtag('js', new Date());
+gtag('config', '${ga4}', { anonymize_ip: true });
+`.trim();
+---
+
+{
+  ga4 && (
+    <>
+      <script is:inline set:html={consentBootstrap} />
+      <script async src={`https://www.googletagmanager.com/gtag/js?id=${ga4}`} is:inline />
+    </>
+  )
+}
+
+{
+  plausibleDomain && (
+    <script defer data-domain={plausibleDomain} src="https://plausible.io/js/script.js" is:inline />
+  )
+}

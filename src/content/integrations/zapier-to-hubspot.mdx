@@ -1,0 +1,165 @@
+---
+title: "Connect Zapier to HubSpot"
+description: "Sync leads, deals and contacts from any app into HubSpot with Zapier. Field mapping, deduplication and rate limits covered step by step."
+heading: "How to Connect Zapier to HubSpot"
+schemaType: "HowTo"
+softwareA: "zapier"
+softwareB: "hubspot"
+affiliateLinkA:
+  url: "https://zapier.com/?via=stackpipeline"
+  label: "Start a Zapier trial"
+  campaign: "zapier-hubspot-guide"
+affiliateLinkB:
+  url: "https://www.hubspot.com/products/crm?ref=stackpipeline"
+  label: "Get HubSpot CRM free"
+  campaign: "zapier-hubspot-guide"
+author: "dana-whitfield"
+reviewedBy: "priya-raghunathan"
+publishDate: 2026-02-11
+updatedDate: 2026-09-14
+lastReviewedDate: 2026-09-14
+useCase: "Push new leads from any source into HubSpot without manual CSV imports"
+difficulty: "beginner"
+totalTime: "PT18M"
+estimatedCost:
+  currency: "USD"
+  value: 0
+featured: true
+tags: ["Zapier", "HubSpot", "CRM", "Lead routing"]
+supplies:
+  - "A Zapier account (free tier is sufficient to start)"
+  - "A HubSpot account with Sales Hub or the free CRM"
+  - "Admin or a role with 'Edit contact settings' permission in HubSpot"
+tools:
+  - "Zapier"
+  - "HubSpot CRM"
+methods:
+  - name: "Zapier (no-code)"
+    bestFor: "Most teams — fastest path, no engineering"
+    setupTime: "15–20 min"
+    cost: "From $29.99/mo above the free tier"
+    codeRequired: false
+  - name: "HubSpot native integration"
+    bestFor: "Apps already in HubSpot's marketplace"
+    setupTime: "5 min"
+    cost: "Free"
+    codeRequired: false
+  - name: "HubSpot API + custom middleware"
+    bestFor: "High volume or complex transformation logic"
+    setupTime: "1–3 days"
+    cost: "Engineering time"
+    codeRequired: true
+steps:
+  - name: "Create the Zap and choose your trigger app"
+    text: "In Zapier, click Create > Zaps. Select the app holding your lead data as the trigger — a form tool, ad platform, spreadsheet or webhook. Choose the specific event, such as 'New Form Submission' or 'New Row'. Connect the account and pull in a sample record so you have real field names to map later."
+    tip: "Always load a sample record before moving on. Mapping against placeholder data is the single most common cause of broken field mappings."
+  - name: "Add a HubSpot search action to prevent duplicates"
+    text: "Before creating anything, add a 'Find Contact' action using HubSpot as the app. Search by email address and enable the 'Create HubSpot Contact if it doesn't exist yet' option. This single step prevents the duplicate-contact problem that makes most CRM syncs unusable within a few weeks."
+    tip: "Email is the only reliable deduplication key in HubSpot. Never dedupe on name or company."
+  - name: "Map your fields to HubSpot properties"
+    text: "Add the 'Create or Update Contact' action and map each source field to its HubSpot property. Start with email, firstname, lastname and company. For custom properties, use the internal name from HubSpot Settings > Properties, not the display label — Zapier matches on internal names and silently drops mismatches."
+    code: |
+      {
+        "email": "{{trigger.email}}",
+        "firstname": "{{trigger.first_name}}",
+        "lastname": "{{trigger.last_name}}",
+        "company": "{{trigger.company_name}}",
+        "lifecyclestage": "lead",
+        "hs_lead_status": "NEW",
+        "lead_source_detail": "{{trigger.utm_campaign}}"
+      }
+  - name: "Set lifecycle stage and lead source explicitly"
+    text: "Set lifecyclestage to 'lead' and populate a lead source property on every record. HubSpot will not backfill attribution data later, so a record created without a source is permanently unattributable. If you run paid campaigns, map the UTM parameters into dedicated custom properties at this step."
+  - name: "Add a filter to block junk records"
+    text: "Insert a Filter step between the trigger and the HubSpot action. At minimum, require that the email field exists and does not contain 'test', and block free-mail domains if you only sell B2B. Filtering before the CRM write keeps your contact count — and therefore your HubSpot bill — clean."
+    tip: "Filter steps do not consume a task in Zapier when they stop a Zap, so aggressive filtering also reduces your task usage."
+  - name: "Test with a live record, then turn the Zap on"
+    text: "Run Zapier's test, then open the contact in HubSpot and confirm every mapped property landed correctly — including the custom ones. Check the contact timeline to verify the source attribution. Only then publish the Zap and monitor the Zap History tab for the first 24 hours."
+troubleshooting:
+  - problem: "Contacts are created but custom properties are empty"
+    fix: "You mapped the display label instead of the internal property name. In HubSpot go to Settings > Properties, open the property and copy the internal name shown under the label, then remap in Zapier."
+  - problem: "Duplicate contacts appear for the same person"
+    fix: "You are using 'Create Contact' instead of 'Create or Update Contact', or deduplicating on a field other than email. Switch the action and set email as the matching key."
+  - problem: "Zap fails with a 429 error during bulk imports"
+    fix: "HubSpot rate-limits at 100 requests per 10 seconds on most tiers. Add a Delay step of 1 second between iterations, or batch the import through HubSpot's native CSV importer instead of Zapier."
+  - problem: "Lifecycle stage keeps reverting to an earlier value"
+    fix: "HubSpot blocks backwards lifecycle transitions by default. Either stop writing lifecyclestage on updates, or enable the 'Set lifecycle stage backwards' setting in Contacts settings."
+faq:
+  - question: "Do I need a paid Zapier plan to connect Zapier to HubSpot?"
+    answer: "No. Zapier's free tier supports single-step Zaps and 100 tasks per month, which is enough for a basic contact sync. You need a paid plan once you add the deduplication search step, since that makes the Zap multi-step."
+  - question: "How many HubSpot contacts can I create per month through Zapier?"
+    answer: "Zapier's limit is your task quota, not HubSpot's. HubSpot's API allows roughly 250,000 daily requests on Professional tiers and rate-limits at 100 requests per 10 seconds, so the practical ceiling is well above what most teams need."
+  - question: "Will Zapier overwrite existing HubSpot contact data?"
+    answer: "Yes, if you map a field it will overwrite the existing value on every run. To protect manually curated fields, either leave them unmapped or write to a separate custom property and reconcile with a HubSpot workflow."
+  - question: "Is Make or n8n cheaper than Zapier for HubSpot syncs?"
+    answer: "At volume, yes. Make's operations pricing is roughly a third of Zapier's per-task cost, and self-hosted n8n removes per-task billing entirely. Zapier remains faster to set up and has more reliable HubSpot connector maintenance."
+relatedIntegrations: []
+---
+
+import Callout from '@components/ui/Callout.astro';
+import ComparisonTable from '@components/ui/ComparisonTable.astro';
+
+Connecting Zapier to HubSpot takes about fifteen minutes, but the default configuration
+most teams ship will quietly create duplicate contacts and lose campaign attribution
+within a month. This guide covers the setup that survives contact with real data.
+
+<Callout variant="shortcut" title="The 30-second version">
+Use **Find Contact** (with "create if it doesn't exist" enabled) before **Create or
+Update Contact**, deduplicate on email only, and always write an explicit
+`lifecyclestage` and lead source. Those three decisions prevent the vast majority of
+HubSpot sync problems.
+</Callout>
+
+## Which connection method should you use?
+
+Zapier is not always the right answer. If your source app already has a native HubSpot
+integration, use it — native connectors sync historical data and handle field mapping
+without per-task costs.
+
+<ComparisonTable
+  caption="Comparison of methods for connecting a data source to HubSpot, evaluated September 2026."
+  columns={['Zapier', 'Native integration', 'Custom API']}
+  highlightColumn={0}
+  rows={[
+    { feature: 'Setup time', values: ['15–20 min', '5 min', '1–3 days'] },
+    { feature: 'Engineering required', values: ['No', 'No', 'Yes'] },
+    { feature: 'App coverage', values: ['7,000+ apps', 'Marketplace only', 'Any API'] },
+    { feature: 'Historical backfill', values: ['No', 'Yes', 'Yes'] },
+    { feature: 'Custom transformation', values: ['Partial', 'No', 'Yes'] },
+    { feature: 'Monthly cost', values: ['From $29.99', 'Free', 'Engineering time'] },
+    { feature: 'Handles 10k+ records/mo', values: ['Partial', 'Yes', 'Yes'] },
+  ]}
+/>
+
+## Before you start
+
+You need three things: a Zapier account, a HubSpot account with permission to edit
+contact settings, and a decision about which field is your deduplication key. That last
+one is not optional — skip it and you will be cleaning up duplicates for months.
+
+<Callout variant="warn" title="Check your HubSpot contact tier first">
+HubSpot bills on marketing contacts. An unfiltered sync that imports every form fill,
+including spam and test submissions, can push you into the next pricing tier. Add the
+filter step described below *before* you turn the Zap on, not after.
+</Callout>
+
+## Step-by-step setup
+
+Work through these in order. Each step depends on the previous one being correct.
+
+## What to monitor after launch
+
+Check the Zap History tab daily for the first week. Look for two patterns: repeated
+errors on the same record (a mapping problem) and a gradual rise in task consumption
+without a matching rise in contacts (a filter problem).
+
+<Callout variant="tip" title="Set up a failure alert">
+In Zapier, open Settings > Notifications and enable Zap error emails. Better still, add
+a Slack action on the error path so failures land in a channel someone actually reads.
+Silent failures are the reason most CRM syncs drift out of trust.
+</Callout>
+
+## Common problems and fixes
+
+The table below covers the failures we hit most often when auditing existing Zapier to
+HubSpot connections.

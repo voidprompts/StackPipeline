@@ -1,0 +1,91 @@
+---
+/**
+ * Tool directory — grouped by category.
+ */
+import ListingLayout from '@layouts/ListingLayout.astro';
+import ToolCard from '@components/ui/ToolCard.astro';
+import { getCollection } from 'astro:content';
+import { itemListSchema } from '@lib/schema';
+import { absoluteUrl } from '@lib/seo';
+
+const tools = await getCollection('tools');
+
+const byCategory = new Map<string, typeof tools>();
+for (const tool of tools) {
+  const bucket = byCategory.get(tool.data.category) ?? [];
+  bucket.push(tool);
+  byCategory.set(tool.data.category, bucket);
+}
+
+const categories = [...byCategory.entries()]
+  .map(([name, items]) => ({
+    name,
+    slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    items: items.sort((a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0)),
+  }))
+  .sort((a, b) => b.items.length - a.items.length);
+
+const schema = [
+  itemListSchema(
+    [...tools]
+      .sort((a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0))
+      .map((tool, index) => ({
+        position: index + 1,
+        name: tool.data.name,
+        description: tool.data.tagline,
+        url: `/tools/${tool.data.slug}/`,
+      })),
+    absoluteUrl('/tools/'),
+    'B2B automation and data tooling directory',
+  ),
+];
+---
+
+<ListingLayout
+  title="Automation Tool Directory"
+  heading="The automation tool directory"
+  description="Normalised pricing, integration counts and tested scores for every workflow automation, CRM and data enrichment tool we cover."
+  count={tools.length}
+  countLabel="tools tracked"
+  schema={schema}
+  breadcrumbLeaf="Tools"
+>
+  <nav class="mb-10" aria-label="Tool categories">
+    <h2 class="text-xs font-bold uppercase tracking-[0.14em] text-ink-500">Jump to category</h2>
+    <ul class="mt-3 flex flex-wrap gap-2">
+      {
+        categories.map((category) => (
+          <li>
+            <a
+              href={`#${category.slug}`}
+              class="sp-chip transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
+            >
+              {category.name}
+              <span class="text-ink-400">{category.items.length}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <div class="space-y-14">
+    {
+      categories.map((category) => (
+        <section id={category.slug} class="scroll-mt-24" aria-labelledby={`${category.slug}-heading`}>
+          <h2 id={`${category.slug}-heading`} class="text-xl font-bold text-ink-950 sm:text-2xl">
+            {category.name}
+          </h2>
+          <p class="mt-1.5 text-sm text-ink-500">
+            {category.items.length} {category.items.length === 1 ? 'tool' : 'tools'} tracked
+          </p>
+          <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {category.items.map((tool) => (
+              <ToolCard tool={tool} headingLevel="h3" />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</ListingLayout>

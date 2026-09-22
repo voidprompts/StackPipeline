@@ -1,0 +1,102 @@
+---
+/**
+ * Long-form guide page (Article schema).
+ */
+import { getCollection, getEntry, render, type CollectionEntry } from 'astro:content';
+import ArticleLayout from '@layouts/ArticleLayout.astro';
+import FaqSection from '@components/ui/FaqSection.astro';
+import AffiliateWidget from '@components/ui/AffiliateWidget.astro';
+import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
+import { articleSchema, faqSchema, personSchema, toAuthorInput } from '@lib/schema';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('guides', ({ data }) => !data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'guides'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+
+const [author, reviewer, softwareA] = await Promise.all([
+  getEntry(data.author),
+  data.reviewedBy ? getEntry(data.reviewedBy) : Promise.resolve(undefined),
+  data.softwareA ? getEntry(data.softwareA) : Promise.resolve(undefined),
+]);
+
+if (!author) throw new Error(`Missing author for guide "${entry.id}"`);
+
+const { Content, headings } = await render(entry);
+
+const pageUrl = absoluteUrl(`/guides/${entry.id}/`);
+const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
+
+
+const authorInput = toAuthorInput(author);
+const reviewerInput = reviewer ? toAuthorInput(reviewer) : undefined;
+
+const schema = [
+  personSchema(authorInput),
+  reviewerInput && reviewerInput.slug !== authorInput.slug ? personSchema(reviewerInput) : undefined,
+  articleSchema({
+    url: pageUrl,
+    headline: data.heading ?? data.title,
+    description: data.description,
+    image: data.image,
+    datePublished: data.publishDate,
+    dateModified: data.updatedDate ?? data.publishDate,
+    author: authorInput,
+    reviewedBy: reviewerInput,
+    section: 'Guides',
+    keywords: data.tags,
+  }),
+  data.faq.length > 0 ? faqSchema(data.faq, pageUrl) : undefined,
+];
+
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Guides', href: '/guides/' },
+  { name: data.heading ?? data.title, href: `/guides/${entry.id}/` },
+];
+---
+
+<ArticleLayout
+  title={data.title}
+  heading={data.heading}
+  description={data.description}
+  image={data.image}
+  imageAlt={data.imageAlt}
+  canonical={data.canonical}
+  noindex={data.noindex}
+  publishDate={data.publishDate}
+  updatedDate={data.updatedDate}
+  lastReviewedDate={data.lastReviewedDate}
+  author={author}
+  reviewer={reviewer}
+  headings={headings}
+  breadcrumbs={breadcrumbs}
+  schema={schema}
+  section="Guides"
+  tags={data.tags}
+  readingTime={readTime}
+>
+  {
+    softwareA && (
+      <Fragment slot="sidebar">
+        <AffiliateWidget
+          tool={softwareA}
+          badge="Recommended"
+          affiliateUrl={data.affiliateLinkA?.url}
+          campaign={data.affiliateLinkA?.campaign ?? `${entry.id}-sidebar`}
+        />
+      </Fragment>
+    )
+  }
+
+  <Content />
+
+  <FaqSection items={data.faq} />
+</ArticleLayout>

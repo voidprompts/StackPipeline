@@ -1,0 +1,84 @@
+---
+/**
+ * 404 page.
+ *
+ * noindex'd and given real navigation options — a dead-end 404 is both a UX failure and
+ * an AdSense "low value content" risk if it ever gets indexed.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ContentCard from '@components/ui/ContentCard.astro';
+import { getCollection } from 'astro:content';
+import { PRIMARY_NAV } from '@config/site';
+
+const [integrations, reviews] = await Promise.all([
+  getCollection('integrations', ({ data }) => !data.draft),
+  getCollection('reviews', ({ data }) => !data.draft),
+]);
+
+const popular = [
+  ...integrations.map((entry) => ({ entry, base: '/integrations', type: 'Integration' })),
+  ...reviews.map((entry) => ({ entry, base: '/reviews', type: 'Review' })),
+]
+  .filter((item) => item.entry.data.featured)
+  .slice(0, 3);
+---
+
+<BaseLayout
+  title="Page not found (404)"
+  description="The page you were looking for does not exist. Browse our integration guides, software reviews and tool directory instead."
+  noindex
+>
+  <div class="sp-shell py-20 lg:py-28">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="text-sm font-bold uppercase tracking-[0.2em] text-emerald-700">Error 404</p>
+      <h1 class="mt-3 text-4xl font-bold tracking-tight text-ink-950 sm:text-5xl">
+        This page didn't connect
+      </h1>
+      <p class="mt-4 text-lg leading-relaxed text-ink-600">
+        The URL you requested doesn't exist — it may have been moved, renamed, or never
+        existed at all. Here is where to go instead.
+      </p>
+
+      <nav class="mt-8 flex flex-wrap justify-center gap-3" aria-label="Suggested destinations">
+        {
+          PRIMARY_NAV.map((item, index) => (
+            <a
+              href={item.href}
+              class:list={[
+                'rounded-xl px-5 py-3 text-sm font-semibold transition',
+                index === 0
+                  ? 'bg-emerald-600 text-white shadow-emerald-glow hover:bg-emerald-700'
+                  : 'border border-ink-300 text-ink-700 hover:bg-ink-50',
+              ]}
+            >
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+
+    {
+      popular.length > 0 && (
+        <section class="mx-auto mt-16 max-w-5xl" aria-labelledby="popular-heading">
+          <h2 id="popular-heading" class="text-center text-xl font-bold text-ink-950">
+            Popular guides
+          </h2>
+          <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {popular.map((item) => (
+              <ContentCard
+                href={`${item.base}/${item.entry.id}/`}
+                title={item.entry.data.heading ?? item.entry.data.title}
+                description={item.entry.data.description}
+                eyebrow={item.type}
+                date={item.entry.data.publishDate}
+                updatedDate={item.entry.data.updatedDate}
+                headingLevel="h3"
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
