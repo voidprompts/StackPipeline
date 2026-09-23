@@ -18,13 +18,18 @@
     "audit": "node scripts/audit-build.mjs",
     "generate:integrations": "node scripts/generate-integrations.mjs",
     "editorial:review": "node scripts/editorial-review.mjs",
+    "review:intake": "node scripts/review-intake.mjs",
+    "review:validate": "node scripts/review-validate.mjs",
+    "test": "node --test tests/**/*.test.mjs",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.1",
     "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.3.3",
-    "sharp": "^0.35.4"
+    "sharp": "^0.35.4",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
