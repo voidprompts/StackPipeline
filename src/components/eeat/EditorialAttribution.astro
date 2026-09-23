@@ -1,0 +1,54 @@
+---
+/**
+ * Transparent organization-level attribution for articles.
+ *
+ * This deliberately does not imply an individual author, credential, or profile until
+ * that information is real, verifiable, and approved for publication.
+ */
+import { SITE } from '@config/site';
+
+interface Props {
+  headingLevel?: 'h2' | 'h3';
+  class?: string;
+}
+
+const { headingLevel = 'h2', class: className = '' } = Astro.props;
+const Heading = headingLevel;
+---
+
+<aside
+  class={`not-prose rounded-2xl border border-ink-200 bg-ink-50/50 p-5 sm:p-6 ${className}`}
+  aria-labelledby="editorial-attribution"
+>
+  <div class="flex gap-4">
+    <span
+      class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-ink-950 text-sm font-bold text-emerald-400 shadow-card"
+      aria-hidden="true"
+    >
+      SP
+    </span>
+    <div>
+      <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-700">
+        Published by
+      </p>
+      <Heading id="editorial-attribution" class="mt-1 text-lg font-bold text-ink-950">
+        <a href="/about/" class="hover:text-emerald-700">{SITE.name} Editorial Team</a>
+      </Heading>
+      <p class="mt-2 text-sm leading-relaxed text-ink-700">
+        This article uses an organization byline. We do not publish individual author profiles,
+        qualifications, or social links until they can be verified.
+      </p>
+      <p class="mt-3 text-xs leading-relaxed text-ink-500">
+        Read our{' '}
+        <a href="/editorial-policy/" class="font-medium text-emerald-700 underline">
+          editorial policy
+        </a>{' '}
+        and{' '}
+        <a href="/how-we-test/" class="font-medium text-emerald-700 underline">
+          testing methodology
+        </a>
+        .
+      </p>
+    </div>
+  </div>
+</aside>

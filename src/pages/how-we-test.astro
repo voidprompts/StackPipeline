@@ -7,100 +7,84 @@ const RUBRIC = [
     criterion: 'Core capability',
     weight: '30%',
     detail:
-      'Does the product do its primary job well? For enrichment tools this is measured match rate against a controlled list; for automation platforms it is workflow success rate under induced API failures.',
+      'Does the product perform its primary job under a documented workflow and test environment?',
   },
   {
     criterion: 'Ease of use',
     weight: '20%',
-    detail:
-      'Time from empty account to first working workflow, measured with a stopwatch by someone who has not used the product before.',
+    detail: 'How long does a documented user take to reach a working workflow from a new account?',
   },
   {
     criterion: 'Integrations',
     weight: '20%',
-    detail:
-      'Connector count matters less than connector quality. We test the five most common connectors per category and note any that are stale or broken.',
+    detail: 'How capable and reliable are the connectors relevant to the category and stated use case?',
   },
   {
     criterion: 'Value for money',
     weight: '20%',
-    detail:
-      'Real cost at a realistic volume, not list price. We model 10,000 monthly operations and compare total cost including required add-ons.',
+    detail: 'What is the realistic cost at the stated volume, including required add-ons and usage limits?',
   },
   {
     criterion: 'Support',
     weight: '10%',
-    detail:
-      'We open at least two real support tickets per product from a paid account and record first-response and resolution times.',
+    detail: 'What can be observed from documented support interactions, response times and resolution quality?',
   },
 ];
 ---
 
 <PageLayout
   title="How We Test"
-  description={`The testing methodology behind every ${SITE.name} score: rubric, weighting, test environment, and what would make us change a rating.`}
+  description={`The evaluation framework ${SITE.name} requires for new and revised software scores.`}
   effectiveDate={LEGAL.effectiveDate}
   lastUpdated={LEGAL.lastUpdated}
   prose={false}
 >
   <div class="sp-prose prose prose-slate max-w-none">
     <p class="lead">
-      A score is only useful if you know how it was produced. This page documents the exact
-      process behind every rating on {SITE.name}, so you can decide whether our priorities
-      match yours.
+      This page is the evaluation framework for new and revised scored content. It is not proof
+      that every historic page has completed every step. A score should only claim hands-on
+      testing when the page can document the actual scope, environment and date.
     </p>
 
     <h2 id="principles">The three rules</h2>
     <ol>
       <li>
-        <strong>We pay for the product.</strong> Every tool is tested on a paid plan or a
-        full-featured trial we signed up for ourselves. We do not accept vendor-provided
-        accounts with elevated limits, because those do not reflect what you will experience.
+        <strong>Document the plan and environment.</strong> A review should state whether it
+        used a paid plan, trial, demo or another access route, and identify material limits.
       </li>
       <li>
-        <strong>We score before we monetise.</strong> Testing completes and scores are locked
-        before anyone checks whether an affiliate program exists. The tester does not know the
-        commission rate.
+        <strong>Separate evaluation from monetization.</strong> Potential affiliate compensation
+        must not decide a score, rank or editorial conclusion.
       </li>
       <li>
-        <strong>We test the same thing on every product.</strong> Comparisons only mean
-        something if the workload is identical, so we rebuild the same workflows on each
-        platform rather than evaluating each against its own marketing.
+        <strong>Compare like with like.</strong> A comparison should use the same documented
+        workflow and volume assumptions for every product being compared.
       </li>
     </ol>
   </div>
 
-  {/* ---------- Rubric ---------- */}
   <section class="not-prose my-10" aria-labelledby="rubric-heading">
     <h2 id="rubric-heading" class="text-2xl font-bold text-ink-950">The scoring rubric</h2>
     <p class="mt-2 text-ink-600">
-      Every product in a category is scored against the same five criteria, weighted as below.
-      The final score is the weighted average, rounded to one decimal place.
+      Where StackPipeline publishes a score, this is the intended weighting. A page should
+      explain any meaningful deviation from the rubric rather than imply a false precision.
     </p>
 
-    <div class="mt-6 overflow-hidden rounded-2xl border border-ink-200 shadow-card">
+    <div class="mt-6 overflow-x-auto rounded-2xl border border-ink-200 shadow-card">
       <table class="w-full border-collapse text-left text-sm">
         <caption class="sr-only">{SITE.name} scoring rubric and criterion weights</caption>
         <thead>
           <tr class="bg-ink-950 text-white">
-            <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">
-              Criterion
-            </th>
-            <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">
-              Weight
-            </th>
-            <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">
-              What we measure
-            </th>
+            <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">Criterion</th>
+            <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">Weight</th>
+            <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">What we measure</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-ink-100">
           {
             RUBRIC.map((row, index) => (
               <tr class={index % 2 === 1 ? 'bg-ink-50/50' : 'bg-white'}>
-                <th scope="row" class="px-4 py-3.5 align-top font-semibold text-ink-900">
-                  {row.criterion}
-                </th>
+                <th scope="row" class="px-4 py-3.5 align-top font-semibold text-ink-900">{row.criterion}</th>
                 <td class="px-4 py-3.5 align-top font-bold text-emerald-700">{row.weight}</td>
                 <td class="px-4 py-3.5 align-top text-ink-700">{row.detail}</td>
               </tr>
@@ -112,78 +96,42 @@ const RUBRIC = [
   </section>
 
   <div class="sp-prose prose prose-slate max-w-none">
-    <h2 id="test-environment">The test environment</h2>
+    <h2 id="workflow-testing">Workflow testing</h2>
     <p>
-      Automation platforms are tested against a fixed set of five workflows that mirror common
-      production patterns:
-    </p>
-    <ol>
-      <li>A lead router with conditional assignment across three branches</li>
-      <li>A CRM enrichment pipeline with a deduplication lookup</li>
-      <li>A Slack alerting flow with formatted message payloads</li>
-      <li>A scheduled two-way data sync between two systems</li>
-      <li>A webhook receiver that must survive a deliberately failing downstream API</li>
-    </ol>
-    <p>
-      That last one matters most and is the one vendors never demo. We induce 500 errors and
-      timeouts on the receiving endpoint and record whether the platform retries, how it
-      surfaces the failure, and whether any data is silently lost.
+      For automation products, a credible test should publish enough detail for readers to
+      understand the workflow: trigger, actions, source and destination systems, expected
+      volume, failure handling, and any behavior that could change the result. Useful scenarios
+      include lead routing, CRM enrichment, notifications, scheduled synchronization and a
+      webhook flow with a deliberately failing downstream request.
     </p>
 
-    <h2 id="enrichment-testing">Data enrichment testing</h2>
+    <h2 id="data-enrichment-testing">Data enrichment testing</h2>
     <p>
-      Enrichment tools are measured against a controlled 5,000-contact list with a known
-      composition (60% US, 40% EU, mixed company sizes). We measure reported match rate, then
-      manually verify a random 200-record sample to establish true accuracy — reported and
-      actual match rates routinely differ by 5 to 15 percentage points.
+      Match-rate or accuracy claims should identify the benchmark size, relevant geography or
+      segment mix, sampling method, date and manual-validation method. We will not present a
+      vendor-reported match rate as an independently observed result without saying so.
     </p>
 
-    <h2 id="minimum-hours">Minimum testing time</h2>
+    <h2 id="minimum-evidence">Minimum evidence for future scored content</h2>
     <ul>
-      <li><strong>Full review</strong> — minimum 20 hours of hands-on use over at least 30 days</li>
-      <li><strong>Comparison entry</strong> — minimum 8 hours per product, same workflows on each</li>
-      <li><strong>Integration tutorial</strong> — the integration is built end to end and verified working before publication</li>
+      <li><strong>Full review</strong> — state the access level, testing period, hours or sessions, and limitations.</li>
+      <li><strong>Comparison entry</strong> — apply the same named workflow and assumptions to every contender.</li>
+      <li><strong>Integration tutorial</strong> — describe the integration steps, assumptions and known failure modes.</li>
     </ul>
 
-    <h2 id="what-changes-a-score">What would change a score</h2>
+    <h2 id="updates">Updates and limitations</h2>
     <p>
-      Scores are revisited when a vendor ships a material feature, changes pricing, or when our
-      90-day re-verification finds a discrepancy. A score can go down. When it changes, the
-      article notes what changed and why.
+      Scores and price-sensitive claims should be rechecked after a material vendor change or a
+      documented error. An update date should describe a real review event, not a cosmetic
+      rewrite. No evaluation can cover every tier, region, volume or long-term reliability
+      outcome; those limits should be named on the relevant page.
     </p>
-    <p>
-      What does <em>not</em> change a score: vendor complaints, commission rate changes, or
-      pressure from a partner. We have removed products from affiliate programs rather than
-      adjust a rating.
-    </p>
-
-    <h2 id="limitations">Limitations we will admit to</h2>
-    <p>
-      We are a small team, and there are real constraints on this process:
-    </p>
-    <ul>
-      <li>
-        We cannot test every tier of every product. Where we test a specific plan, it is named
-        on the page.
-      </li>
-      <li>
-        Our enrichment test list skews toward US and Western European contacts, so match rates
-        for other regions may not generalise.
-      </li>
-      <li>
-        Enterprise products with sales-gated pricing are harder to evaluate on value, and we
-        say so rather than guessing.
-      </li>
-      <li>
-        A 30-day test window will not surface every long-term reliability issue.
-      </li>
-    </ul>
 
     <h2 id="questions">Questions about a score</h2>
     <p>
-      If a rating looks wrong, tell us what we missed:{' '}
-      <a href={`mailto:${SITE.email.editorial}`}>{SITE.email.editorial}</a>. We re-test when a
-      specific, checkable objection is raised — including from vendors.
+      A verified public corrections channel has not yet been configured. Before scored content
+      or advertising expands, StackPipeline will publish a monitored way to challenge an error
+      and a process for recording substantive corrections.
     </p>
   </div>
 </PageLayout>

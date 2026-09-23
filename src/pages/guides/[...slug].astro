@@ -7,7 +7,7 @@ import ArticleLayout from '@layouts/ArticleLayout.astro';
 import FaqSection from '@components/ui/FaqSection.astro';
 import AffiliateWidget from '@components/ui/AffiliateWidget.astro';
 import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
-import { articleSchema, faqSchema, personSchema, toAuthorInput } from '@lib/schema';
+import { articleSchema, faqSchema } from '@lib/schema';
 
 export async function getStaticPaths() {
   const entries = await getCollection('guides', ({ data }) => !data.draft);
@@ -21,13 +21,7 @@ interface Props {
 const { entry } = Astro.props;
 const { data } = entry;
 
-const [author, reviewer, softwareA] = await Promise.all([
-  getEntry(data.author),
-  data.reviewedBy ? getEntry(data.reviewedBy) : Promise.resolve(undefined),
-  data.softwareA ? getEntry(data.softwareA) : Promise.resolve(undefined),
-]);
-
-if (!author) throw new Error(`Missing author for guide "${entry.id}"`);
+const softwareA = data.softwareA ? await getEntry(data.softwareA) : undefined;
 
 const { Content, headings } = await render(entry);
 
@@ -35,12 +29,7 @@ const pageUrl = absoluteUrl(`/guides/${entry.id}/`);
 const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
 
 
-const authorInput = toAuthorInput(author);
-const reviewerInput = reviewer ? toAuthorInput(reviewer) : undefined;
-
 const schema = [
-  personSchema(authorInput),
-  reviewerInput && reviewerInput.slug !== authorInput.slug ? personSchema(reviewerInput) : undefined,
   articleSchema({
     url: pageUrl,
     headline: data.heading ?? data.title,
@@ -48,8 +37,6 @@ const schema = [
     image: data.image,
     datePublished: data.publishDate,
     dateModified: data.updatedDate ?? data.publishDate,
-    author: authorInput,
-    reviewedBy: reviewerInput,
     section: 'Guides',
     keywords: data.tags,
   }),
@@ -74,8 +61,6 @@ const breadcrumbs = [
   publishDate={data.publishDate}
   updatedDate={data.updatedDate}
   lastReviewedDate={data.lastReviewedDate}
-  author={author}
-  reviewer={reviewer}
   headings={headings}
   breadcrumbs={breadcrumbs}
   schema={schema}

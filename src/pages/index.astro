@@ -10,7 +10,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import ContentCard from '@components/ui/ContentCard.astro';
 import ToolCard from '@components/ui/ToolCard.astro';
 import AdSlot from '@components/ads/AdSlot.astro';
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import { SITE } from '@config/site';
 import { itemListSchema } from '@lib/schema';
 import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
@@ -40,14 +40,6 @@ const featuredTools = [...tools]
   .slice(0, 6);
 
 const totalGuides = integrations.length + reviews.length + alternatives.length;
-
-/** Resolve author names for the card bylines. */
-const latestWithAuthors = await Promise.all(
-  latest.map(async (item) => {
-    const author = await getEntry(item.entry.data.author);
-    return { ...item, authorName: author?.data.name };
-  }),
-);
 
 const schema = [
   itemListSchema(
@@ -83,7 +75,7 @@ const SECTIONS = [
     href: '/alternatives/',
     title: 'Alternatives & comparisons',
     description:
-      'Ranked breakdowns of competing tools, tested on identical workflows so the comparison actually means something.',
+      'Ranked breakdowns of competing tools with the assumptions and limitations readers need to assess.',
     count: alternatives.length,
     icon: 'M3 6h18M3 12h18M3 18h18',
   },
@@ -121,7 +113,7 @@ const SECTIONS = [
         >
           <span class="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-emerald-400" aria-hidden="true"
           ></span>
-          {totalGuides} guides · {tools.length} tools tracked · updated weekly
+          {totalGuides} guides · {tools.length} tools tracked · organization byline
         </p>
 
         {/* LCP element: plain text, no webfont, no image. */}
@@ -133,8 +125,8 @@ const SECTIONS = [
         </h1>
 
         <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-200 sm:text-xl">
-          Practical integration tutorials, tested software reviews and honest tool
-          comparisons for the people who actually maintain the automation stack.
+          Integration tutorials, software reviews and tool comparisons for the people who maintain an
+          automation stack.
         </p>
 
         <div class="mt-9 flex flex-wrap gap-3">
@@ -154,20 +146,20 @@ const SECTIONS = [
 
         <dl class="mt-12 grid max-w-2xl grid-cols-2 gap-6 border-t border-white/10 pt-8 sm:grid-cols-4">
           <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Tools tested</dt>
+            <dt class="text-xs uppercase tracking-wider text-ink-400">Tools tracked</dt>
             <dd class="mt-1 text-2xl font-bold">{tools.length}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Hours of testing</dt>
-            <dd class="mt-1 text-2xl font-bold">400+</dd>
+            <dt class="text-xs uppercase tracking-wider text-ink-400">Published pages</dt>
+            <dd class="mt-1 text-2xl font-bold">{totalGuides}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Review cycle</dt>
-            <dd class="mt-1 text-2xl font-bold">90 days</dd>
+            <dt class="text-xs uppercase tracking-wider text-ink-400">Attribution</dt>
+            <dd class="mt-1 text-2xl font-bold">Organization</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Vendor influence</dt>
-            <dd class="mt-1 text-2xl font-bold text-emerald-400">Zero</dd>
+            <dt class="text-xs uppercase tracking-wider text-ink-400">Display ads</dt>
+            <dd class="mt-1 text-2xl font-bold text-emerald-400">Disabled</dd>
           </div>
         </dl>
       </div>
@@ -232,7 +224,7 @@ const SECTIONS = [
         <h2 id="latest-heading" class="text-2xl font-bold text-ink-950 sm:text-3xl">
           Latest guides
         </h2>
-        <p class="mt-2 text-ink-600">Freshly published and recently re-verified.</p>
+        <p class="mt-2 text-ink-600">Recently published guides and product research.</p>
       </div>
       <a
         href="/integrations/"
@@ -244,7 +236,7 @@ const SECTIONS = [
 
     <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {
-        latestWithAuthors.map((item) => (
+        latest.map((item) => (
           <ContentCard
             href={`${item.base}/${item.entry.id}/`}
             title={item.entry.data.heading ?? item.entry.data.title}
@@ -253,7 +245,7 @@ const SECTIONS = [
             date={item.entry.data.publishDate}
             updatedDate={item.entry.data.updatedDate}
             tags={item.entry.data.tags}
-            authorName={item.authorName}
+            authorName="StackPipeline Editorial Team"
             featured={item.entry.data.featured}
             readingTime={
               item.entry.data.readingTime ?? estimateReadingTime(item.entry.body ?? '')
@@ -271,9 +263,9 @@ const SECTIONS = [
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 id="tools-heading" class="text-2xl font-bold text-ink-950 sm:text-3xl">
-            Top-rated tools
+            Tools in the directory
           </h2>
-          <p class="mt-2 text-ink-600">Ranked by our tested score, not by commission rate.</p>
+          <p class="mt-2 text-ink-600">Browse normalized product information and published assessments.</p>
         </div>
         <a
           href="/tools/"
@@ -295,13 +287,12 @@ const SECTIONS = [
       <div class="grid gap-8 lg:grid-cols-2 lg:gap-16">
         <div>
           <h2 id="trust-heading" class="text-2xl font-bold text-ink-950 sm:text-3xl">
-            How we keep this honest
+            How we publish responsibly
           </h2>
           <p class="mt-4 leading-relaxed text-ink-600">
-            {SITE.name} makes money from affiliate commissions. That creates an obvious
-            incentive problem, so we built the process to remove it: scores are assigned
-            before monetisation is applied, every tool is tested on a paid or trial plan,
-            and pricing is re-verified against vendor pages on a fixed 90-day cycle.
+            {SITE.name} may earn affiliate commissions from qualifying links. Articles use a
+            transparent organization byline while contributor and publisher details are verified,
+            and display advertising remains disabled.
           </p>
           <div class="mt-6 flex flex-wrap gap-3">
             <a
@@ -323,20 +314,20 @@ const SECTIONS = [
           {
             [
               {
-                title: 'Tested, not summarised',
-                body: 'Every review is based on hands-on use of a paid or trial plan, with hours logged on the page.',
+                title: 'Evidence standard',
+                body: 'New and revised scores should state their test scope, source material and limitations.',
               },
               {
-                title: 'Named, credentialed authors',
-                body: 'Each guide carries a real byline with verifiable experience and a public profile.',
+                title: 'Clear attribution',
+                body: 'Published work is credited to the organization until a real contributor can be verified.',
               },
               {
-                title: 'Fact-checked before publishing',
-                body: 'An editor independently verifies pricing, claims and screenshots on comparison content.',
+                title: 'No fabricated profiles',
+                body: 'We do not publish invented credentials, social links or Person schema as trust signals.',
               },
               {
-                title: 'Disclosed everywhere',
-                body: 'Affiliate relationships are declared on every page that contains a tracked link.',
+                title: 'Commercial disclosure',
+                body: 'Qualifying affiliate links are disclosed, and display ads stay off until the publisher is ready.',
               },
             ].map((item) => (
               <li class="rounded-xl border border-ink-200 bg-ink-50/50 p-4">

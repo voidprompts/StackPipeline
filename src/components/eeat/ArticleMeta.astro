@@ -1,17 +1,14 @@
 ---
 /**
- * Byline + freshness strip.
+ * Organization byline + freshness strip.
  *
- * Surfaces the four trust signals Google's Helpful Content guidance asks for:
- * who wrote it, who fact-checked it, when it was published, and when it was last verified.
- * `<time datetime>` is machine-readable and mirrors the JSON-LD dates exactly.
+ * Published material is attributed to the StackPipeline organization until a real,
+ * verifiable contributor can be credited. This avoids presenting invented people or
+ * credentials as editorial evidence.
  */
-import type { CollectionEntry } from 'astro:content';
 import { formatDate, isoDate, relativeTime, humanizeDuration } from '@lib/seo';
 
 interface Props {
-  author: CollectionEntry<'authors'>;
-  reviewer?: CollectionEntry<'authors'>;
   publishDate: Date;
   updatedDate?: Date;
   lastReviewedDate?: Date;
@@ -23,8 +20,6 @@ interface Props {
 }
 
 const {
-  author,
-  reviewer,
   publishDate,
   updatedDate,
   lastReviewedDate,
@@ -36,39 +31,27 @@ const {
 
 const displayDate = updatedDate ?? publishDate;
 const isUpdated = Boolean(updatedDate && updatedDate.getTime() > publishDate.getTime());
-const initials = author.data.name
-  .split(' ')
-  .map((part) => part[0])
-  .slice(0, 2)
-  .join('')
-  .toUpperCase();
 ---
 
 <div class={`not-prose ${className}`}>
   <div class="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
-    {/* Byline */}
     <div class="flex items-center gap-2.5">
       <span
         class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink-950 text-xs font-bold text-emerald-400"
         aria-hidden="true"
       >
-        {initials}
+        SP
       </span>
       <span>
-        <a
-          href={`/authors/${author.data.slug}/`}
-          rel="author"
-          class="font-semibold text-ink-900 hover:text-emerald-700"
-        >
-          {author.data.name}
+        <a href="/about/" rel="author" class="font-semibold text-ink-900 hover:text-emerald-700">
+          StackPipeline Editorial Team
         </a>
-        <span class="block text-xs text-ink-500">{author.data.role}</span>
+        <span class="block text-xs text-ink-500">Organization byline</span>
       </span>
     </div>
 
     <span class="hidden h-8 w-px bg-ink-200 sm:block" aria-hidden="true"></span>
 
-    {/* Dates */}
     <div class="text-ink-600">
       <p>
         {isUpdated ? 'Updated' : 'Published'}{' '}
@@ -88,33 +71,7 @@ const initials = author.data.name
     </div>
   </div>
 
-  {/* Fact-check + effort badges */}
   <div class="mt-4 flex flex-wrap items-center gap-2">
-    {
-      reviewer && (
-        <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M9 12l2 2 4-4" />
-            <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0" />
-          </svg>
-          Fact-checked by{' '}
-          <a href={`/authors/${reviewer.data.slug}/`} class="underline underline-offset-2">
-            {reviewer.data.name}
-          </a>
-        </span>
-      )
-    }
-
     {
       lastReviewedDate && (
         <span class="sp-chip">

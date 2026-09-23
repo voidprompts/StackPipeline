@@ -19,8 +19,6 @@
  *   --targets   Target tool slugs for --matrix mode
  *   --all       Every automation-platform -> every other tool permutation
  *   --limit     Cap the number of files written (default 100)
- *   --author    Author slug for the byline (default: dana-whitfield)
- *   --reviewer  Author slug for the fact-check byline (default: priya-raghunathan)
  *   --force     Overwrite files that already exist (default: skip)
  *   --dry-run   Print what would be written without touching disk
  *
@@ -28,8 +26,8 @@
  * Generated pages are scaffolds with real structural value — method comparison, steps,
  * troubleshooting, FAQ — but they are deliberately marked `draft: true`. Publishing
  * hundreds of untouched template pages is exactly what Google's scaled-content-abuse
- * policy targets. The intended workflow is: generate, then have an author verify and
- * flip the draft flag per page.
+ * policy targets. The intended workflow is: generate, add real source and testing detail, then
+ * remove the draft flag only after editorial review.
  */
 
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
@@ -49,7 +47,7 @@ const AUTOMATION_CATEGORIES = new Set(['Workflow automation']);
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const args = { limit: 100, author: 'dana-whitfield', reviewer: 'priya-raghunathan' };
+  const args = { limit: 100 };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
     if (!arg.startsWith('--')) continue;
@@ -205,7 +203,7 @@ function buildMethods(a, b) {
 }
 
 /** Render one MDX file. */
-function renderMdx({ a, b, author, reviewer, today }) {
+function renderMdx({ a, b, today }) {
   const steps = buildSteps(a, b);
   const troubleshooting = buildTroubleshooting(a, b);
   const faq = buildFaq(a, b);
@@ -265,9 +263,7 @@ heading: ${yamlString(`How to Connect ${a.name} to ${b.name}`)}
 schemaType: "HowTo"
 softwareA: ${yamlString(a.slug)}
 softwareB: ${yamlString(b.slug)}
-${affiliateA}${affiliateB}author: ${yamlString(author)}
-reviewedBy: ${yamlString(reviewer)}
-publishDate: ${today}
+${affiliateA}${affiliateB}publishDate: ${today}
 updatedDate: ${today}
 useCase: ${yamlString(`Sync records from ${a.name} into ${b.name} automatically`)}
 difficulty: "beginner"
@@ -389,7 +385,7 @@ async function main() {
       continue;
     }
 
-    const content = renderMdx({ a, b, author: args.author, reviewer: args.reviewer, today });
+    const content = renderMdx({ a, b, today });
 
     if (args.dryRun) {
       console.log(`[dry-run] would write ${filename} (${content.length} bytes)`);
@@ -412,7 +408,7 @@ async function main() {
   if (written > 0 && !args.dryRun) {
     console.log(
       '\nGenerated pages are marked `draft: true` on purpose — they will not build until an\n' +
-        'author reviews the content and removes the flag. Publishing untouched template pages\n' +
+        'an editor verifies the content and removes the flag. Publishing untouched template pages\n' +
         "at scale is what Google's scaled-content-abuse policy targets.",
     );
   }

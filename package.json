@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "StackPipeline — workflow automation, data enrichment and B2B SaaS integration guides. Static Astro site tuned for Core Web Vitals, AdSense compliance and programmatic SEO.",
-  "homepage": "https://stackpipeline.com",
+  "homepage": "https://stack-pipeline.pages.dev",
   "engines": {
     "node": ">=22.12.0"
   },

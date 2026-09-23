@@ -20,8 +20,6 @@ import {
   reviewSchema,
   softwareProductSchema,
   faqSchema,
-  personSchema,
-  toAuthorInput,
 } from '@lib/schema';
 
 export async function getStaticPaths() {
@@ -36,13 +34,7 @@ interface Props {
 const { entry } = Astro.props;
 const { data } = entry;
 
-const [author, reviewer, tool] = await Promise.all([
-  getEntry(data.author),
-  data.reviewedBy ? getEntry(data.reviewedBy) : Promise.resolve(undefined),
-  getEntry(data.tool),
-]);
-
-if (!author) throw new Error(`Missing author for review "${entry.id}"`);
+const tool = await getEntry(data.tool);
 if (!tool) throw new Error(`Missing tool for review "${entry.id}"`);
 
 const { Content, headings } = await render(entry);
@@ -52,12 +44,7 @@ const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
 const affiliateUrl = data.affiliateLinkA?.url ?? tool.data.affiliateUrl ?? tool.data.website;
 
 
-const authorInput = toAuthorInput(author);
-const reviewerInput = reviewer ? toAuthorInput(reviewer) : undefined;
-
 const schema = [
-  personSchema(authorInput),
-  reviewerInput && reviewerInput.slug !== authorInput.slug ? personSchema(reviewerInput) : undefined,
   softwareProductSchema({
     url: pageUrl,
     name: tool.data.name,
@@ -80,7 +67,6 @@ const schema = [
     headline: data.heading ?? data.title,
     body: data.verdict,
     rating: { value: data.rating.value, best: data.rating.best, worst: data.rating.worst },
-    author: authorInput,
     datePublished: data.publishDate,
     dateModified: data.updatedDate ?? data.publishDate,
     pros: data.prosCons.pros,
@@ -93,8 +79,6 @@ const schema = [
     image: data.image,
     datePublished: data.publishDate,
     dateModified: data.updatedDate ?? data.publishDate,
-    author: authorInput,
-    reviewedBy: reviewerInput,
     section: 'Reviews',
     keywords: data.tags,
   }),
@@ -131,8 +115,6 @@ const pricingRows = data.pricing.length
   publishDate={data.publishDate}
   updatedDate={data.updatedDate}
   lastReviewedDate={data.lastReviewedDate}
-  author={author}
-  reviewer={reviewer}
   headings={headings}
   breadcrumbs={breadcrumbs}
   schema={schema}

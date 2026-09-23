@@ -1,200 +1,56 @@
 ---
 /**
- * Contact page.
+ * Public-contact status.
  *
- * A static site has no server to POST to, so the form uses a configurable endpoint
- * (Formspree/Netlify/Cloudflare Worker) via PUBLIC_CONTACT_ENDPOINT. When unset, it
- * degrades to mailto: links — which still satisfies AdSense's "contact information
- * must be available" requirement.
+ * A form is deliberately not rendered without a verified destination: accepting visitor
+ * data without a real, monitored channel would be misleading and unsafe.
  */
 import PageLayout from '@layouts/PageLayout.astro';
 import { SITE } from '@config/site';
 import { absoluteUrl } from '@lib/seo';
 import { webPageSchema } from '@lib/schema';
 
-const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
-
 const schema = [
   webPageSchema({
     url: absoluteUrl('/contact/'),
     title: `Contact ${SITE.name}`,
-    description: `Reach the ${SITE.name} editorial team.`,
+    description: `Current public contact status for ${SITE.name}.`,
     type: 'ContactPage',
   }),
-];
-
-const CHANNELS = [
-  {
-    title: 'Editorial & corrections',
-    email: SITE.email.editorial,
-    description:
-      'Spotted an error, an out-of-date price or a broken step? This is the fastest way to get it fixed. We respond within two business days.',
-  },
-  {
-    title: 'General enquiries',
-    email: SITE.email.general,
-    description: 'Questions about the site, requests for coverage, or anything else.',
-  },
-  {
-    title: 'Partnerships',
-    email: SITE.email.partnerships,
-    description:
-      'Affiliate programs and advertising. Note that we do not sell rankings, link insertions or sponsored placements.',
-  },
-  {
-    title: 'Privacy & data requests',
-    email: SITE.email.privacy,
-    description:
-      'GDPR and CCPA requests, including access, deletion and opt-out. We respond within 30 days.',
-  },
 ];
 ---
 
 <PageLayout
   title={`Contact ${SITE.name}`}
-  heading="Contact us"
-  description="Reach the editorial team directly. Corrections and factual challenges get priority — including from vendors."
+  heading="Contact status"
+  description="A verified public contact channel has not yet been configured."
   pageType="ContactPage"
   schema={schema}
-  prose={false}
 >
-  <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
-    {/* ---------- Channels ---------- */}
-    <div>
-      <h2 class="text-xl font-bold text-ink-950">Who to email</h2>
-      <ul class="mt-5 space-y-4">
-        {
-          CHANNELS.map((channel) => (
-            <li class="rounded-xl border border-ink-200 bg-white p-5 shadow-card">
-              <h3 class="text-sm font-bold text-ink-950">{channel.title}</h3>
-              <p class="mt-1.5 text-sm leading-relaxed text-ink-600">{channel.description}</p>
-              <a
-                href={`mailto:${channel.email}`}
-                class="mt-2.5 inline-block text-sm font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-4 hover:decoration-emerald-600"
-              >
-                {channel.email}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+  <p class="lead">
+    StackPipeline does not currently publish an email address, mailing address, social profile
+    or contact form because none has been verified for this project.
+  </p>
 
-      <div class="mt-6 rounded-xl border border-ink-200 bg-ink-50/60 p-5">
-        <h3 class="text-sm font-bold text-ink-950">Postal address</h3>
-        <address class="mt-2 not-italic text-sm leading-relaxed text-ink-600">
-          {SITE.legalEntity}<br />
-          {SITE.address.streetAddress}<br />
-          {SITE.address.addressLocality}, {SITE.address.addressRegion}{' '}
-          {SITE.address.postalCode}<br />
-          {SITE.address.addressCountry}
-        </address>
-      </div>
-    </div>
+  <h2 id="before-contact-is-enabled">Before contact is enabled</h2>
+  <p>
+    Before this page accepts messages, the publisher will provide a monitored contact channel,
+    identify the responsible legal entity where required, and update the Privacy Policy to
+    explain how messages are handled. Until then, please do not send personal information to
+    any address or account represented as StackPipeline.
+  </p>
 
-    {/* ---------- Form ---------- */}
-    <div>
-      <h2 class="text-xl font-bold text-ink-950">Send a message</h2>
+  <h2 id="corrections-and-privacy">Corrections and privacy requests</h2>
+  <p>
+    A corrections and privacy-request process is not yet available because there is no
+    verified channel to receive or respond to requests. Display advertising and contact-form
+    collection remain disabled while this is resolved.
+  </p>
 
-      <form
-        class="mt-5 space-y-4 rounded-2xl border border-ink-200 bg-white p-6 shadow-card"
-        method="POST"
-        action={endpoint || undefined}
-        {...(endpoint ? {} : { 'data-inactive': 'true' })}
-      >
-        <div>
-          <label for="name" class="block text-sm font-semibold text-ink-900">
-            Your name <span class="text-emerald-600" aria-hidden="true">*</span>
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            autocomplete="name"
-            class="mt-1.5 w-full rounded-lg border border-ink-300 px-3.5 py-2.5 text-sm text-ink-900 transition placeholder:text-ink-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            placeholder="Jane Doe"
-          />
-        </div>
-
-        <div>
-          <label for="email" class="block text-sm font-semibold text-ink-900">
-            Email address <span class="text-emerald-600" aria-hidden="true">*</span>
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            autocomplete="email"
-            class="mt-1.5 w-full rounded-lg border border-ink-300 px-3.5 py-2.5 text-sm text-ink-900 transition placeholder:text-ink-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            placeholder="jane@company.com"
-          />
-        </div>
-
-        <div>
-          <label for="topic" class="block text-sm font-semibold text-ink-900">Topic</label>
-          <select
-            id="topic"
-            name="topic"
-            class="mt-1.5 w-full rounded-lg border border-ink-300 bg-white px-3.5 py-2.5 text-sm text-ink-900 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-          >
-            <option value="correction">Report a correction</option>
-            <option value="editorial">Editorial enquiry</option>
-            <option value="coverage">Request coverage of a tool</option>
-            <option value="partnership">Partnership</option>
-            <option value="privacy">Privacy or data request</option>
-            <option value="other">Something else</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="message" class="block text-sm font-semibold text-ink-900">
-            Message <span class="text-emerald-600" aria-hidden="true">*</span>
-          </label>
-          <textarea
-            id="message"
-            name="message"
-            rows="6"
-            required
-            class="mt-1.5 w-full rounded-lg border border-ink-300 px-3.5 py-2.5 text-sm text-ink-900 transition placeholder:text-ink-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            placeholder="If you are reporting an error, please include the page URL and what is wrong."></textarea>
-        </div>
-
-        {/* Honeypot: bots fill this, humans never see it. */}
-        <div class="hidden" aria-hidden="true">
-          <label for="company-website">Leave this field empty</label>
-          <input type="text" id="company-website" name="_gotcha" tabindex="-1" autocomplete="off" />
-        </div>
-
-        <button
-          type="submit"
-          disabled={!endpoint}
-          class="w-full rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-emerald-glow transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-ink-300 disabled:shadow-none"
-        >
-          {endpoint ? 'Send message' : 'Form not configured'}
-        </button>
-
-        {
-          !endpoint && (
-            <p class="text-xs leading-relaxed text-ink-500">
-              This form is inactive because no submission endpoint is configured. Set{' '}
-              <code class="rounded bg-ink-100 px-1 py-0.5 font-mono text-[11px]">
-                PUBLIC_CONTACT_ENDPOINT
-              </code>{' '}
-              to enable it, or email us directly at{' '}
-              <a href={`mailto:${SITE.email.general}`} class="font-medium text-emerald-700 underline">
-                {SITE.email.general}
-              </a>
-              .
-            </p>
-          )
-        }
-
-        <p class="text-xs leading-relaxed text-ink-500">
-          By submitting, you agree to our <a href="/privacy-policy/" class="underline">Privacy Policy</a>.
-          We use your message only to respond and never add you to a marketing list.
-        </p>
-      </form>
-    </div>
-  </div>
+  <h2 id="publisher-readiness">Publisher readiness</h2>
+  <p>
+    This status is intentional: a real contact channel, legal identity and publisher ID are
+    prerequisites for an AdSense application. See <a href="/about/">About StackPipeline</a>
+    for the current publication status.
+  </p>
 </PageLayout>

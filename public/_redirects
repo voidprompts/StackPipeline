@@ -1,11 +1,7 @@
 # Cloudflare Pages redirects. First match wins.
 #
-# Canonical host enforcement: every duplicate entry point 301s to the apex domain so
-# link equity consolidates on one hostname and Search Console reports a single property.
-
-https://www.stackpipeline.com/*    https://stackpipeline.com/:splat    301
-http://stackpipeline.com/*         https://stackpipeline.com/:splat    301
-http://www.stackpipeline.com/*     https://stackpipeline.com/:splat    301
+# No custom-domain canonical redirect is configured while the Pages domain is the
+# verified public origin.
 
 # Common alternate paths people try, pointed at the real sections.
 /integration/*      /integrations/:splat     301

@@ -4,7 +4,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-const SITE_URL = 'https://stackpipeline.com';
+const SITE_URL = 'https://stack-pipeline.pages.dev';
 
 /**
  * Depth-aware sitemap prioritisation.
@@ -26,7 +26,7 @@ const SECTION_INDEXES = new Set([
   'guides',
 ]);
 
-const LOW_VALUE_SEGMENTS = new Set(['tag', 'category', 'page', 'authors']);
+const LOW_VALUE_SEGMENTS = new Set(['tag', 'category', 'page']);
 
 const LEGAL_PAGES = new Set([
   'privacy-policy',
@@ -110,7 +110,6 @@ export default defineConfig({
       // Keep utility routes and paginated duplicates out of the index.
       filter: (page) =>
         !page.includes('/404') &&
-        !page.includes('/search') &&
         !/\/page\/1\/?$/.test(page),
       serialize(item) {
         const { priority, changefreq } = grade(item.url);
