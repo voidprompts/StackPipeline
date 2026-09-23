@@ -4,18 +4,13 @@
  */
 import ListingLayout from '@layouts/ListingLayout.astro';
 import ContentCard from '@components/ui/ContentCard.astro';
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import { itemListSchema } from '@lib/schema';
 import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
 
 const entries = await getCollection('guides', ({ data }) => !data.draft);
 
-const enriched = await Promise.all(
-  entries.map(async (entry) => {
-    const author = await getEntry(entry.data.author);
-    return { entry, authorName: author?.data.name };
-  }),
-);
+const enriched = entries.map((entry) => ({ entry }));
 
 const sorted = enriched.sort(
   (a, b) =>
@@ -57,7 +52,7 @@ const schema = [
           date={item.entry.data.publishDate}
           updatedDate={item.entry.data.updatedDate}
           tags={item.entry.data.tags}
-          authorName={item.authorName}
+          authorName="StackPipeline Editorial Team"
           featured={item.entry.data.featured}
           readingTime={item.entry.data.readingTime ?? estimateReadingTime(item.entry.body ?? '')}
           headingLevel="h3"

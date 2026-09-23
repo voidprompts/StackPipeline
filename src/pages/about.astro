@@ -1,7 +1,7 @@
 ---
 /**
- * About page — the primary "who is behind this site" signal for both AdSense
- * reviewers and Google's quality raters.
+ * About page — explains the publisher, the organization byline, and the site's current
+ * publication status without inventing people, qualifications, or business details.
  */
 import PageLayout from '@layouts/PageLayout.astro';
 import { getCollection } from 'astro:content';
@@ -9,21 +9,21 @@ import { SITE } from '@config/site';
 import { absoluteUrl } from '@lib/seo';
 import { webPageSchema } from '@lib/schema';
 
-const authors = await getCollection('authors');
 const tools = await getCollection('tools');
-const [integrations, reviews, alternatives] = await Promise.all([
+const [integrations, reviews, alternatives, guides] = await Promise.all([
   getCollection('integrations', ({ data }) => !data.draft),
   getCollection('reviews', ({ data }) => !data.draft),
   getCollection('alternatives', ({ data }) => !data.draft),
+  getCollection('guides', ({ data }) => !data.draft),
 ]);
 
-const totalGuides = integrations.length + reviews.length + alternatives.length;
+const totalGuides = integrations.length + reviews.length + alternatives.length + guides.length;
 
 const schema = [
   webPageSchema({
     url: absoluteUrl('/about/'),
     title: `About ${SITE.name}`,
-    description: `Who runs ${SITE.name}, how the site is funded and how our testing process works.`,
+    description: `How ${SITE.name} attributes its content, handles commercial relationships and publishes editorial standards.`,
     type: 'AboutPage',
   }),
 ];
@@ -32,54 +32,46 @@ const schema = [
 <PageLayout
   title={`About ${SITE.name}`}
   heading={`About ${SITE.name}`}
-  description={`${SITE.name} is an independent publication covering workflow automation, data enrichment and B2B SaaS integrations — written by operators who have run these stacks in production.`}
+  description={`${SITE.name} covers workflow automation, data enrichment and B2B SaaS integrations.`}
   pageType="AboutPage"
   schema={schema}
   prose={false}
 >
   <div class="sp-prose prose prose-slate max-w-none">
-    <h2 id="why-this-exists">Why this site exists</h2>
+    <h2 id="what-this-site-is">What this site is</h2>
     <p>
-      Most software comparison content is written by people who have never deployed the
-      product. It summarises vendor marketing pages, ranks by commission rate, and quietly
-      omits the failure modes you only discover in month three.
+      {SITE.name} is an editorial project about the practical work of connecting and operating
+      B2B software. It publishes integration tutorials, software reviews, comparisons and a
+      tool directory for operations teams.
+    </p>
+
+    <h2 id="organization-byline">Organization-level attribution</h2>
+    <p>
+      Published articles are credited to the {SITE.name} Editorial Team, not to named
+      individuals. We removed fictional contributor profiles, biographies, credentials and
+      social links rather than present them as evidence of expertise.
     </p>
     <p>
-      {SITE.name} is the opposite of that. Every guide is written by someone who has run the
-      tool in production, every score comes from hands-on testing on a paid or trial plan,
-      and every price is re-verified on a fixed cycle. When a product we earn commission on
-      is the wrong choice, we say so.
+      When a real contributor is ready to be credited, their byline will include only details
+      that can be verified and that they have approved for publication. Until then, the
+      organization byline and the publication date are the correct attribution for each page.
     </p>
 
     <h2 id="what-we-cover">What we cover</h2>
     <ul>
-      <li>
-        <strong>Integration tutorials</strong> — how to connect two specific tools, including
-        the rate limits, deduplication traps and error handling the vendor docs skip.
-      </li>
-      <li>
-        <strong>Software reviews</strong> — scored against a fixed rubric so numbers are
-        comparable across products in the same category.
-      </li>
-      <li>
-        <strong>Alternatives and comparisons</strong> — the same production workflows rebuilt
-        on each platform, then measured.
-      </li>
-      <li>
-        <strong>A tool directory</strong> — normalised pricing and integration counts for every
-        vendor we track.
-      </li>
+      <li><strong>Integration tutorials</strong> — connecting specific tools and designing the surrounding workflow.</li>
+      <li><strong>Software reviews</strong> — structured assessments of B2B SaaS products.</li>
+      <li><strong>Alternatives and comparisons</strong> — side-by-side product research for common use cases.</li>
+      <li><strong>A tool directory</strong> — normalized product information for vendors we track.</li>
     </ul>
   </div>
 
-  {/* ---------- Stats ---------- */}
-  <dl class="not-prose my-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+  <dl class="not-prose my-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
     {
       [
-        { label: 'Guides published', value: totalGuides },
+        { label: 'Pages published', value: totalGuides },
         { label: 'Tools tracked', value: tools.length },
-        { label: 'Hours of testing', value: '400+' },
-        { label: 'Review cycle', value: '90 days' },
+        { label: 'Public attribution', value: 'Organization' },
       ].map((stat) => (
         <div class="rounded-xl border border-ink-200 bg-white p-5 text-center shadow-card">
           <dt class="text-xs uppercase tracking-wider text-ink-500">{stat.label}</dt>
@@ -89,85 +81,38 @@ const schema = [
     }
   </dl>
 
-  {/* ---------- Team ---------- */}
-  <section class="not-prose my-12" aria-labelledby="team-heading">
-    <h2 id="team-heading" class="text-2xl font-bold text-ink-950">Who writes {SITE.name}</h2>
-    <p class="mt-2 text-ink-600">
-      Three people, all with operating experience in the categories they cover.
+  <section class="not-prose my-12 rounded-2xl border border-amber-200 bg-amber-50 p-6" aria-labelledby="publisher-status">
+    <h2 id="publisher-status" class="text-xl font-bold text-ink-950">Publisher status</h2>
+    <p class="mt-3 text-sm leading-relaxed text-ink-700">
+      A verified legal entity, mailing address, public contact channel, social profiles and
+      advertising publisher ID have not yet been established for this project. They are not
+      represented on this site. Display advertising is disabled, and the site is not ready for
+      an AdSense application.
     </p>
-
-    <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        authors.map((author) => {
-          const initials = author.data.name
-            .split(' ')
-            .map((part) => part[0])
-            .slice(0, 2)
-            .join('')
-            .toUpperCase();
-          return (
-            <article class="group relative rounded-2xl border border-ink-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
-              <span
-                class="grid h-12 w-12 place-items-center rounded-full bg-ink-950 text-base font-bold text-emerald-400"
-                aria-hidden="true"
-              >
-                {initials}
-              </span>
-              <h3 class="mt-4 text-base font-bold text-ink-950">
-                <a
-                  href={`/authors/${author.data.slug}/`}
-                  class="before:absolute before:inset-0 before:content-[''] group-hover:text-emerald-700"
-                >
-                  {author.data.name}
-                </a>
-              </h3>
-              <p class="text-sm font-medium text-ink-500">{author.data.role}</p>
-              <p class="mt-2.5 text-sm leading-relaxed text-ink-600">{author.data.shortBio}</p>
-              {author.data.yearsExperience && (
-                <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                  {author.data.yearsExperience}+ years experience
-                </p>
-              )}
-            </article>
-          );
-        })
-      }
-    </div>
   </section>
 
   <div class="sp-prose prose prose-slate max-w-none">
-    <h2 id="how-we-are-funded">How we are funded</h2>
+    <h2 id="editorial-standards">Editorial standards</h2>
     <p>
-      {SITE.name} is free to read and funded by affiliate commissions and display advertising.
-      That creates a conflict of interest, so we manage it structurally rather than with a
-      promise: testing is completed and scores are locked before anyone checks whether an
-      affiliate program exists, and the person running the test does not know the commission
-      rate.
-    </p>
-    <p>
-      The full detail is in our <a href="/affiliate-disclosure/">Affiliate Disclosure</a> and{' '}
-      <a href="/editorial-policy/">Editorial Policy</a>.
+      Our <a href="/editorial-policy/">Editorial Policy</a> explains the sourcing,
+      corrections and attribution standards that apply to published content. Our{' '}
+      <a href="/how-we-test/">testing methodology</a> describes the intended evaluation
+      framework for product assessments.
     </p>
 
-    <h2 id="corrections">Corrections</h2>
+    <h2 id="commercial-relationships">Commercial relationships</h2>
     <p>
-      We get things wrong sometimes, and vendors change pricing without warning. If you spot
-      an error, email <a href={`mailto:${SITE.email.editorial}`}>{SITE.email.editorial}</a>.
-      Substantive corrections are noted on the page with the date of the change.
+      {SITE.name} may earn affiliate commissions from qualifying links. The{' '}
+      <a href="/affiliate-disclosure/">Affiliate Disclosure</a> explains how those links are
+      labeled and how commercial relationships should be kept separate from editorial work.
+      No display advertising is currently enabled.
     </p>
 
-    <h2 id="contact-us">Get in touch</h2>
+    <h2 id="contact-status">Contact status</h2>
     <p>
-      General enquiries: <a href={`mailto:${SITE.email.general}`}>{SITE.email.general}</a>
-      <br />
-      Editorial and corrections:{' '}
-      <a href={`mailto:${SITE.email.editorial}`}>{SITE.email.editorial}</a>
-      <br />
-      Partnerships:{' '}
-      <a href={`mailto:${SITE.email.partnerships}`}>{SITE.email.partnerships}</a>
-    </p>
-    <p>
-      Or use the <a href="/contact/">contact page</a>.
+      A verified public contact channel has not yet been configured. The{' '}
+      <a href="/contact/">contact page</a> will be updated when one is available. Until then,
+      please do not send personal information through this site.
     </p>
   </div>
 </PageLayout>

@@ -80,7 +80,6 @@ const SEGMENT_LABELS: Record<string, string> = {
   alternatives: 'Alternatives',
   guides: 'Guides',
   tools: 'Tools',
-  authors: 'Authors',
   tag: 'Topics',
 };
 

@@ -2,9 +2,8 @@
 /**
  * Global footer.
  *
- * Carries the three link clusters AdSense reviewers look for (content, company, legal),
- * a persistent affiliate disclosure, and the contact address. A reviewer must be able to
- * reach the privacy policy from any page in one click — that is enforced here.
+ * Legal and editorial links stay one click away on every page. Contact details and social
+ * accounts are intentionally not shown until verified public channels exist.
  */
 import { SITE, FOOTER_NAV, DISCLOSURE } from '@config/site';
 
@@ -39,71 +38,11 @@ const year = new Date().getFullYear();
           </span>
         </a>
 
-        <p class="mt-4 max-w-sm text-sm leading-relaxed text-ink-300">
-          {SITE.tagline}. Independent, hands-on testing of the tools revenue and operations
-          teams actually deploy.
+        <p class="mt-4 max-w-sm text-sm leading-relaxed text-ink-300">{SITE.tagline}.</p>
+        <p class="mt-5 max-w-sm text-xs leading-relaxed text-ink-400">
+          Articles use an organization byline while contributor and publisher details are being
+          verified. No display advertising is currently enabled.
         </p>
-
-        <address class="mt-5 not-italic text-sm text-ink-400">
-          <a
-            href={`mailto:${SITE.email.general}`}
-            class="text-emerald-400 underline decoration-emerald-400/40 hover:decoration-emerald-400"
-          >
-            {SITE.email.general}
-          </a>
-          <span class="mt-1 block">
-            {SITE.address.streetAddress}, {SITE.address.addressLocality},{' '}
-            {SITE.address.addressRegion} {SITE.address.postalCode}
-          </span>
-        </address>
-
-        <ul class="mt-5 flex items-center gap-3">
-          <li>
-            <a
-              href={SITE.social.x}
-              rel="noopener noreferrer me"
-              target="_blank"
-              class="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-ink-300 transition hover:bg-white/10 hover:text-white"
-              aria-label={`${SITE.name} on X`}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path
-                  d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
-                ></path>
-              </svg>
-            </a>
-          </li>
-          <li>
-            <a
-              href={SITE.social.linkedin}
-              rel="noopener noreferrer me"
-              target="_blank"
-              class="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-ink-300 transition hover:bg-white/10 hover:text-white"
-              aria-label={`${SITE.name} on LinkedIn`}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path
-                  d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12M7.12 20.45H3.56V9h3.56zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0"
-                ></path>
-              </svg>
-            </a>
-          </li>
-          <li>
-            <a
-              href={SITE.social.github}
-              rel="noopener noreferrer me"
-              target="_blank"
-              class="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-ink-300 transition hover:bg-white/10 hover:text-white"
-              aria-label={`${SITE.name} on GitHub`}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path
-                  d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"
-                ></path>
-              </svg>
-            </a>
-          </li>
-        </ul>
       </div>
 
       {
@@ -113,10 +52,7 @@ const year = new Date().getFullYear();
             <ul class="mt-4 space-y-2.5">
               {links.map((link) => (
                 <li>
-                  <a
-                    href={link.href}
-                    class="text-sm text-ink-300 transition hover:text-emerald-400"
-                  >
+                  <a href={link.href} class="text-sm text-ink-300 transition hover:text-emerald-400">
                     {link.label}
                   </a>
                 </li>
@@ -127,7 +63,6 @@ const year = new Date().getFullYear();
       }
     </div>
 
-    {/* Persistent affiliate disclosure — visible from every page, as the FTC requires. */}
     <div class="mt-12 rounded-xl border border-white/10 bg-white/5 p-4">
       <p class="text-xs leading-relaxed text-ink-300">
         <strong class="font-semibold text-white">Affiliate disclosure:</strong>{' '}
@@ -142,12 +77,8 @@ const year = new Date().getFullYear();
       </p>
     </div>
 
-    <div
-      class="mt-8 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center"
-    >
-      <p class="text-xs text-ink-400">
-        © {year} {SITE.legalEntity}. All rights reserved. {SITE.domain}
-      </p>
+    <div class="mt-8 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
+      <p class="text-xs text-ink-400">© {year} {SITE.name}. {SITE.domain}</p>
       <ul class="flex flex-wrap items-center gap-x-5 gap-y-2">
         {
           FOOTER_NAV.Legal.map((link) => (

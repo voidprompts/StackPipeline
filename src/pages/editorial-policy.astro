@@ -5,132 +5,70 @@ import { SITE, LEGAL } from '@config/site';
 
 <PageLayout
   title="Editorial Policy"
-  description={`${SITE.name}'s standards for sourcing, fact-checking, corrections, AI use and the separation between commercial and editorial decisions.`}
+  description={`${SITE.name}'s publication standards for attribution, sourcing, corrections, commercial relationships and AI assistance.`}
   effectiveDate={LEGAL.effectiveDate}
   lastUpdated={LEGAL.lastUpdated}
 >
   <p class="lead">
-    This policy describes how {SITE.name} content is produced, reviewed and corrected. It
-    exists so readers can audit our process rather than take our word for it.
+    This policy states the standards StackPipeline uses and the limits of its current public
+    attribution. It does not invent contributor identities, qualifications or review activity
+    to make the site appear more established than it is.
   </p>
 
-  <h2 id="independence">1. Editorial independence</h2>
+  <h2 id="attribution">1. Attribution</h2>
   <p>
-    Editorial decisions are made independently of commercial relationships. Specifically:
-  </p>
-  <ul>
-    <li>No vendor receives pre-publication review of any article about their product</li>
-    <li>No vendor can pay for inclusion, placement or a higher score</li>
-    <li>Advertisers have no input into editorial calendars or conclusions</li>
-    <li>
-      Writers assign scores before anyone checks whether an affiliate program exists, and are
-      not told commission rates
-    </li>
-  </ul>
-
-  <h2 id="sourcing">2. Sourcing standards</h2>
-  <p>Every factual claim must be traceable to one of:</p>
-  <ul>
-    <li><strong>Primary testing</strong> — our own hands-on use, with hours logged on the page</li>
-    <li><strong>Vendor documentation</strong> — official docs or pricing pages, dated when cited</li>
-    <li><strong>Named expert sources</strong> — practitioners identified by name and role</li>
-    <li><strong>Published research</strong> — linked directly to the original, never to a summary</li>
-  </ul>
-  <p>
-    We do not cite competitor articles as sources of fact, and we do not republish vendor
-    marketing claims without independently checking them.
+    Articles are currently published under the StackPipeline Editorial Team organization
+    byline. No individual author profile, credential, employment history or social account is
+    shown unless it is real, verifiable and approved by that contributor. Article JSON-LD uses
+    the Organization as author and publisher; it does not emit Person entities or <code>sameAs</code>
+    links for fictional people.
   </p>
 
-  <h2 id="testing">3. Testing requirements</h2>
+  <h2 id="evidence-and-sourcing">2. Evidence and sourcing</h2>
   <p>
-    A product cannot be scored unless a member of our team has used it. For reviews, that
-    means a minimum of 20 hours on a paid or full-featured trial plan. Our{' '}
-    <a href="/how-we-test/">testing methodology</a> sets out the rubric and weighting.
-  </p>
-  <p>
-    Where we have not tested a product ourselves, we say so explicitly and do not assign a
-    score.
+    Factual product claims should be traced to primary testing, current vendor documentation,
+    a named source, or original research. A page must distinguish between an observed result,
+    a vendor claim and editorial interpretation. Vendor marketing copy and AI output are not
+    evidence by themselves.
   </p>
 
-  <h2 id="fact-checking">4. Fact-checking and review</h2>
+  <h2 id="reviews-and-testing">3. Reviews and testing</h2>
   <p>
-    All comparison and review content is fact-checked by a second person before publication.
-    The fact-checker independently verifies:
-  </p>
-  <ul>
-    <li>Every price against the vendor's live pricing page on the day of review</li>
-    <li>Every feature claim against current product documentation</li>
-    <li>Every statistic against its cited source</li>
-    <li>That pros and cons reflect the testing notes rather than vendor positioning</li>
-  </ul>
-  <p>
-    The fact-checker is named on the page. Articles display a "Fact-checked by" badge only
-    when this review has actually taken place.
+    A review or comparison should describe its test scope, plan or environment, date, and
+    material limitations. Scores should not be published or refreshed simply to create the
+    appearance of hands-on testing. The <a href="/how-we-test/">testing methodology</a> is the
+    standard intended for new and revised scored content.
   </p>
 
-  <h2 id="review-cycle">5. Update and review cycle</h2>
+  <h2 id="commercial-independence">4. Commercial independence</h2>
   <p>
-    SaaS pricing changes constantly, so published content is not treated as finished:
-  </p>
-  <ul>
-    <li><strong>Pricing pages and reviews</strong> — re-verified every 90 days</li>
-    <li><strong>Integration tutorials</strong> — re-tested every 180 days, or immediately after a vendor UI change</li>
-    <li><strong>Comparisons</strong> — re-scored annually, or when a competitor ships a material feature</li>
-  </ul>
-  <p>
-    The "Last updated" and "Verified" dates on each article reflect real review events, not
-    cosmetic edits. We do not bump dates to game freshness signals.
+    Potential affiliate compensation must not determine a product's score, rank, coverage or
+    editorial conclusion. Qualifying links should be disclosed clearly and marked as sponsored
+    for search engines. StackPipeline currently has no configured display-advertising publisher
+    ID; see the <a href="/affiliate-disclosure/">Affiliate Disclosure</a> for more detail.
   </p>
 
-  <h2 id="corrections">6. Corrections policy</h2>
+  <h2 id="corrections">5. Corrections and updates</h2>
   <p>
-    When we get something wrong, we fix it and say so. Substantive corrections — anything
-    affecting a score, price, recommendation or factual claim — are noted at the foot of the
-    article with the date and nature of the change. Typos and formatting fixes are made
-    silently.
-  </p>
-  <p>
-    Report an error to <a href={`mailto:${SITE.email.editorial}`}>{SITE.email.editorial}</a>.
-    We aim to respond within two business days.
+    Material updates should identify what changed and when. A page should not receive a new
+    review date merely for a cosmetic edit. A public corrections process will be published when
+    a verified, monitored contact channel is available; until then, the site does not claim a
+    response-time commitment.
   </p>
 
-  <h2 id="ai-use">7. Use of AI tools</h2>
+  <h2 id="ai-use">6. AI assistance</h2>
   <p>
-    We use AI assistance for research triage, outlining and copy editing. We do not publish
-    AI-generated articles. Specifically:
-  </p>
-  <ul>
-    <li>Every article is written, edited and signed off by a named human author</li>
-    <li>All testing data, scores and screenshots come from actual product use, never generation</li>
-    <li>No factual claim enters an article on the authority of a language model</li>
-    <li>AI-assisted drafts receive the same fact-checking as any other content</li>
-  </ul>
-
-  <h2 id="authorship">8. Authorship and expertise</h2>
-  <p>
-    Every article carries a named byline with a linked profile listing the author's relevant
-    experience and credentials. We do not use pen names, generic "staff" bylines or fabricated
-    author personas. Writers only cover categories where they have direct operating experience.
+    AI tools may assist with research triage, outlining or copy editing, but they are not a
+    source of factual authority. Any claims, test records and citations must be reviewed before
+    publication. Content should not claim a human test, editor, credential or contributor that
+    does not exist.
   </p>
 
-  <h2 id="conflicts">9. Conflicts of interest</h2>
+  <h2 id="publisher-readiness">7. Publisher readiness</h2>
   <p>
-    Contributors must disclose any financial interest, employment history or advisory
-    relationship with a vendor they cover. Where a conflict exists, either the contributor is
-    reassigned or the relationship is disclosed prominently on the article.
-  </p>
-
-  <h2 id="sponsored-content">10. Sponsored content</h2>
-  <p>
-    We do not currently publish sponsored posts, paid guest articles or link insertions. If we
-    ever do, such content will be labelled "Sponsored" in the page header, excluded from
-    rankings and scored content, and marked with <code>rel="sponsored"</code> on all outbound
-    links.
-  </p>
-
-  <h2 id="contact">11. Contact the editorial team</h2>
-  <p>
-    Editorial Director: Priya Raghunathan —{' '}
-    <a href={`mailto:${SITE.email.editorial}`}>{SITE.email.editorial}</a>
+    Before applying to AdSense or enabling display ads, StackPipeline will publish a verified
+    legal identity, public contact and privacy channels, a genuine publisher ID in
+    <code>ads.txt</code>, and accurate public attribution. See <a href="/about/">About
+    StackPipeline</a> for the current status.
   </p>
 </PageLayout>

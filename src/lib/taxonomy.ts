@@ -19,12 +19,6 @@ export type TaggedItem = {
   id: string;
   base: string;
   type: string;
-  /**
-   * Author reference id, lifted out of `data` at construction time. `data` is a loose
-   * Record because it spans four collections with different shapes, so reading
-   * `data.author` back out would lose the type. This keeps author lookups typed.
-   */
-  authorId: string;
   data: Record<string, any>;
   body?: string;
 };
@@ -57,7 +51,6 @@ export async function getTagIndex(): Promise<Map<string, TagRecord>> {
       id: entry.id,
       base: '/integrations',
       type: 'Integration',
-      authorId: entry.data.author.id,
       data: entry.data as Record<string, any>,
       body: entry.body,
     })),
@@ -65,7 +58,6 @@ export async function getTagIndex(): Promise<Map<string, TagRecord>> {
       id: entry.id,
       base: '/reviews',
       type: 'Review',
-      authorId: entry.data.author.id,
       data: entry.data as Record<string, any>,
       body: entry.body,
     })),
@@ -73,7 +65,6 @@ export async function getTagIndex(): Promise<Map<string, TagRecord>> {
       id: entry.id,
       base: '/alternatives',
       type: 'Comparison',
-      authorId: entry.data.author.id,
       data: entry.data as Record<string, any>,
       body: entry.body,
     })),
@@ -81,7 +72,6 @@ export async function getTagIndex(): Promise<Map<string, TagRecord>> {
       id: entry.id,
       base: '/guides',
       type: 'Guide',
-      authorId: entry.data.author.id,
       data: entry.data as Record<string, any>,
       body: entry.body,
     })),

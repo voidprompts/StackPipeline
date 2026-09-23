@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * Editorial review loop — the operational half of E-E-A-T.
+ * Editorial review reminder.
  *
- * Claiming a review cycle in your editorial policy is worthless unless something
- * enforces it. This script scans published content, compares each page's review date
- * against the cadence for its type, and reports what is overdue.
+ * This script compares published pages against configurable target cycles and reports
+ * candidates for review. A reported date is a prompt for editorial work, not evidence
+ * that a page has been fact-checked.
  *
  * USAGE
  *   node scripts/editorial-review.mjs                 # report overdue content
@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT_DIR = path.join(ROOT, 'src/content');
 
-/** Review cadence in days, per collection. Mirrors the published editorial policy. */
+/** Target review intervals in days, per collection. */
 const CADENCE = {
   reviews: 90,
   alternatives: 90,

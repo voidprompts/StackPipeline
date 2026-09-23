@@ -15,7 +15,6 @@ export const GET: APIRoute = () => {
 
 User-agent: *
 Allow: /
-Disallow: /search
 Disallow: /*?q=
 Disallow: /404
 

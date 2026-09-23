@@ -66,9 +66,6 @@ const editorialBase = {
   description: z.string().min(50).max(155),
   /** Optional override when the <h1> should differ from the <title> tag. */
   heading: z.string().max(110).optional(),
-  author: reference('authors'),
-  /** Second byline for the editorial review loop that proves E-E-A-T. */
-  reviewedBy: reference('authors').optional(),
   publishDate: z.coerce.date(),
   updatedDate: z.coerce.date().optional(),
   /** Set by the editorial review script; surfaced as a "Verified" badge. */
@@ -251,33 +248,4 @@ const tools = defineCollection({
   }),
 });
 
-/**
- * AUTHORS — E-E-A-T entity records.
- * Referenced by every editorial page and emitted as Person schema.
- */
-const authors = defineCollection({
-  loader: file('./src/content/authors/authors.json'),
-  schema: z.object({
-    name: z.string(),
-    slug: z.string(),
-    role: z.string(),
-    bio: z.string().min(80),
-    shortBio: z.string().max(200),
-    avatar: z.string().optional(),
-    email: z.string().email().optional(),
-    /** sameAs targets for Person schema — the strongest authorship signal available. */
-    links: z
-      .object({
-        linkedin: z.string().url().optional(),
-        x: z.string().url().optional(),
-        github: z.string().url().optional(),
-        website: z.string().url().optional(),
-      })
-      .default({}),
-    expertise: z.array(z.string()).default([]),
-    credentials: z.array(z.string()).default([]),
-    yearsExperience: z.number().int().min(0).optional(),
-  }),
-});
-
-export const collections = { integrations, reviews, alternatives, guides, tools, authors };
+export const collections = { integrations, reviews, alternatives, guides, tools };

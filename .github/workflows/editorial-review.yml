@@ -55,7 +55,7 @@ jobs:
             const title = '📋 Content past its editorial review cadence';
             const body = [
               'The following published pages are past the review cadence declared in our',
-              '[editorial policy](https://stackpipeline.com/editorial-policy/).',
+              '[editorial policy](https://stack-pipeline.pages.dev/editorial-policy/).',
               '',
               'Re-verify live vendor pricing and product claims, then stamp each file:',
               '',

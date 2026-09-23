@@ -5,8 +5,7 @@ import { absoluteUrl, isoDate, type BreadcrumbEntry } from './seo';
  * JSON-LD builders.
  *
  * Everything is emitted as a single connected graph using `@id` references rather than a
- * pile of disconnected blocks. Google resolves entity relationships (Article -> author ->
- * Organization -> WebSite) far more reliably this way, and it eliminates the duplicated
+ * pile of disconnected blocks. Google resolves entity relationships (Article -> Organization -> WebSite) far more reliably this way, and it eliminates the duplicated
  * Organization payload that normally appears on every page.
  */
 
@@ -26,7 +25,6 @@ export const IDS = {
   howto: (url: string) => `${url}#howto`,
   faq: (url: string) => `${url}#faq`,
   itemlist: (url: string) => `${url}#itemlist`,
-  person: (slug: string) => `${SITE.url}/authors/${slug}/#person`,
 } as const;
 
 export function organizationSchema(): JsonLdNode {
@@ -34,10 +32,8 @@ export function organizationSchema(): JsonLdNode {
     '@type': 'Organization',
     '@id': IDS.organization,
     name: SITE.name,
-    legalName: SITE.legalEntity,
     url: `${SITE.url}/`,
     description: SITE.shortDescription,
-    foundingDate: SITE.founded,
     logo: {
       '@type': 'ImageObject',
       '@id': IDS.logo,
@@ -48,25 +44,6 @@ export function organizationSchema(): JsonLdNode {
       caption: SITE.name,
     },
     image: { '@id': IDS.logo },
-    sameAs: [SITE.social.x, SITE.social.linkedin, SITE.social.github, SITE.social.youtube],
-    contactPoint: [
-      {
-        '@type': 'ContactPoint',
-        contactType: 'editorial',
-        email: SITE.email.editorial,
-        availableLanguage: ['English'],
-      },
-      {
-        '@type': 'ContactPoint',
-        contactType: 'customer support',
-        email: SITE.email.general,
-        availableLanguage: ['English'],
-      },
-    ],
-    address: {
-      '@type': 'PostalAddress',
-      ...SITE.address,
-    },
     publishingPrinciples: absoluteUrl('/editorial-policy/'),
     // Explicitly declares the monetization model — an E-E-A-T transparency signal.
     ethicsPolicy: absoluteUrl('/affiliate-disclosure/'),
@@ -91,7 +68,6 @@ export function websiteSchema(): JsonLdNode {
     inLanguage: SITE.language,
     publisher: { '@id': IDS.organization },
     copyrightHolder: { '@id': IDS.organization },
-    copyrightYear: Number(SITE.founded),
   };
 }
 
@@ -153,39 +129,6 @@ export function imageObjectSchema(url: string, imageUrl: string, caption?: strin
   };
 }
 
-export type AuthorInput = {
-  name: string;
-  slug: string;
-  role?: string;
-  bio?: string;
-  url?: string;
-  sameAs?: string[];
-  expertise?: string[];
-  credentials?: string[];
-};
-
-export function personSchema(author: AuthorInput): JsonLdNode {
-  return {
-    '@type': 'Person',
-    '@id': IDS.person(author.slug),
-    name: author.name,
-    url: author.url ?? absoluteUrl(`/authors/${author.slug}/`),
-    ...(author.role ? { jobTitle: author.role } : {}),
-    ...(author.bio ? { description: author.bio } : {}),
-    ...(author.expertise?.length ? { knowsAbout: author.expertise } : {}),
-    ...(author.credentials?.length
-      ? {
-          hasCredential: author.credentials.map((credential) => ({
-            '@type': 'EducationalOccupationalCredential',
-            name: credential,
-          })),
-        }
-      : {}),
-    ...(author.sameAs?.length ? { sameAs: author.sameAs } : {}),
-    worksFor: { '@id': IDS.organization },
-  };
-}
-
 export type ArticleInput = {
   url: string;
   headline: string;
@@ -193,8 +136,6 @@ export type ArticleInput = {
   image?: string;
   datePublished: Date | string;
   dateModified?: Date | string;
-  author: AuthorInput;
-  reviewedBy?: AuthorInput;
   section?: string;
   keywords?: string[];
   wordCount?: number;
@@ -210,13 +151,7 @@ export function articleSchema(input: ArticleInput): JsonLdNode {
     description: input.description,
     datePublished: isoDate(input.datePublished),
     dateModified: isoDate(input.dateModified ?? input.datePublished),
-    author: { '@id': IDS.person(input.author.slug) },
-    ...(input.reviewedBy
-      ? {
-          reviewedBy: { '@id': IDS.person(input.reviewedBy.slug) },
-          contributor: { '@id': IDS.person(input.reviewedBy.slug) },
-        }
-      : {}),
+    author: { '@id': IDS.organization },
     publisher: { '@id': IDS.organization },
     ...(input.image ? { image: { '@id': IDS.primaryImage(input.url) } } : {}),
     ...(input.section ? { articleSection: input.section } : {}),
@@ -359,7 +294,6 @@ export type ReviewInput = {
   headline: string;
   body: string;
   rating: { value: number; best?: number; worst?: number };
-  author: AuthorInput;
   datePublished: Date | string;
   dateModified?: Date | string;
   pros?: string[];
@@ -377,7 +311,7 @@ export function reviewSchema(input: ReviewInput): JsonLdNode {
     reviewBody: input.body,
     datePublished: isoDate(input.datePublished),
     dateModified: isoDate(input.dateModified ?? input.datePublished),
-    author: { '@id': IDS.person(input.author.slug) },
+    author: { '@id': IDS.organization },
     publisher: { '@id': IDS.organization },
     itemReviewed: { '@id': IDS.product(input.url) },
     reviewRating: {
@@ -464,33 +398,4 @@ export function buildGraph(nodes: Array<JsonLdNode | undefined | false | null>):
     // Strip characters that could break out of the <script> context.
     (_key, value) => (typeof value === 'string' ? value.replace(/<\/script/gi, '<\\/script') : value),
   );
-}
-
-/**
- * Map an `authors` collection entry onto the `AuthorInput` shape used by `personSchema`.
- *
- * Lives here rather than in each route because all four editorial templates need the
- * identical mapping, and the `links` -> `sameAs` flattening is easy to get subtly wrong
- * (an undefined social link must be dropped, not serialised as null).
- */
-export function toAuthorInput(record: {
-  data: {
-    name: string;
-    slug: string;
-    role: string;
-    shortBio: string;
-    expertise: string[];
-    credentials: string[];
-    links: Record<string, string | undefined>;
-  };
-}): AuthorInput {
-  return {
-    name: record.data.name,
-    slug: record.data.slug,
-    role: record.data.role,
-    bio: record.data.shortBio,
-    expertise: record.data.expertise,
-    credentials: record.data.credentials,
-    sameAs: Object.values(record.data.links).filter((link): link is string => Boolean(link)),
-  };
 }

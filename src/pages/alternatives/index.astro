@@ -4,18 +4,13 @@
  */
 import ListingLayout from '@layouts/ListingLayout.astro';
 import ContentCard from '@components/ui/ContentCard.astro';
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import { itemListSchema } from '@lib/schema';
 import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
 
 const entries = await getCollection('alternatives', ({ data }) => !data.draft);
 
-const enriched = await Promise.all(
-  entries.map(async (entry) => {
-    const author = await getEntry(entry.data.author);
-    return { entry, authorName: author?.data.name };
-  }),
-);
+const enriched = entries.map((entry) => ({ entry }));
 
 const sorted = enriched.sort(
   (a, b) =>
@@ -40,12 +35,12 @@ const schema = [
 <ListingLayout
   title="Alternatives & Comparisons"
   heading="Software alternatives and comparisons"
-  description="Ranked breakdowns of competing B2B tools, tested on identical workflows so the comparison reflects real differences rather than feature-list marketing."
+  description="Ranked breakdowns of competing B2B tools, with assumptions and limitations readers can assess."
   count={entries.length}
   countLabel="comparisons"
   schema={schema}
   breadcrumbLeaf="Alternatives"
-  intro="Every comparison here is built by rebuilding the same set of production workflows on each platform, then measuring build time, cost at volume and behaviour under induced failures."
+  intro="Comparisons should use consistent workflows and volume assumptions, then state the source, date and limitations behind each conclusion."
 >
   <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
     {
@@ -58,7 +53,7 @@ const schema = [
           date={item.entry.data.publishDate}
           updatedDate={item.entry.data.updatedDate}
           tags={item.entry.data.tags}
-          authorName={item.authorName}
+          authorName="StackPipeline Editorial Team"
           featured={item.entry.data.featured}
           readingTime={item.entry.data.readingTime ?? estimateReadingTime(item.entry.body ?? '')}
           headingLevel="h3"

@@ -8,7 +8,6 @@
  */
 import ListingLayout from '@layouts/ListingLayout.astro';
 import ContentCard from '@components/ui/ContentCard.astro';
-import { getEntry } from 'astro:content';
 import { itemListSchema } from '@lib/schema';
 import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
 import { getIndexableTags, type TaggedItem } from '@lib/taxonomy';
@@ -29,20 +28,13 @@ interface Props {
 const { tagLabel, items } = Astro.props;
 const tagSlugParam = Astro.params.tag as string;
 
-const withAuthors = await Promise.all(
-  items.map(async (item) => {
-    const author = await getEntry('authors', item.authorId);
-    return { ...item, authorName: author?.data.name };
-  }),
-);
-
-const sorted = withAuthors.sort(
+const sorted = [...items].sort(
   (a, b) =>
     (b.data.updatedDate ?? b.data.publishDate).getTime() -
     (a.data.updatedDate ?? a.data.publishDate).getTime(),
 );
 
-const description = `Every ${tagLabel} guide, review and comparison on StackPipeline — hands-on tutorials and tested software breakdowns for automation teams.`;
+const description = `Every ${tagLabel} guide, review and comparison on StackPipeline for automation teams.`;
 
 const schema = [
   itemListSchema(
@@ -78,7 +70,7 @@ const schema = [
           date={item.data.publishDate}
           updatedDate={item.data.updatedDate}
           tags={item.data.tags}
-          authorName={item.authorName}
+          authorName="StackPipeline Editorial Team"
           readingTime={item.data.readingTime ?? estimateReadingTime(item.body ?? '')}
           headingLevel="h3"
         />

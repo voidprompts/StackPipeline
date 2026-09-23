@@ -19,8 +19,6 @@ import {
   articleSchema,
   howToSchema,
   faqSchema,
-  personSchema,
-  toAuthorInput,
 } from '@lib/schema';
 
 export async function getStaticPaths() {
@@ -35,14 +33,10 @@ interface Props {
 const { entry } = Astro.props;
 const { data } = entry;
 
-const [author, reviewer, softwareA, softwareB] = await Promise.all([
-  getEntry(data.author),
-  data.reviewedBy ? getEntry(data.reviewedBy) : Promise.resolve(undefined),
+const [softwareA, softwareB] = await Promise.all([
   getEntry(data.softwareA),
   getEntry(data.softwareB),
 ]);
-
-if (!author) throw new Error(`Missing author for integration "${entry.id}"`);
 if (!softwareA || !softwareB) throw new Error(`Missing tool reference for "${entry.id}"`);
 
 const { Content, headings } = await render(entry);
@@ -50,14 +44,7 @@ const { Content, headings } = await render(entry);
 const pageUrl = absoluteUrl(`/integrations/${entry.id}/`);
 const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
 
-/** Map an author entry onto the schema helper's input shape. */
-
-const authorInput = toAuthorInput(author);
-const reviewerInput = reviewer ? toAuthorInput(reviewer) : undefined;
-
 const schema = [
-  personSchema(authorInput),
-  reviewerInput && reviewerInput.slug !== authorInput.slug ? personSchema(reviewerInput) : undefined,
   howToSchema({
     url: pageUrl,
     name: data.heading ?? data.title,
@@ -78,8 +65,6 @@ const schema = [
     image: data.image,
     datePublished: data.publishDate,
     dateModified: data.updatedDate ?? data.publishDate,
-    author: authorInput,
-    reviewedBy: reviewerInput,
     section: 'Integrations',
     keywords: data.tags,
   }),
@@ -130,8 +115,6 @@ const methodRows = data.methods.length
   publishDate={data.publishDate}
   updatedDate={data.updatedDate}
   lastReviewedDate={data.lastReviewedDate}
-  author={author}
-  reviewer={reviewer}
   headings={headings}
   breadcrumbs={breadcrumbs}
   schema={schema}

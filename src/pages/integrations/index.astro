@@ -14,12 +14,11 @@ const entries = await getCollection('integrations', ({ data }) => !data.draft);
 
 const enriched = await Promise.all(
   entries.map(async (entry) => {
-    const [author, softwareA, softwareB] = await Promise.all([
-      getEntry(entry.data.author),
+    const [softwareA, softwareB] = await Promise.all([
       getEntry(entry.data.softwareA),
       getEntry(entry.data.softwareB),
     ]);
-    return { entry, authorName: author?.data.name, softwareA, softwareB };
+    return { entry, softwareA, softwareB };
   }),
 );
 
@@ -100,7 +99,7 @@ const schema = [
           date={item.entry.data.publishDate}
           updatedDate={item.entry.data.updatedDate}
           tags={item.entry.data.tags}
-          authorName={item.authorName}
+          authorName="StackPipeline Editorial Team"
           featured={item.entry.data.featured}
           readingTime={item.entry.data.readingTime ?? estimateReadingTime(item.entry.body ?? '')}
           headingLevel="h3"

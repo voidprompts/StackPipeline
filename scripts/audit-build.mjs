@@ -179,6 +179,11 @@ function auditPage(route, html) {
       if (graph && !Array.isArray(graph)) {
         error(route, `JSON-LD block #${index + 1} has a non-array @graph`);
       }
+      // StackPipeline currently uses organization-level attribution. A Person node would
+      // reintroduce an individual author claim that has not been verified for publication.
+      if (Array.isArray(graph) && graph.some((node) => node?.['@type'] === 'Person')) {
+        error(route, `JSON-LD block #${index + 1} contains a Person node; organization attribution is required`);
+      }
     } catch (parseError) {
       error(route, `JSON-LD block #${index + 1} is invalid JSON: ${parseError.message}`);
     }
@@ -226,6 +231,12 @@ async function main() {
     }
   }
 
+  // ---- ads.txt seller integrity ----
+  const adsText = await readFile(path.join(DIST, 'ads.txt'), 'utf8');
+  if (/pub-0{16}/.test(adsText)) {
+    error('(site)', 'ads.txt contains the prohibited placeholder publisher ID');
+  }
+
   // ---- per-page audit ----
   const files = await collectHtml(DIST);
   const titles = new Map();
@@ -235,6 +246,9 @@ async function main() {
   for (const file of files) {
     const route = `/${path.relative(DIST, file).replace(/index\.html$/, '').replace(/\\/g, '/')}`;
     const html = await readFile(file, 'utf8');
+    if (/\/authors\//.test(html)) {
+      error(route, 'Rendered output links to the removed author-profile route');
+    }
 
     // 404 is intentionally noindex; skip duplicate-metadata bookkeeping for it.
     const isUtility = route.startsWith('/404');

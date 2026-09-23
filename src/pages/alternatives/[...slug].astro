@@ -17,8 +17,6 @@ import {
   articleSchema,
   itemListSchema,
   faqSchema,
-  personSchema,
-  toAuthorInput,
 } from '@lib/schema';
 
 export async function getStaticPaths() {
@@ -33,13 +31,7 @@ interface Props {
 const { entry } = Astro.props;
 const { data } = entry;
 
-const [author, reviewer, softwareA] = await Promise.all([
-  getEntry(data.author),
-  data.reviewedBy ? getEntry(data.reviewedBy) : Promise.resolve(undefined),
-  getEntry(data.softwareA),
-]);
-
-if (!author) throw new Error(`Missing author for "${entry.id}"`);
+const softwareA = await getEntry(data.softwareA);
 if (!softwareA) throw new Error(`Missing softwareA for "${entry.id}"`);
 
 /** Resolve every contender's tool record up-front so the template stays declarative. */
@@ -58,12 +50,7 @@ const pageUrl = absoluteUrl(`/alternatives/${entry.id}/`);
 const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
 
 
-const authorInput = toAuthorInput(author);
-const reviewerInput = reviewer ? toAuthorInput(reviewer) : undefined;
-
 const schema = [
-  personSchema(authorInput),
-  reviewerInput && reviewerInput.slug !== authorInput.slug ? personSchema(reviewerInput) : undefined,
   itemListSchema(
     contenders.map((contender) => ({
       position: contender.position,
@@ -81,8 +68,6 @@ const schema = [
     image: data.image,
     datePublished: data.publishDate,
     dateModified: data.updatedDate ?? data.publishDate,
-    author: authorInput,
-    reviewedBy: reviewerInput,
     section: 'Alternatives',
     keywords: data.tags,
   }),
@@ -109,8 +94,6 @@ const winner = contenders[0];
   publishDate={data.publishDate}
   updatedDate={data.updatedDate}
   lastReviewedDate={data.lastReviewedDate}
-  author={author}
-  reviewer={reviewer}
   headings={headings}
   breadcrumbs={breadcrumbs}
   schema={schema}
