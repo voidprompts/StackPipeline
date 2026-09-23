@@ -31,3 +31,11 @@ Thumbs.db
 
 # audit artifacts
 reports/
+
+# Raw hands-on-testing evidence: full-resolution screenshots, session recordings, exported
+# CSVs, account details, customer/personal data. NEVER committed. See
+# docs/review-production/evidence-sanitization.md for the sanitize-then-publish workflow —
+# only the sanitized output under public-evidence/ is meant to be tracked.
+private-evidence/
+**/private-evidence/
+*.intake-scratch.json

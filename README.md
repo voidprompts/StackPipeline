@@ -25,6 +25,19 @@ npm run generate:integrations -- --pairs zapier:hubspot,make:salesforce
 
 Generated integration pages deliberately use `draft: true`. Add real source material, hands-on detail, limitations and editorial review before publishing one. Do not bulk-publish generated scaffolds.
 
+```bash
+# Outsourced-review production pipeline (see docs/review-production/WORKFLOW.md)
+npm run review:intake -- --file path/to/intake.json   # validate + generate a draft review
+npm run review:validate                                 # validate every committed review
+npm test                                                # unit tests for the pipeline itself
+```
+
+`review:intake` never publishes anything: it always writes `draft: true` and
+`provenance.editorialApprovalStatus: pending`, and refuses to run at all when the intake file is
+incomplete, contradictory, references an unknown tool, or claims evidence that does not exist on
+disk. A human editor must complete `docs/review-production/editor-approval-checklist.md` before a
+generated review is published. See `docs/review-production/WORKFLOW.md` for the full process.
+
 ## Architecture
 
 - **Astro 7 SSG** with **Tailwind 4**
@@ -33,6 +46,8 @@ Generated integration pages deliberately use `draft: true`. Add real source mate
 - `src/lib/schema.ts` — connected JSON-LD builders
 - `src/layouts/ArticleLayout.astro` — responsive editorial layout with a desktop sticky TOC/rail
 - `scripts/audit-build.mjs` — deployment gate for SEO, accessibility, schema and advertising markup
+- `scripts/review-intake.mjs` / `scripts/review-validate.mjs` — outsourced hands-on-review intake and validation pipeline; see `docs/review-production/WORKFLOW.md`
+- `docs/review-production/` — intake schema reference, testing brief template, evidence sanitization process, editor approval checklist, and a documented (not implemented) proposal for future automated product discovery
 
 All editorial content currently uses the **StackPipeline Editorial Team** organization byline. No fictional people, credentials, `sameAs` profiles or Person JSON-LD are published. Individual contributors can be introduced later only with real, verifiable details they approve.
 
@@ -51,6 +66,22 @@ The schemas in `src/content.config.ts` validate frontmatter at build time. Share
 | `affiliateLinkA` / `affiliateLinkB` | Optional tracked-link metadata. |
 
 Collection-specific fields define tools, HowTo steps, review ratings, comparison contenders and pricing data.
+
+### Reviews: evidence-gated structured data
+
+A review only emits `Review`/`AggregateRating` JSON-LD, an "Editor's Choice" badge, or a "How we
+tested" section when its frontmatter carries a `testing` block (dates, hours, plan, methodology).
+Documentation-based assessments without hands-on testing (e.g. `n8n-review.mdx`) still publish as
+ordinary articles with a verdict and pros/cons, but never claim structured-data review markup they
+cannot back up — see `src/pages/reviews/[...slug].astro`.
+
+Two additional, fully optional frontmatter fields support outsourced hands-on testing without
+breaking any review written before they existed:
+
+- **`attribution`** — `{ mode: 'named' | 'anonymous', authorized, displayName?, role?, relevantExperience? }`. Renders one of two sentences on the page: a named-and-authorized contributor credit, or a generic "independent contractor following the StackPipeline testing protocol" line. Never emits a fabricated `Person` schema node — organization attribution (`StackPipeline Editorial Team`) remains the publisher throughout.
+- **`provenance`** — sourcing/compliance metadata written by `scripts/review-intake.mjs`: official source URLs, dated pricing sources, sanitized evidence references, conflicts of interest, affiliate-relationship disclosure, and the editorial approval gate (`editorialApprovalStatus`, `certifiedAccurate`).
+
+See `docs/review-production/WORKFLOW.md` for how these fields get populated end to end.
 
 ## Advertising and publisher readiness
 

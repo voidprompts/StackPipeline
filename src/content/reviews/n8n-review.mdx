@@ -1,0 +1,214 @@
+---
+title: "n8n Review 2026"
+description: "What n8n's pricing page, licence and docs actually commit to: execution billing, the fair-code catch, and where the free edition stops."
+heading: "n8n Review: What the Pricing, Licence and Docs Actually Commit To"
+schemaType: "Review"
+tool: "n8n"
+affiliateLinkA:
+  url: "https://n8n.partnerlinks.io/stackpipeline"
+  label: "Visit n8n"
+  campaign: "n8n-review"
+publishDate: 2026-09-23
+lastReviewedDate: 2026-09-23
+featured: false
+tags: ["n8n", "Workflow automation", "Self-hosted", "Review"]
+rating:
+  value: 4.7
+  best: 5
+  count: 1
+  breakdown:
+    - criterion: "Core capability"
+      score: 4.9
+      weight: 0.3
+      note: "Vendor pricing page documents unlimited steps per execution, plus JS/Python code steps and custom HTTP requests on every tier"
+    - criterion: "Ease of use"
+      score: 4.1
+      weight: 0.2
+      note: "Learning curve is the most-cited drawback in G2's aggregated review themes; G2 scores usability 8.4/10 and ease of setup 8.1/10"
+    - criterion: "Integrations"
+      score: 5.0
+      weight: 0.2
+      note: "2,192 integrations listed in the vendor's public directory, checked 23 September 2026"
+    - criterion: "Value for money"
+      score: 4.9
+      weight: 0.2
+      note: "Per-execution billing with unlimited steps and unlimited users from $20/mo; free self-hosted Community edition has no execution cap"
+    - criterion: "Support"
+      score: 4.2
+      weight: 0.1
+      note: "Forum support on Starter and Business, email support on Pro, dedicated SLA support only on Enterprise, per the published plan table"
+verdict: "n8n offers the strongest value on paper in workflow automation: per-execution billing rather than per-step, unlimited steps and users on every tier, and a genuinely free self-hosted Community edition. The catches are real — the Sustainable Use Licence is not OSI open source, Cloud has no permanent free tier, and SSO, Git and environments start at $800/mo."
+prosCons:
+  pros:
+    - "Billed per workflow execution, not per step — the pricing page confirms unlimited steps on every plan"
+    - "Unlimited users and unlimited active workflows on every Cloud tier, including the $20/mo Starter"
+    - "The self-hosted Community edition is free with no execution cap; you pay only for your own server"
+    - "Code steps run JavaScript and Python inline, with custom HTTP/GraphQL requests and cURL import on all tiers"
+    - "2,192 integrations listed in the vendor's public directory as of 23 September 2026"
+    - "Registering a Community instance by email unlocks folders, debug-in-editor and custom execution data at no cost"
+    - "Rated 4.7/5 from 314 reviews on G2, with 86% of reviewers awarding five stars"
+  cons:
+    - "The Sustainable Use Licence limits use to internal business purposes — source-available, not OSI open source"
+    - "Source files marked .ee are excluded from that licence and require a paid Enterprise licence"
+    - "n8n Cloud has no permanent free tier; the trial is 14 days, 1,000 executions and a 180-second timeout"
+    - "SSO/SAML/LDAP, Git version control and environments start on the $800/mo Business plan"
+    - "The Business plan is self-hosted only — there is no managed 'hosted by n8n' option at that tier"
+    - "Learning curve is the most-cited drawback in G2's aggregated review themes"
+    - "Custom nodes and bash script steps are marked self-hosted only in the plan comparison"
+    - "Starter allows 5 concurrent executions and retains execution logs for 7 days"
+bestFor:
+  - "Technical teams comfortable owning a self-hosted deployment"
+  - "Workflows with many steps per run, where per-step billing escalates quickly"
+  - "Teams that need workflow data to stay on their own infrastructure"
+  - "Small teams needing many seats — users are unlimited on every tier"
+notFor:
+  - "Non-technical teams that want a permanent free managed tier"
+  - "Organisations needing SSO or Git version control below an $800/mo budget"
+  - "Anyone whose procurement requires an OSI-approved open-source licence"
+  - "Teams that want vendor-hosted infrastructure with Business-tier governance"
+pricing:
+  - plan: "Community"
+    price: "$0"
+    billing: "free"
+    highlights: ["Self-hosted", "No execution cap", "Most features included"]
+  - plan: "Starter"
+    price: "$20/mo"
+    billing: "annual"
+    highlights: ["2,500 executions/mo", "5 concurrent executions", "Unlimited users"]
+  - plan: "Pro"
+    price: "$50/mo"
+    billing: "annual"
+    highlights: ["10,000 executions/mo", "20 concurrent executions", "Admin roles and insights"]
+  - plan: "Business"
+    price: "$800/mo"
+    billing: "annual"
+    highlights: ["40,000 executions/mo", "SSO, SAML and LDAP", "Git version control", "Self-hosted only"]
+  - plan: "Enterprise"
+    price: "Contact sales"
+    billing: "annual"
+    highlights: ["200+ concurrent executions", "Log streaming", "Dedicated support with SLA"]
+faq:
+  - question: "Is n8n actually open source?"
+    answer: "No. n8n is distributed under the Sustainable Use Licence v1.0, which the project describes as fair-code. The licence permits use and modification only for your own internal business purposes or for non-commercial or personal use, and allows redistribution only free of charge for non-commercial purposes. Source files containing '.ee.' in the filename or '.ee' in the directory name are excluded from that licence entirely and require a paid n8n Enterprise licence. It is source-available, not OSI-approved open source."
+  - question: "Does n8n have a free plan?"
+    answer: "Only if you self-host. The Community edition is free and has no execution cap — you pay for your own server. n8n Cloud has no permanent free tier: the documentation lists a 14-day trial limited to 1,000 executions, 5 concurrent executions, a 180-second execution timeout and 1 team project, with no credit card required. Registering a self-hosted Community instance by email additionally unlocks folders, debug-in-editor and custom execution data at no cost."
+  - question: "What counts as an execution in n8n?"
+    answer: "The vendor defines an execution as a single run of an entire workflow, regardless of how many steps it contains or how much data it processes. Every published plan includes unlimited steps per execution. This is the key pricing difference from platforms that bill per task, per step or per operation, where a single run of a ten-step workflow consumes ten billable units."
+  - question: "What does n8n cost to get SSO and Git version control?"
+    answer: "Both start on the Business plan at $800/mo billed annually, which includes 40,000 monthly executions, 6 shared projects, SSO/SAML/LDAP, environments and Git-based version control. Business is self-hosted only. n8n also publishes a Start-up Plan offering 50% off Business for companies with fewer than 20 employees."
+  - question: "How many integrations does n8n have?"
+    answer: "The vendor's public integrations directory listed 2,192 integrations when we checked it on 23 September 2026. That figure counts regular nodes, trigger nodes and core nodes together, so it is not directly comparable with connector counts published by other vendors."
+---
+
+import Callout from '@components/ui/Callout.astro';
+import ComparisonTable from '@components/ui/ComparisonTable.astro';
+
+n8n is a workflow automation platform from n8n GmbH that can run on the vendor's cloud or on
+your own servers. This review documents what the product's published pricing, licence and
+documentation actually commit to, and where those commitments stop.
+
+<Callout variant="warn" title="What this review is and is not">
+StackPipeline has **not** run a hands-on test of n8n. There is no test account, no testing
+period, no logged hours and no workflow benchmark behind this page, so we do not publish any.
+Every claim below is sourced to the vendor's own pricing page, licence file and documentation,
+or to G2's aggregated review data, each checked on 23 September 2026. Where a figure is not
+published, we say so rather than estimate it. Prices and limits change — verify against the
+vendor before purchase.
+</Callout>
+
+## Billing per execution, not per step
+
+The single most consequential fact about n8n's pricing is the unit. The vendor bills one
+*execution* per complete workflow run, "regardless of how many steps are in the workflow or how
+much data it processes," and every published plan lists unlimited steps per execution.
+
+That matters because the dominant alternative model bills per step. A ten-step workflow run
+1,000 times a month consumes 1,000 n8n executions but 10,000 task-equivalents on a per-step
+platform. The gap widens with every node you add, which is why n8n's cost advantage grows
+precisely as workflows get more complex.
+
+Users are also unlimited on every Cloud tier, including the $20/mo Starter — seat count is
+simply not a pricing lever here.
+
+## What each plan actually includes
+
+<ComparisonTable
+  caption="n8n plan limits taken from the vendor's public pricing page, checked 23 September 2026. Annual billing."
+  columns={['Starter', 'Pro', 'Business', 'Enterprise']}
+  rows={[
+    { feature: 'Price (billed annually)', values: ['$20/mo', '$50/mo', '$800/mo', 'Contact sales'] },
+    { feature: 'Monthly executions', values: ['2,500', '10,000', '40,000', 'Custom'] },
+    { feature: 'Concurrent executions', values: ['5', '20', 'Not published', '200+'] },
+    { feature: 'Shared projects', values: ['1', '3', '6', 'Unlimited'] },
+    { feature: 'Hosting', values: ['Hosted by n8n', 'Hosted by n8n', 'Self-hosted', 'Either'] },
+    { feature: 'SSO, SAML and LDAP', values: ['No', 'No', 'Yes', 'Yes'] },
+    { feature: 'Git version control', values: ['No', 'No', 'Yes', 'Yes'] },
+  ]}
+/>
+
+Two details in that table deserve emphasis. The Business tier is **self-hosted only** — there is
+no managed checkout at $800/mo, so the plan that unlocks SSO and Git also hands you the
+infrastructure. And the vendor does not publish a concurrency figure for Business, describing it
+only as "scaling options"; we have left it blank rather than guess.
+
+The jump from Pro to Business is the steepest in the range: $50 to $800 a month. Companies with
+fewer than 20 employees can apply for a published Start-up Plan offering 50% off Business.
+
+## The licence is source-available, not open source
+
+n8n is frequently described as open source. Its licence file does not support that description.
+
+The project ships under the **Sustainable Use Licence v1.0**, which grants a royalty-free licence
+to use, copy, distribute and modify the software — then limits it. You may use or modify it "only
+for your own internal business purposes or for non-commercial or personal use," and you may
+distribute it to others "only if you do so free of charge for non-commercial purposes."
+
+<Callout variant="note" title="The .ee carve-out">
+Source files with `.ee.` in the filename or `.ee` in the directory name are excluded from the
+Sustainable Use Licence altogether. Using them requires a valid n8n Enterprise licence under a
+separate agreement. Content on branches other than `master` is not licensed at all.
+</Callout>
+
+For most teams automating their own internal operations, these limits never bite. For anyone
+building a product on top of n8n, reselling it, or working under procurement rules that require
+an OSI-approved licence, they are decisive. "Fair-code" is the accurate label.
+
+## Where the free edition stops
+
+The free self-hosted Community edition is real and unusually complete: no execution cap, no seat
+cap, most features included. Registering an instance by email unlocks folders, debug-in-editor
+and custom execution data at no additional cost.
+
+What is not free is the managed product. n8n Cloud has no permanent free tier. The trial runs
+14 days with Pro-level features but is capped at 1,000 executions, 5 concurrent executions, a
+180-second execution timeout and one team project, and excludes admin roles, named versions,
+workflow diffs and the public API. No credit card is required for the Cloud trial.
+
+Several capabilities are also self-hosted only regardless of spend — custom nodes and bash
+script steps are both marked that way in the vendor's plan comparison. And a documented set of
+features requires a paid plan on any deployment: environments, external secrets, log streaming,
+projects, SSO, workflow and credential sharing, and Git version control.
+
+## What reviewers report
+
+n8n holds **4.7 out of 5 from 314 reviews on G2**, with 86% of reviewers awarding five stars and
+1% awarding one or two. G2's aggregated themes list ease of use, automation capability and
+integrations as the most-mentioned strengths; learning curve and missing features lead the
+drawbacks.
+
+G2's head-to-head data puts n8n ahead of the category's largest incumbent on meeting requirements
+(9.1 versus 9.0) while trailing on usability (8.4 versus 8.6), ease of setup (8.1 versus 8.6) and
+support (8.1 versus 8.4). That shape is consistent across sources: more capable, less immediately
+approachable.
+
+## How this score was built
+
+The 4.7 is a rubric score, not a measurement. Each criterion in the breakdown above is weighted
+per the published [testing methodology](/how-we-test/) — core capability 30%, ease of use 20%,
+integrations 20%, value for money 20%, support 10% — and scored from documented capabilities and
+third-party aggregate ratings rather than our own hands-on use. The weighted result is 4.69,
+rounded to 4.7, which coincides with n8n's current G2 aggregate.
+
+A score built this way can tell you what a product commits to on paper. It cannot tell you how
+the product behaves at 3am when a webhook starts returning 500s, and it should not be read as if
+it can. Treat it as a structured summary of public evidence, and weight your own trial above it.

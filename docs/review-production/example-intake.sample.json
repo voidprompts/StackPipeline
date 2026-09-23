@@ -1,0 +1,96 @@
+{
+  "_comment": "SAMPLE FILE — every value below is fictional/illustrative. Do not publish a review generated from this file as-is. Copy it, replace every field with real data from an actual testing engagement, and delete this _comment key (it is not part of the schema and is ignored).",
+  "schemaVersion": 1,
+  "toolId": "n8n",
+  "tester": {
+    "name": "Independent contractor",
+    "publicAttributionAuthorized": false,
+    "role": "Freelance marketing-operations consultant",
+    "relevantExperience": "Six years building and maintaining automation workflows for agency clients, primarily in Zapier and n8n.",
+    "certifiesAccurate": true
+  },
+  "testing": {
+    "planTested": "Starter ($20/mo billed annually)",
+    "periodStart": "2026-08-01",
+    "periodEnd": "2026-08-22",
+    "hoursTested": 26,
+    "workflowsTested": [
+      "Webhook intake from a form provider, enrichment via HTTP request, write to a CRM contact record",
+      "Scheduled daily CSV export from a spreadsheet to a Slack channel summary",
+      "Error-branch test: deliberately pointed the CRM write step at an invalid API key to observe failure handling"
+    ],
+    "methodology": "Built three workflows covering webhook intake, scheduled batch sync and a deliberate-failure scenario. Ran the webhook and scheduled workflows daily for three weeks, logging every execution's duration and outcome in a spreadsheet. Submitted one support ticket and one community forum question during the window."
+  },
+  "quantitativeFindings": [
+    "Webhook-to-CRM workflow averaged 1.3 seconds end to end across roughly 140 logged executions",
+    "Scheduled CSV sync failed 2 of 21 scheduled runs, both due to a timeout on the spreadsheet provider's API, not n8n itself",
+    "Deliberate invalid-API-key test produced a clear error in the execution log within 2 seconds and did not silently continue"
+  ],
+  "advantages": [
+    "The execution log made it straightforward to see exactly which step failed and why, including the raw HTTP response body",
+    "Self-hosting the Starter-equivalent workflow on a small VPS cost about $6/mo, well under the $20/mo Cloud Starter price",
+    "The code node let us handle a date-format transform that had no equivalent built-in step"
+  ],
+  "limitations": [
+    "The visual canvas becomes hard to follow once a workflow passes about 15 nodes without sub-workflow grouping",
+    "Community nodes for the CRM we used were unmaintained and required a manual JSON-based workaround",
+    "Error notifications are not configured by default; you must explicitly wire a failure-branch step to get alerted"
+  ],
+  "reliabilityIssues": [
+    "One workflow silently stopped executing after a self-hosted instance restart on 2026-08-11; it required manually re-activating the workflow, which is not mentioned prominently in the getting-started docs",
+    "Two scheduled-sync failures during the test window traced to the third-party spreadsheet API rate-limiting us, not to n8n itself"
+  ],
+  "supportInteractions": [
+    "Community forum question about the webhook signature header received a reply in 18 hours with a working code sample",
+    "No formal support ticket submitted — Starter plan support is forum-only per the vendor's published plan comparison"
+  ],
+  "comparisonProducts": ["zapier", "make"],
+  "pricingSources": [
+    {
+      "claim": "Starter plan is $20/mo billed annually, 2,500 executions/mo",
+      "sourceUrl": "https://n8n.io/pricing/",
+      "checkedDate": "2026-08-01"
+    }
+  ],
+  "officialSourceUrls": ["https://n8n.io/pricing/", "https://docs.n8n.io/"],
+  "evidenceRefs": [],
+  "conflictsOfInterest": "None. Tester has no financial or employment relationship with n8n GmbH.",
+  "affiliateRelationship": {
+    "exists": true,
+    "disclosed": true,
+    "detail": "StackPipeline's n8n tool entry carries an affiliate link (n8n.partnerlinks.io/stackpipeline); this is disclosed via the site-wide affiliate disclosure and the in-article disclosure banner."
+  },
+  "scorecard": [
+    {
+      "criterionId": "easeOfSetup",
+      "score": 4,
+      "evidenceNote": "First working webhook workflow was live about 35 minutes after account creation, per timestamped notes"
+    },
+    {
+      "criterionId": "workflowCapabilities",
+      "score": 4.2,
+      "evidenceNote": "The code node covered the one transform the built-in nodes could not handle; branching and error paths worked as documented"
+    },
+    {
+      "criterionId": "integrationsApi",
+      "score": 3.8,
+      "evidenceNote": "Community node for our CRM was unmaintained; had to fall back to raw HTTP requests for two of six required calls"
+    },
+    {
+      "criterionId": "reliability",
+      "score": 3.7,
+      "evidenceNote": "One silent stop after a self-hosted restart during the 3-week window; two other failures traced to a third-party API, not n8n"
+    },
+    {
+      "criterionId": "valueForMoney",
+      "score": 4.5,
+      "evidenceNote": "Self-hosted equivalent workload ran for about $6/mo in VPS costs against the $20/mo Cloud Starter price"
+    },
+    {
+      "criterionId": "supportDocumentation",
+      "score": 3.5,
+      "evidenceNote": "Forum reply took 18 hours; official docs did not mention the restart/re-activation behavior we hit"
+    }
+  ],
+  "editorialApprovalStatus": "pending"
+}
