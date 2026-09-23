@@ -1,0 +1,119 @@
+---
+/**
+ * Integrations hub.
+ * Groups guides by source tool so the section scales to hundreds of programmatic pages
+ * without becoming an undifferentiated wall of cards.
+ */
+import ListingLayout from '@layouts/ListingLayout.astro';
+import ContentCard from '@components/ui/ContentCard.astro';
+import { getCollection, getEntry } from 'astro:content';
+import { itemListSchema } from '@lib/schema';
+import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
+
+const entries = await getCollection('integrations', ({ data }) => !data.draft);
+
+const enriched = await Promise.all(
+  entries.map(async (entry) => {
+    const [author, softwareA, softwareB] = await Promise.all([
+      getEntry(entry.data.author),
+      getEntry(entry.data.softwareA),
+      getEntry(entry.data.softwareB),
+    ]);
+    return { entry, authorName: author?.data.name, softwareA, softwareB };
+  }),
+);
+
+const sorted = enriched.sort(
+  (a, b) =>
+    (b.entry.data.updatedDate ?? b.entry.data.publishDate).getTime() -
+    (a.entry.data.updatedDate ?? a.entry.data.publishDate).getTime(),
+);
+
+/** Group by the source tool for the "browse by tool" rail. */
+const byTool = new Map<string, { name: string; slug: string; count: number }>();
+for (const item of enriched) {
+  for (const tool of [item.softwareA, item.softwareB]) {
+    if (!tool) continue;
+    const existing = byTool.get(tool.data.slug);
+    if (existing) existing.count += 1;
+    else byTool.set(tool.data.slug, { name: tool.data.name, slug: tool.data.slug, count: 1 });
+  }
+}
+const toolGroups = [...byTool.values()].sort((a, b) => b.count - a.count);
+
+const schema = [
+  itemListSchema(
+    sorted.map((item, index) => ({
+      position: index + 1,
+      name: item.entry.data.heading ?? item.entry.data.title,
+      description: item.entry.data.description,
+      url: `/integrations/${item.entry.id}/`,
+    })),
+    absoluteUrl('/integrations/'),
+    'B2B SaaS integration guides',
+  ),
+];
+---
+
+<ListingLayout
+  title="Integration Guides"
+  heading="B2B SaaS integration guides"
+  description="Step-by-step walkthroughs for connecting the tools in your stack — including the rate limits, deduplication traps and failure modes vendor documentation leaves out."
+  count={entries.length}
+  countLabel="integration guides"
+  schema={schema}
+  breadcrumbLeaf="Integrations"
+>
+  {
+    toolGroups.length > 0 && (
+      <nav class="mb-10" aria-label="Browse integrations by tool">
+        <h2 class="text-xs font-bold uppercase tracking-[0.14em] text-ink-500">Browse by tool</h2>
+        <ul class="mt-3 flex flex-wrap gap-2">
+          {toolGroups.map((group) => (
+            <li>
+              <a
+                href={`/tools/${group.slug}/`}
+                class="sp-chip transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
+              >
+                {group.name}
+                <span class="text-ink-400">{group.count}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )
+  }
+
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      sorted.map((item) => (
+        <ContentCard
+          href={`/integrations/${item.entry.id}/`}
+          title={item.entry.data.heading ?? item.entry.data.title}
+          description={item.entry.data.description}
+          eyebrow={
+            item.softwareA && item.softwareB
+              ? `${item.softwareA.data.name} → ${item.softwareB.data.name}`
+              : 'Integration'
+          }
+          date={item.entry.data.publishDate}
+          updatedDate={item.entry.data.updatedDate}
+          tags={item.entry.data.tags}
+          authorName={item.authorName}
+          featured={item.entry.data.featured}
+          readingTime={item.entry.data.readingTime ?? estimateReadingTime(item.entry.body ?? '')}
+          headingLevel="h3"
+        />
+      ))
+    }
+  </div>
+
+  {
+    entries.length === 0 && (
+      <p class="rounded-xl border border-dashed border-ink-300 bg-ink-50 p-8 text-center text-ink-500">
+        No integration guides published yet.
+      </p>
+    )
+  }
+</ListingLayout>

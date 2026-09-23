@@ -1,0 +1,33 @@
+# build output
+dist/
+.output/
+
+# generated types + caches
+.astro/
+node_modules/
+.cache/
+.wrangler/
+
+# environment
+.env
+.env.production
+.env.local
+.env.*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# audit artifacts
+reports/

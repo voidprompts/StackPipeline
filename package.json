@@ -1,0 +1,36 @@
+{
+  "name": "stackpipeline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "StackPipeline — workflow automation, data enrichment and B2B SaaS integration guides. Static Astro site tuned for Core Web Vitals, AdSense compliance and programmatic SEO.",
+  "homepage": "https://stackpipeline.com",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --host",
+    "start": "astro dev --host",
+    "build": "astro build",
+    "postbuild": "node scripts/audit-build.mjs",
+    "preview": "astro preview --host",
+    "check": "astro check",
+    "audit": "node scripts/audit-build.mjs",
+    "generate:integrations": "node scripts/generate-integrations.mjs",
+    "editorial:review": "node scripts/editorial-review.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^8.0.1",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.3",
+    "sharp": "^0.35.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.5",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.3.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
+  }
+}

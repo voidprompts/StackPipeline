@@ -1,0 +1,43 @@
+---
+/**
+ * Google AdSense loader + Auto Ads enablement.
+ *
+ * Rendered once, in <head>, from BaseLayout. The script tag is only emitted when a
+ * publisher ID is configured (PUBLIC_ADSENSE_CLIENT), because shipping the loader without
+ * a valid client ID produces console errors and can stall an AdSense review.
+ *
+ * `async` + `crossorigin` matches Google's documented snippet exactly — reviewers check
+ * for byte-level compliance of this tag during site verification.
+ */
+import { ADS } from '@config/site';
+
+const { client, autoAdsEnabled } = ADS;
+const enabled = Boolean(client);
+---
+
+{
+  enabled && (
+    <>
+      <script
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`}
+        crossorigin="anonymous"
+        is:inline
+      />
+      {/*
+        Auto Ads placement control. Google reads this before the first paint, so it must be
+        inline rather than deferred. `overlays` are disabled on mobile to protect CLS and to
+        stay clear of the "intrusive interstitial" ranking penalty.
+      */}
+      {autoAdsEnabled && (
+        <script
+          is:inline
+          set:html={`(window.adsbygoogle=window.adsbygoogle||[]).push({google_ad_client:"${client}",enable_page_level_ads:true,overlays:{bottom:false}});`}
+        />
+      )}
+    </>
+  )
+}
+
+{/* Verification meta tag — required while the AdSense account is pending review. */}
+{enabled && <meta name="google-adsense-account" content={client} />}

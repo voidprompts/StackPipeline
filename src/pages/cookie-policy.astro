@@ -1,0 +1,164 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import { SITE, LEGAL, ADS, ANALYTICS } from '@config/site';
+
+const usesAds = Boolean(ADS.client);
+const usesAnalytics = Boolean(ANALYTICS.ga4 || ANALYTICS.plausibleDomain);
+---
+
+<PageLayout
+  title="Cookie Policy"
+  description={`Which cookies ${SITE.domain} sets, what each one does, how long it lasts, and how to control or disable them in your browser.`}
+  effectiveDate={LEGAL.effectiveDate}
+  lastUpdated={LEGAL.lastUpdated}
+>
+  <p class="lead">
+    This Cookie Policy explains how {SITE.legalEntity} uses cookies and similar technologies
+    on <strong>{SITE.domain}</strong>, and how you can control them.
+  </p>
+
+  <h2 id="what-are-cookies">1. What are cookies?</h2>
+  <p>
+    Cookies are small text files stored on your device when you visit a website. They let a
+    site remember your actions and preferences over time. "First-party" cookies are set by
+    the site you are visiting; "third-party" cookies are set by other domains, such as
+    advertising or analytics providers.
+  </p>
+
+  <h2 id="categories">2. Cookie categories we use</h2>
+
+  <h3 id="strictly-necessary">2.1 Strictly necessary</h3>
+  <p>
+    Required for the site to function. These cannot be disabled through our consent interface
+    because the site cannot operate without them. {SITE.name} is a static site, so this
+    category is limited to security and consent-state storage.
+  </p>
+
+  <h3 id="analytics-cookies">2.2 Analytics</h3>
+  <p>
+    {
+      usesAnalytics
+        ? 'Help us understand which pages are useful and where readers drop off. Data is aggregated and IP addresses are anonymised where the provider supports it.'
+        : 'Not currently active. If we enable analytics, this policy will be updated before any analytics cookie is set.'
+    }
+  </p>
+
+  <h3 id="advertising-cookies">2.3 Advertising</h3>
+  <p>
+    {
+      usesAds
+        ? 'Set by Google and its advertising partners to measure ad performance and, where you have consented, to personalise the ads you see.'
+        : 'Not currently active. If we enable advertising, this policy will be updated before any advertising cookie is set.'
+    }
+  </p>
+
+  <h3 id="affiliate-cookies">2.4 Affiliate attribution</h3>
+  <p>
+    Set by vendor websites — not by us — after you click a tracked link, so the vendor can
+    attribute a signup to {SITE.name}. These are placed on the vendor's domain, and their
+    duration is controlled by the vendor.
+  </p>
+
+  <h2 id="cookie-table">3. Specific cookies</h2>
+
+  <div class="not-prose my-6 overflow-x-auto rounded-xl border border-ink-200 shadow-card">
+    <table class="w-full border-collapse text-left text-sm">
+      <caption class="sr-only">Cookies used on {SITE.domain}</caption>
+      <thead>
+        <tr class="bg-ink-950 text-white">
+          <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">Cookie</th>
+          <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">Provider</th>
+          <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">Purpose</th>
+          <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider">Duration</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-ink-100">
+        <tr class="bg-white">
+          <th scope="row" class="px-4 py-3 font-mono text-xs font-semibold text-ink-900">sp_consent</th>
+          <td class="px-4 py-3 text-ink-700">{SITE.name}</td>
+          <td class="px-4 py-3 text-ink-700">Stores your cookie consent choices</td>
+          <td class="px-4 py-3 text-ink-700">12 months</td>
+        </tr>
+        <tr class="bg-ink-50/50">
+          <th scope="row" class="px-4 py-3 font-mono text-xs font-semibold text-ink-900">__gads / __gpi</th>
+          <td class="px-4 py-3 text-ink-700">Google</td>
+          <td class="px-4 py-3 text-ink-700">Ad delivery, frequency capping and measurement</td>
+          <td class="px-4 py-3 text-ink-700">13 months</td>
+        </tr>
+        <tr class="bg-white">
+          <th scope="row" class="px-4 py-3 font-mono text-xs font-semibold text-ink-900">IDE / test_cookie</th>
+          <td class="px-4 py-3 text-ink-700">Google DoubleClick</td>
+          <td class="px-4 py-3 text-ink-700">Ad personalisation and conversion measurement</td>
+          <td class="px-4 py-3 text-ink-700">Up to 13 months</td>
+        </tr>
+        <tr class="bg-ink-50/50">
+          <th scope="row" class="px-4 py-3 font-mono text-xs font-semibold text-ink-900">_ga / _ga_*</th>
+          <td class="px-4 py-3 text-ink-700">Google Analytics</td>
+          <td class="px-4 py-3 text-ink-700">Distinguishes unique visitors, aggregate reporting</td>
+          <td class="px-4 py-3 text-ink-700">24 months</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="text-sm text-ink-500">
+    Third-party cookie names and durations are set by their providers and may change without
+    notice to us.
+  </p>
+
+  <h2 id="managing-cookies">4. How to control cookies</h2>
+
+  <h3 id="browser-controls">4.1 Browser settings</h3>
+  <p>
+    Every major browser lets you block or delete cookies. Blocking all cookies will not break{' '}
+    {SITE.name} — the site is fully readable without them.
+  </p>
+  <ul>
+    <li>
+      <a href="https://support.google.com/chrome/answer/95647" rel="noopener noreferrer" target="_blank">Google Chrome</a>
+    </li>
+    <li>
+      <a href="https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop" rel="noopener noreferrer" target="_blank">Mozilla Firefox</a>
+    </li>
+    <li>
+      <a href="https://support.apple.com/en-us/105082" rel="noopener noreferrer" target="_blank">Safari</a>
+    </li>
+    <li>
+      <a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" rel="noopener noreferrer" target="_blank">Microsoft Edge</a>
+    </li>
+  </ul>
+
+  <h3 id="ad-opt-out">4.2 Advertising opt-outs</h3>
+  <ul>
+    <li>
+      <a href="https://www.google.com/settings/ads" rel="noopener noreferrer" target="_blank">Google Ads Settings</a> — control personalised ads across Google services
+    </li>
+    <li>
+      <a href="https://www.aboutads.info/choices/" rel="noopener noreferrer" target="_blank">DAA WebChoices</a> — opt out of participating vendors
+    </li>
+    <li>
+      <a href="https://optout.networkadvertising.org/" rel="noopener noreferrer" target="_blank">NAI opt-out</a> — Network Advertising Initiative members
+    </li>
+    <li>
+      <a href="https://www.youronlinechoices.com/" rel="noopener noreferrer" target="_blank">Your Online Choices</a> — EU-focused opt-out portal
+    </li>
+  </ul>
+
+  <h2 id="do-not-track">5. Do Not Track</h2>
+  <p>
+    There is no industry-standard response to Do Not Track browser signals. We do not
+    currently respond to DNT headers, but we honour the Global Privacy Control (GPC) signal
+    where it is present.
+  </p>
+
+  <h2 id="changes">6. Changes</h2>
+  <p>
+    We update this policy when our cookie usage changes. The "Last updated" date above
+    reflects the most recent revision.
+  </p>
+
+  <h2 id="contact">7. Contact</h2>
+  <p>
+    Questions about cookies: <a href={`mailto:${LEGAL.dpoEmail}`}>{LEGAL.dpoEmail}</a>
+  </p>
+</PageLayout>

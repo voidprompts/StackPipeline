@@ -1,0 +1,77 @@
+---
+/**
+ * Star rating display.
+ *
+ * Rendered as an accessible <span> with a text alternative rather than an image, so the
+ * score is machine-readable and announced correctly. Partial stars use a clip mask, which
+ * avoids shipping half-star icon variants.
+ */
+interface Props {
+  value: number;
+  best?: number;
+  /** Show the numeric score beside the stars. */
+  showValue?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+  count?: number;
+}
+
+const { value, best = 5, showValue = true, size = 'md', class: className = '', count } = Astro.props;
+
+const clamped = Math.max(0, Math.min(value, best));
+const percentage = (clamped / best) * 100;
+
+const SIZES = {
+  sm: { star: 13, text: 'text-xs' },
+  md: { star: 16, text: 'text-sm' },
+  lg: { star: 20, text: 'text-base' },
+} as const;
+
+const config = SIZES[size];
+const starPath =
+  'M12 2.5 15.09 8.76 22 9.77l-5 4.87L18.18 21.5 12 18.25 5.82 21.5 7 14.64l-5-4.87 6.91-1.01z';
+const label = `${clamped.toFixed(1)} out of ${best}${count ? ` from ${count} ratings` : ''}`;
+---
+
+<span class={`inline-flex items-center gap-1.5 ${className}`} role="img" aria-label={label}>
+  <span class="relative inline-block leading-none" aria-hidden="true">
+    {/* Empty track */}
+    <span class="flex gap-0.5 text-ink-200">
+      {
+        Array.from({ length: best }).map(() => (
+          <svg width={config.star} height={config.star} viewBox="0 0 24 24" fill="currentColor">
+            <path d={starPath} />
+          </svg>
+        ))
+      }
+    </span>
+    {/* Filled overlay, clipped to the score percentage */}
+    <span
+      class="absolute inset-0 flex gap-0.5 overflow-hidden text-amber-400"
+      style={`width:${percentage}%`}
+    >
+      {
+        Array.from({ length: best }).map(() => (
+          <svg
+            width={config.star}
+            height={config.star}
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="shrink-0"
+          >
+            <path d={starPath} />
+          </svg>
+        ))
+      }
+    </span>
+  </span>
+
+  {
+    showValue && (
+      <span class={`font-semibold text-ink-900 ${config.text}`}>
+        {clamped.toFixed(1)}
+        <span class="font-normal text-ink-400">/{best}</span>
+      </span>
+    )
+  }
+</span>

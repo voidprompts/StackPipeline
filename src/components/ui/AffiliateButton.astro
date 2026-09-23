@@ -1,0 +1,113 @@
+---
+/**
+ * Affiliate CTA.
+ *
+ * Compliance details that matter:
+ *  - `rel="sponsored nofollow noopener"` — Google's required attribute for paid links.
+ *    Omitting `sponsored` on monetised links is a link-scheme violation.
+ *  - `target="_blank"` with `noopener` to avoid the reverse-tabnabbing vulnerability.
+ *  - An explicit visible disclosure sits next to the button, not just in the footer.
+ */
+import { DISCLOSURE } from '@config/site';
+
+interface Props {
+  href: string;
+  label?: string;
+  /** Vendor name, used to build the default label and aria-label. */
+  product?: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  /** Show the inline "Affiliate link" disclosure under the button. */
+  disclose?: boolean;
+  fullWidth?: boolean;
+  class?: string;
+  /** Campaign tag appended as a query param for attribution. */
+  campaign?: string;
+}
+
+const {
+  href,
+  label,
+  product,
+  variant = 'primary',
+  size = 'md',
+  disclose = true,
+  fullWidth = false,
+  class: className = '',
+  campaign,
+} = Astro.props;
+
+const text = label ?? (product ? `Try ${product} free` : 'Get started');
+
+/** Append attribution params without clobbering vendor-supplied query strings. */
+function withCampaign(url: string, tag?: string): string {
+  if (!tag) return url;
+  try {
+    const parsed = new URL(url);
+    if (!parsed.searchParams.has('utm_source')) parsed.searchParams.set('utm_source', 'stackpipeline');
+    if (!parsed.searchParams.has('utm_medium')) parsed.searchParams.set('utm_medium', 'affiliate');
+    parsed.searchParams.set('utm_campaign', tag);
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+const finalHref = withCampaign(href, campaign);
+
+const VARIANTS = {
+  primary:
+    'bg-emerald-600 text-white shadow-emerald-glow hover:bg-emerald-700 focus-visible:outline-emerald-600',
+  secondary:
+    'bg-ink-950 text-white hover:bg-ink-900 focus-visible:outline-ink-950',
+  ghost:
+    'border border-ink-300 bg-white text-ink-800 hover:border-ink-400 hover:bg-ink-50 focus-visible:outline-ink-500',
+} as const;
+
+const SIZES = {
+  sm: 'px-3.5 py-2 text-[13px]',
+  md: 'px-5 py-2.5 text-sm',
+  lg: 'px-6 py-3.5 text-base',
+} as const;
+---
+
+<div class={`not-prose ${fullWidth ? 'w-full' : 'inline-block'} ${className}`}>
+  <a
+    href={finalHref}
+    target="_blank"
+    rel="sponsored nofollow noopener"
+    data-affiliate="true"
+    data-product={product}
+    aria-label={product ? `${text} — opens ${product} in a new tab` : text}
+    class:list={[
+      'group inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 hover:-translate-y-px active:translate-y-0',
+      VARIANTS[variant],
+      SIZES[size],
+      fullWidth && 'w-full',
+    ]}
+  >
+    <span>{text}</span>
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="transition-transform duration-200 group-hover:translate-x-0.5"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6"></path>
+    </svg>
+  </a>
+
+  {
+    disclose && (
+      <p class="mt-1.5 text-[11px] leading-snug text-ink-400">
+        <span aria-hidden="true">↗</span> {DISCLOSURE.inline}
+      </p>
+    )
+  }
+</div>

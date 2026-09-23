@@ -1,0 +1,260 @@
+---
+/**
+ * Privacy policy.
+ *
+ * Written against the specific disclosures AdSense reviewers check for: third-party
+ * vendor cookies, the DoubleClick DART cookie, the Google Ads Settings opt-out, and the
+ * EU user consent policy. All brand/domain strings interpolate from the site config.
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import { SITE, LEGAL, ANALYTICS, ADS } from '@config/site';
+
+const usesAds = Boolean(ADS.client);
+const usesAnalytics = Boolean(ANALYTICS.ga4 || ANALYTICS.plausibleDomain);
+---
+
+<PageLayout
+  title="Privacy Policy"
+  description={`How ${SITE.name} collects, uses and protects your data, including cookies, advertising partners and your rights under GDPR and CCPA.`}
+  effectiveDate={LEGAL.effectiveDate}
+  lastUpdated={LEGAL.lastUpdated}
+>
+  <p class="lead">
+    This Privacy Policy describes how {SITE.legalEntity} ("{SITE.name}", "we", "us" or
+    "our") collects, uses and discloses information when you visit{' '}
+    <strong>{SITE.domain}</strong> (the "Site"). By using the Site, you agree to the
+    practices described here.
+  </p>
+
+  <h2 id="information-we-collect">1. Information we collect</h2>
+
+  <h3 id="information-you-provide">1.1 Information you provide</h3>
+  <p>
+    We only receive personal information you choose to give us — for example, when you
+    email us at <a href={`mailto:${SITE.email.general}`}>{SITE.email.general}</a> or submit
+    a contact form. That typically includes your name, email address and the contents of
+    your message. We do not require account registration to read anything on the Site.
+  </p>
+
+  <h3 id="information-collected-automatically">1.2 Information collected automatically</h3>
+  <p>
+    Like most websites, we and our service providers automatically collect certain
+    technical information when you visit:
+  </p>
+  <ul>
+    <li>IP address (truncated or anonymised where supported)</li>
+    <li>Browser type, version and language settings</li>
+    <li>Device type, operating system and screen dimensions</li>
+    <li>Pages viewed, time on page and referring URL</li>
+    <li>Approximate geographic region derived from IP address</li>
+  </ul>
+
+  <h3 id="cookies">1.3 Cookies and similar technologies</h3>
+  <p>
+    Cookies are small text files placed on your device. We use them to understand traffic
+    patterns and, where advertising is enabled, to support ad delivery. You can disable
+    cookies in your browser settings; the Site remains fully readable without them. See
+    our <a href="/cookie-policy/">Cookie Policy</a> for the full breakdown.
+  </p>
+
+  <h2 id="advertising">2. Advertising and third-party vendors</h2>
+  {
+    usesAds ? (
+      <>
+        <p>
+          We display advertising through Google AdSense. The following disclosures are
+          required by Google's publisher policies:
+        </p>
+        <ul>
+          <li>
+            Third-party vendors, including Google, use cookies to serve ads based on your
+            prior visits to this website or other websites.
+          </li>
+          <li>
+            Google's use of advertising cookies enables it and its partners to serve ads to
+            you based on your visit to this Site and/or other sites on the internet.
+          </li>
+          <li>
+            You may opt out of personalised advertising by visiting{' '}
+            <a href="https://www.google.com/settings/ads" rel="noopener noreferrer" target="_blank">
+              Google Ads Settings
+            </a>
+            .
+          </li>
+          <li>
+            You may opt out of third-party vendor cookies for personalised advertising at{' '}
+            <a href="https://www.aboutads.info/choices/" rel="noopener noreferrer" target="_blank">
+              aboutads.info/choices
+            </a>{' '}
+            or{' '}
+            <a href="https://optout.networkadvertising.org/" rel="noopener noreferrer" target="_blank">
+              the NAI opt-out page
+            </a>
+            .
+          </li>
+          <li>
+            Google uses the DoubleClick DART cookie to serve ads based on your visits to
+            this and other sites. You can opt out of the DART cookie via the{' '}
+            <a
+              href="https://policies.google.com/technologies/ads"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Google advertising policies page
+            </a>
+            .
+          </li>
+        </ul>
+        <p>
+          A full list of Google's advertising partners is available in{' '}
+          <a
+            href="https://business.safety.google/adscontrollerterms/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Google's controller-controller data protection terms
+          </a>
+          .
+        </p>
+      </>
+    ) : (
+      <p>
+        We are not currently serving third-party advertising on the Site. If that changes,
+        this section will be updated with the specific vendors used, their cookie practices
+        and the applicable opt-out mechanisms before any ads are displayed.
+      </p>
+    )
+  }
+
+  <h2 id="analytics">3. Analytics</h2>
+  {
+    usesAnalytics ? (
+      <p>
+        We use privacy-respecting analytics to understand which content is useful. IP
+        anonymisation is enabled where the provider supports it, and we do not use analytics
+        data to identify individual visitors. Google Analytics data handling is governed by{' '}
+        <a href="https://policies.google.com/privacy" rel="noopener noreferrer" target="_blank">
+          Google's Privacy Policy
+        </a>
+        .
+      </p>
+    ) : (
+      <p>
+        Analytics are not currently active on the Site. When enabled, we will use IP
+        anonymisation and will not attempt to identify individual visitors.
+      </p>
+    )
+  }
+
+  <h2 id="affiliate-links">4. Affiliate links and tracking</h2>
+  <p>
+    The Site contains affiliate links. When you click one, the destination vendor may place
+    a cookie on your device to attribute a resulting signup to us. We receive aggregate
+    conversion reporting from these programs — typically the number of referrals and
+    commission earned — not your personal information. See our{' '}
+    <a href="/affiliate-disclosure/">Affiliate Disclosure</a> for the full explanation.
+  </p>
+
+  <h2 id="how-we-use">5. How we use information</h2>
+  <ul>
+    <li>To operate, maintain and improve the Site and its content</li>
+    <li>To understand which guides are useful and which need updating</li>
+    <li>To respond to your enquiries and support requests</li>
+    <li>To display advertising and measure its performance, where enabled</li>
+    <li>To detect, prevent and address technical issues, fraud or abuse</li>
+    <li>To comply with legal obligations</li>
+  </ul>
+  <p>
+    <strong>We do not sell your personal information</strong>, and we do not share it with
+    third parties except as described in this policy.
+  </p>
+
+  <h2 id="legal-bases">6. Legal bases for processing (EEA and UK)</h2>
+  <p>If you are located in the European Economic Area or United Kingdom, we process personal data on these bases:</p>
+  <ul>
+    <li>
+      <strong>Consent</strong> — for advertising and analytics cookies, collected through our
+      consent management interface before any non-essential cookie is set.
+    </li>
+    <li>
+      <strong>Legitimate interests</strong> — for site security, fraud prevention and aggregate
+      traffic measurement.
+    </li>
+    <li>
+      <strong>Legal obligation</strong> — where retention or disclosure is required by law.
+    </li>
+  </ul>
+
+  <h2 id="your-rights">7. Your privacy rights</h2>
+
+  <h3 id="gdpr-rights">7.1 EEA and UK residents (GDPR)</h3>
+  <p>You have the right to access, rectify, erase, restrict or object to processing of your personal data, the right to data portability, and the right to withdraw consent at any time. You may also lodge a complaint with your national supervisory authority.</p>
+
+  <h3 id="ccpa-rights">7.2 California residents (CCPA/CPRA)</h3>
+  <p>
+    You have the right to know what personal information is collected, to request deletion,
+    to correct inaccurate information and to opt out of sale or sharing. {SITE.name} does not
+    sell or share personal information as those terms are defined under the CPRA. Exercising
+    these rights will never result in discriminatory treatment.
+  </p>
+
+  <h3 id="exercising-rights">7.3 Exercising your rights</h3>
+  <p>
+    Email <a href={`mailto:${LEGAL.dpoEmail}`}>{LEGAL.dpoEmail}</a> with your request. We
+    respond within 30 days and may ask for information to verify your identity before acting.
+  </p>
+
+  <h2 id="data-retention">8. Data retention</h2>
+  <p>
+    Analytics data is retained for a maximum of 26 months. Email correspondence is retained
+    for up to 24 months after the last message unless a longer period is legally required.
+    Aggregated, de-identified data may be retained indefinitely.
+  </p>
+
+  <h2 id="security">9. Data security</h2>
+  <p>
+    The Site is served over HTTPS as a static export from a global edge network, which
+    materially reduces its attack surface — there is no application database holding visitor
+    records. No method of transmission over the internet is completely secure, and we cannot
+    guarantee absolute security.
+  </p>
+
+  <h2 id="childrens-privacy">10. Children's privacy</h2>
+  <p>
+    The Site is a business-to-business publication intended for professional audiences and is
+    not directed to children under 16. We do not knowingly collect personal information from
+    children. If you believe a child has provided us with personal information, contact{' '}
+    <a href={`mailto:${LEGAL.dpoEmail}`}>{LEGAL.dpoEmail}</a> and we will delete it.
+  </p>
+
+  <h2 id="international-transfers">11. International data transfers</h2>
+  <p>
+    We operate from the United States. If you access the Site from outside the US, your
+    information may be transferred to and processed in the US. Where required, our service
+    providers rely on Standard Contractual Clauses or an equivalent transfer mechanism.
+  </p>
+
+  <h2 id="third-party-links">12. Links to other sites</h2>
+  <p>
+    The Site links to third-party websites, including vendor and affiliate destinations. We
+    are not responsible for the privacy practices of those sites and encourage you to read
+    their policies.
+  </p>
+
+  <h2 id="changes">13. Changes to this policy</h2>
+  <p>
+    We may update this Privacy Policy periodically. Material changes will be signalled by
+    updating the "Last updated" date at the top of this page. Continued use of the Site after
+    a change constitutes acceptance of the revised policy.
+  </p>
+
+  <h2 id="contact">14. Contact us</h2>
+  <p>Questions about this policy or your data:</p>
+  <address class="not-italic">
+    <strong>{SITE.legalEntity}</strong><br />
+    {SITE.address.streetAddress}<br />
+    {SITE.address.addressLocality}, {SITE.address.addressRegion} {SITE.address.postalCode}<br />
+    {SITE.address.addressCountry}<br />
+    Email: <a href={`mailto:${LEGAL.dpoEmail}`}>{LEGAL.dpoEmail}</a>
+  </address>
+</PageLayout>

@@ -1,0 +1,77 @@
+---
+/**
+ * Reviews hub — sorted by tested score, descending.
+ */
+import ListingLayout from '@layouts/ListingLayout.astro';
+import ContentCard from '@components/ui/ContentCard.astro';
+import { getCollection, getEntry } from 'astro:content';
+import { itemListSchema } from '@lib/schema';
+import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
+
+const entries = await getCollection('reviews', ({ data }) => !data.draft);
+
+const enriched = await Promise.all(
+  entries.map(async (entry) => {
+    const [author, tool] = await Promise.all([
+      getEntry(entry.data.author),
+      getEntry(entry.data.tool),
+    ]);
+    return { entry, authorName: author?.data.name, tool };
+  }),
+);
+
+const sorted = enriched.sort((a, b) => b.entry.data.rating.value - a.entry.data.rating.value);
+
+const schema = [
+  itemListSchema(
+    sorted.map((item, index) => ({
+      position: index + 1,
+      name: item.entry.data.heading ?? item.entry.data.title,
+      description: item.entry.data.description,
+      url: `/reviews/${item.entry.id}/`,
+    })),
+    absoluteUrl('/reviews/'),
+    'B2B SaaS software reviews',
+  ),
+];
+---
+
+<ListingLayout
+  title="Software Reviews"
+  heading="B2B SaaS software reviews"
+  description="Hands-on reviews built from paid-plan testing. Every score is assigned before monetisation, and every price is re-verified on a 90-day cycle."
+  count={entries.length}
+  countLabel="reviews published"
+  schema={schema}
+  breadcrumbLeaf="Reviews"
+  intro="We buy or trial every product we review and log the hours on the page. Scores are weighted across data quality, ease of use, integrations, value and support — the same rubric for every tool, so the numbers are comparable."
+>
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      sorted.map((item) => (
+        <ContentCard
+          href={`/reviews/${item.entry.id}/`}
+          title={item.entry.data.heading ?? item.entry.data.title}
+          description={item.entry.data.description}
+          eyebrow={item.tool?.data.category ?? 'Review'}
+          date={item.entry.data.publishDate}
+          updatedDate={item.entry.data.updatedDate}
+          tags={item.entry.data.tags}
+          authorName={item.authorName}
+          featured={item.entry.data.featured}
+          rating={item.entry.data.rating.value}
+          readingTime={item.entry.data.readingTime ?? estimateReadingTime(item.entry.body ?? '')}
+          headingLevel="h3"
+        />
+      ))
+    }
+  </div>
+
+  {
+    entries.length === 0 && (
+      <p class="rounded-xl border border-dashed border-ink-300 bg-ink-50 p-8 text-center text-ink-500">
+        No reviews published yet.
+      </p>
+    )
+  }
+</ListingLayout>

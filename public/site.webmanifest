@@ -1,0 +1,26 @@
+{
+  "name": "StackPipeline",
+  "short_name": "StackPipeline",
+  "description": "Workflow automation, data enrichment and B2B SaaS integration guides.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#ffffff",
+  "theme_color": "#0b1220",
+  "lang": "en-US",
+  "categories": ["business", "productivity", "news"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

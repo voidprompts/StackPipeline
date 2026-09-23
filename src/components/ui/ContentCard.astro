@@ -1,0 +1,104 @@
+---
+/**
+ * Listing card used across every index page.
+ *
+ * The whole card is clickable via a stretched-link pseudo-element, but only the title is
+ * a real anchor — that keeps the accessibility tree clean (one link, one accessible name)
+ * while giving users a large tap target.
+ */
+import { formatDate, isoDate } from '@lib/seo';
+
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  eyebrow?: string;
+  date?: Date;
+  updatedDate?: Date;
+  readingTime?: number;
+  tags?: string[];
+  authorName?: string;
+  /** Renders the featured treatment. */
+  featured?: boolean;
+  rating?: number;
+  /** Heading level to preserve the outline of the parent page. */
+  headingLevel?: 'h2' | 'h3';
+  class?: string;
+}
+
+const {
+  href,
+  title,
+  description,
+  eyebrow,
+  date,
+  updatedDate,
+  readingTime,
+  tags = [],
+  authorName,
+  featured = false,
+  rating,
+  headingLevel = 'h3',
+  class: className = '',
+} = Astro.props;
+
+const Heading = headingLevel;
+const displayDate = updatedDate ?? date;
+---
+
+<article
+  class:list={[
+    'group relative flex flex-col rounded-2xl border bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift',
+    featured ? 'border-emerald-200 ring-1 ring-emerald-100' : 'border-ink-200 shadow-card',
+    className,
+  ]}
+>
+  <div class="flex items-center justify-between gap-3">
+    {
+      eyebrow && (
+        <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-700">{eyebrow}</p>
+      )
+    }
+    {
+      rating !== undefined && (
+        <span class="shrink-0 rounded-md bg-ink-950 px-2 py-0.5 text-xs font-bold text-white">
+          {rating.toFixed(1)}
+        </span>
+      )
+    }
+  </div>
+
+  <Heading class="mt-2 text-lg font-bold leading-snug text-ink-950">
+    <a
+      href={href}
+      class="before:absolute before:inset-0 before:content-[''] group-hover:text-emerald-700"
+    >
+      {title}
+    </a>
+  </Heading>
+
+  <p class="mt-2 flex-1 text-sm leading-relaxed text-ink-600">{description}</p>
+
+  {
+    tags.length > 0 && (
+      <ul class="mt-3.5 flex flex-wrap gap-1.5">
+        {tags.slice(0, 3).map((tag) => (
+          <li class="sp-chip text-[11px]">{tag}</li>
+        ))}
+      </ul>
+    )
+  }
+
+  <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-ink-100 pt-3.5 text-xs text-ink-500">
+    {authorName && <span class="font-medium text-ink-600">{authorName}</span>}
+    {
+      displayDate && (
+        <time datetime={isoDate(displayDate)}>
+          {updatedDate ? 'Updated ' : ''}
+          {formatDate(displayDate)}
+        </time>
+      )
+    }
+    {readingTime && <span>{readingTime} min read</span>}
+  </div>
+</article>

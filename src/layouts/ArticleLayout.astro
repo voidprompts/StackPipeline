@@ -1,0 +1,256 @@
+---
+/**
+ * Three-column editorial shell used by every content page.
+ *
+ *   [ sticky TOC rail ] [ article column ] [ sticky affiliate + ad rail ]
+ *
+ * Collapses to a single column under `lg`, where the TOC becomes a collapsed <details>
+ * above the content. Ad slots are placed at the top of the sidebar and mid-article — both
+ * within the initial viewport region for viewability, neither inside the LCP block.
+ */
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '@components/ui/Breadcrumbs.astro';
+import TableOfContents from '@components/ui/TableOfContents.astro';
+import ArticleMeta from '@components/eeat/ArticleMeta.astro';
+import AuthorBio from '@components/eeat/AuthorBio.astro';
+import AdSlot from '@components/ads/AdSlot.astro';
+import type { CollectionEntry } from 'astro:content';
+import type { BreadcrumbEntry } from '@lib/seo';
+import type { JsonLdNode } from '@lib/schema';
+import { DISCLOSURE } from '@config/site';
+import { getLinkableTagSlugs, tagSlug } from '@lib/taxonomy';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  title: string;
+  /** <h1> text when it should differ from the SEO title. */
+  heading?: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+  imageAlt?: string;
+  noindex?: boolean;
+  publishDate: Date;
+  updatedDate?: Date;
+  lastReviewedDate?: Date;
+  author: CollectionEntry<'authors'>;
+  reviewer?: CollectionEntry<'authors'>;
+  headings: Heading[];
+  breadcrumbs: BreadcrumbEntry[];
+  schema?: Array<JsonLdNode | undefined | false | null>;
+  section?: string;
+  tags?: string[];
+  readingTime?: number;
+  totalTime?: string;
+  difficulty?: string;
+  /** Rendered above the article body (hero stats, verdict box, etc.). */
+  showDisclosure?: boolean;
+}
+
+const {
+  title,
+  heading,
+  description,
+  canonical,
+  image,
+  imageAlt,
+  noindex = false,
+  publishDate,
+  updatedDate,
+  lastReviewedDate,
+  author,
+  reviewer,
+  headings,
+  breadcrumbs,
+  schema = [],
+  section,
+  tags = [],
+  readingTime,
+  totalTime,
+  difficulty,
+  showDisclosure = true,
+} = Astro.props;
+
+const h1 = heading ?? title;
+const hasToc = headings.filter((item) => item.depth === 2 || item.depth === 3).length > 1;
+
+/**
+ * Only link tags that have a real archive page. Tags below the threshold still display,
+ * but as plain chips — this avoids shipping links to thin or non-existent pages.
+ */
+const linkableTags = await getLinkableTagSlugs();
+const tagChips = tags.map((tag) => {
+  const slug = tagSlug(tag);
+  return { label: tag, slug, href: linkableTags.has(slug) ? `/tag/${slug}/` : null };
+});
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  image={image}
+  imageAlt={imageAlt}
+  ogType="article"
+  noindex={noindex}
+  publishDate={publishDate}
+  updatedDate={updatedDate}
+  authorName={author.data.name}
+  section={section}
+  tags={tags}
+  breadcrumbs={breadcrumbs}
+  schema={schema}
+  pageType="ItemPage"
+>
+  <div class="sp-shell py-6 lg:py-10">
+    <Breadcrumbs items={breadcrumbs} class="mb-6" />
+
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[15rem_minmax(0,1fr)_20rem] xl:gap-10">
+      {/* ---------- Left rail: sticky TOC (xl and up) ---------- */}
+      {
+        hasToc && (
+          <div class="hidden xl:block">
+            <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pb-6">
+              <TableOfContents headings={headings} />
+            </div>
+          </div>
+        )
+      }
+
+      {/* ---------- Center: the article ---------- */}
+      <article class="min-w-0">
+        <header>
+          <h1 class="text-3xl font-bold leading-[1.15] tracking-tight text-ink-950 sm:text-4xl lg:text-[2.75rem]">
+            {h1}
+          </h1>
+
+          <p class="mt-4 text-lg leading-relaxed text-ink-600">{description}</p>
+
+          <ArticleMeta
+            author={author}
+            reviewer={reviewer}
+            publishDate={publishDate}
+            updatedDate={updatedDate}
+            lastReviewedDate={lastReviewedDate}
+            readingTime={readingTime}
+            totalTime={totalTime}
+            difficulty={difficulty}
+            class="mt-6 border-y border-ink-200 py-5"
+          />
+
+          {
+            showDisclosure && (
+              <p class="mt-5 rounded-lg border border-ink-200 bg-ink-50/70 px-4 py-3 text-xs leading-relaxed text-ink-500">
+                {DISCLOSURE.short}{' '}
+                <a
+                  href="/affiliate-disclosure/"
+                  class="font-medium text-emerald-700 underline underline-offset-2"
+                >
+                  Learn more
+                </a>
+                .
+              </p>
+            )
+          }
+        </header>
+
+        {/* Mobile/tablet TOC */}
+        {
+          hasToc && (
+            <details class="group mt-6 rounded-xl border border-ink-200 bg-white shadow-card xl:hidden">
+              <summary class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold text-ink-900 [&::-webkit-details-marker]:hidden">
+                On this page
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-ink-400 transition group-open:rotate-180"
+                  aria-hidden="true"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </summary>
+              <div class="border-t border-ink-100 p-2">
+                <TableOfContents headings={headings} class="border-0 p-2 shadow-none" />
+              </div>
+            </details>
+          )
+        }
+
+        {/* Above-the-fold-adjacent slot: below the header, never above the LCP element. */}
+        <AdSlot slot="inArticleTop" format="in-article" />
+
+        <div class="sp-prose prose prose-slate max-w-none prose-headings:scroll-mt-24">
+          <slot />
+        </div>
+
+        <AdSlot slot="inArticleFoot" format="in-article" />
+
+        <footer class="mt-12">
+          <AuthorBio author={author} headingLevel="h2" />
+
+          {
+            reviewer && reviewer.id !== author.id && (
+              <p class="mt-4 rounded-xl border border-ink-200 bg-white p-4 text-sm text-ink-600">
+                <strong class="font-semibold text-ink-900">Editorial review:</strong> This article
+                was fact-checked by{' '}
+                <a
+                  href={`/authors/${reviewer.data.slug}/`}
+                  class="font-medium text-emerald-700 underline underline-offset-2"
+                >
+                  {reviewer.data.name}
+                </a>
+                , {reviewer.data.role}. Every claim, price and screenshot is re-verified on a
+                fixed review cycle.
+              </p>
+            )
+          }
+
+          {
+            tagChips.length > 0 && (
+              <nav aria-label="Topics" class="mt-6">
+                <h2 class="text-xs font-bold uppercase tracking-[0.14em] text-ink-500">Topics</h2>
+                <ul class="mt-2.5 flex flex-wrap gap-2">
+                  {tagChips.map((tag) => (
+                    <li>
+                      {tag.href ? (
+                        <a
+                          href={tag.href}
+                          class="sp-chip transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
+                        >
+                          #{tag.label}
+                        </a>
+                      ) : (
+                        <span class="sp-chip">#{tag.label}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )
+          }
+
+          <slot name="footer" />
+        </footer>
+      </article>
+
+      {/* ---------- Right rail: affiliate widgets + sidebar ad ---------- */}
+      <aside class="min-w-0 space-y-6 lg:row-start-1 lg:col-start-2 xl:col-start-3">
+        <div class="space-y-6 lg:sticky lg:top-24">
+          <slot name="sidebar" />
+          <AdSlot slot="sidebar" format="sidebar" />
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

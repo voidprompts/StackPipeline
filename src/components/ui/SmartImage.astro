@@ -1,0 +1,105 @@
+---
+/**
+ * Performance-safe image wrapper.
+ *
+ * Enforces the rules that keep Lighthouse at 100:
+ *  - `width` and `height` are REQUIRED -> the browser reserves the box, CLS stays at 0
+ *  - everything is lazy + async-decoded EXCEPT the explicitly flagged LCP element
+ *  - the LCP image gets `fetchpriority="high"` and `loading="eager"`
+ *  - local assets are routed through Astro's optimiser to emit AVIF/WebP
+ *
+ * Remote images skip optimisation (no build-time fetch) but still get dimensions.
+ */
+import { Image, Picture } from 'astro:assets';
+
+interface Props {
+  src: string | ImageMetadata;
+  alt: string;
+  width: number;
+  height: number;
+  /** Mark the Largest Contentful Paint element — disables lazy loading. */
+  lcp?: boolean;
+  class?: string;
+  sizes?: string;
+  /** Emit a <picture> with AVIF + WebP sources. */
+  formats?: boolean;
+  quality?: number;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  densities?: number[];
+  style?: string;
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  lcp = false,
+  class: className = '',
+  sizes = '(min-width: 1024px) 720px, 100vw',
+  formats = true,
+  quality = 78,
+  loading,
+  fetchpriority,
+  style,
+} = Astro.props;
+
+// LCP elements must never be lazy-loaded; everything else always is.
+const resolvedLoading = loading ?? (lcp ? 'eager' : 'lazy');
+const resolvedPriority = fetchpriority ?? (lcp ? 'high' : 'auto');
+const decoding = lcp ? 'sync' : 'async';
+
+const isRemote = typeof src === 'string' && /^https?:\/\//i.test(src);
+const isLocalPublic = typeof src === 'string' && src.startsWith('/');
+---
+
+{
+  isRemote || isLocalPublic ? (
+    // Raw <img> for /public and remote assets — Astro's optimiser only handles imports.
+    // `isRemote || isLocalPublic` already guarantees `src` is a string here.
+    <img
+      src={src as string}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={resolvedLoading}
+      decoding={decoding}
+      fetchpriority={resolvedPriority}
+      sizes={sizes}
+      class={className}
+      style={style}
+    />
+  ) : formats ? (
+    <Picture
+      src={src as ImageMetadata}
+      alt={alt}
+      width={width}
+      height={height}
+      formats={['avif', 'webp']}
+      fallbackFormat="png"
+      quality={quality}
+      loading={resolvedLoading}
+      decoding={decoding}
+      fetchpriority={resolvedPriority}
+      sizes={sizes}
+      class={className}
+      style={style}
+    />
+  ) : (
+    <Image
+      src={src as ImageMetadata}
+      alt={alt}
+      width={width}
+      height={height}
+      format="webp"
+      quality={quality}
+      loading={resolvedLoading}
+      decoding={decoding}
+      fetchpriority={resolvedPriority}
+      sizes={sizes}
+      class={className}
+      style={style}
+    />
+  )
+}

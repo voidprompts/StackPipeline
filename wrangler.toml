@@ -1,0 +1,13 @@
+# Cloudflare Pages project configuration.
+#
+# The GitHub Actions workflow deploys with `wrangler pages deploy dist --project-name=stack-pipeline`,
+# so this file mainly documents the project settings and supports local `wrangler pages dev`.
+
+name = "stack-pipeline"
+compatibility_date = "2026-09-01"
+pages_build_output_dir = "dist"
+
+[vars]
+# Non-secret build-time defaults. Secrets (AdSense IDs, API tokens) belong in
+# GitHub repository secrets or the Cloudflare dashboard, never in this file.
+NODE_VERSION = "22"

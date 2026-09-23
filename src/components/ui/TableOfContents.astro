@@ -1,0 +1,121 @@
+---
+/**
+ * Sticky table of contents.
+ *
+ * Built from the headings Astro extracts at build time (h2/h3 only — deeper levels make
+ * the rail unusable). Scroll-spy is ~30 lines of vanilla JS using IntersectionObserver;
+ * no framework runtime is shipped for it.
+ */
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+  title?: string;
+  class?: string;
+}
+
+const { headings, title = 'On this page', class: className = '' } = Astro.props;
+
+const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+{
+  items.length > 1 && (
+    <nav
+      class={`sp-toc not-prose rounded-xl border border-ink-200 bg-white p-4 shadow-card ${className}`}
+      aria-label={title}
+    >
+      {/*
+        Deliberately a <p>, not a heading. The TOC is navigational chrome that renders
+        before the <article> in DOM order, so using an <h2> here would put a level-2
+        heading above the page <h1> and corrupt the document outline. The accessible
+        name is carried by aria-label on the <nav> instead.
+      */}
+      <p
+        class="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-ink-500"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+        </svg>
+        {title}
+      </p>
+
+      <ol class="mt-3 space-y-0.5 text-sm">
+        {items.map((heading) => (
+          <li class={heading.depth === 3 ? 'ml-3' : ''}>
+            <a
+              href={`#${heading.slug}`}
+              data-toc-link={heading.slug}
+              class:list={[
+                'block rounded-md px-2 py-1.5 leading-snug transition-colors',
+                'text-ink-600 hover:bg-ink-50 hover:text-ink-950',
+                heading.depth === 3 && 'text-[13px]',
+              ]}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
+<script>
+  // Scroll-spy: highlights the heading currently in view.
+  // Guarded so it is a no-op on pages without a TOC.
+  (() => {
+    const nav = document.querySelector('.sp-toc');
+    if (!nav) return;
+
+    const links = new Map<string, HTMLAnchorElement>();
+    nav.querySelectorAll<HTMLAnchorElement>('[data-toc-link]').forEach((link) => {
+      const slug = link.dataset.tocLink;
+      if (slug) links.set(slug, link);
+    });
+    if (links.size === 0) return;
+
+    const ACTIVE = ['bg-emerald-50', 'text-emerald-800', 'font-semibold'];
+    let current: HTMLAnchorElement | null = null;
+
+    const setActive = (slug: string) => {
+      const next = links.get(slug);
+      if (!next || next === current) return;
+      current?.classList.remove(...ACTIVE);
+      current?.removeAttribute('aria-current');
+      next.classList.add(...ACTIVE);
+      next.setAttribute('aria-current', 'true');
+      current = next;
+    };
+
+    const targets = [...links.keys()]
+      .map((slug) => document.getElementById(slug))
+      .filter((element): element is HTMLElement => element !== null);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]?.target.id) setActive(visible[0].target.id);
+      },
+      // Top-weighted band: a heading counts as "current" once it reaches the upper third.
+      { rootMargin: '-80px 0px -66% 0px', threshold: 0 },
+    );
+
+    targets.forEach((target) => observer.observe(target));
+  })();
+</script>

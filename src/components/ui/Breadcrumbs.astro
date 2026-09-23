@@ -1,0 +1,57 @@
+---
+/**
+ * Visible breadcrumb trail.
+ *
+ * Pairs with the BreadcrumbList JSON-LD emitted by BaseLayout. Google requires the
+ * markup and the visible trail to match, so both are generated from the same array.
+ */
+import type { BreadcrumbEntry } from '@lib/seo';
+
+interface Props {
+  items: BreadcrumbEntry[];
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+---
+
+{
+  items.length > 1 && (
+    <nav aria-label="Breadcrumb" class={`not-prose ${className}`}>
+      <ol class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-ink-500">
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+          return (
+            <li class="flex items-center gap-1.5">
+              {index > 0 && (
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-ink-300"
+                  aria-hidden="true"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              )}
+              {isLast ? (
+                <span class="font-medium text-ink-700" aria-current="page">
+                  {item.name}
+                </span>
+              ) : (
+                <a href={item.href} class="transition-colors hover:text-emerald-700 hover:underline">
+                  {item.name}
+                </a>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  )
+}

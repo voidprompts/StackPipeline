@@ -1,0 +1,112 @@
+---
+/**
+ * Featured affiliate widget for the sticky sidebar rail.
+ *
+ * Highest-CTR unit on the site: brand mark, rating, one-line verdict, price anchor and a
+ * single unambiguous CTA. Kept deliberately short — sidebar units that scroll are ignored.
+ */
+import type { CollectionEntry } from 'astro:content';
+import AffiliateButton from './AffiliateButton.astro';
+import RatingStars from './RatingStars.astro';
+
+interface Props {
+  tool: CollectionEntry<'tools'>;
+  /** Short verdict line; falls back to the tool tagline. */
+  verdict?: string;
+  badge?: string;
+  affiliateUrl?: string;
+  sticky?: boolean;
+  class?: string;
+  campaign?: string;
+}
+
+const {
+  tool,
+  verdict,
+  badge = "Editor's Choice",
+  affiliateUrl,
+  sticky = false,
+  class: className = '',
+  campaign = 'sidebar-widget',
+} = Astro.props;
+
+const data = tool.data;
+const href = affiliateUrl ?? data.affiliateUrl ?? data.website;
+const blurb = verdict ?? data.tagline;
+const initial = data.name.charAt(0).toUpperCase();
+---
+
+<aside
+  class:list={[
+    'not-prose overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-card',
+    sticky && 'lg:sticky lg:top-24',
+    className,
+  ]}
+  aria-labelledby={`widget-${data.slug}`}
+>
+  {
+    badge && (
+      <p class="bg-ink-950 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-400">
+        {badge}
+      </p>
+    )
+  }
+
+  <div class="p-5">
+    <div class="flex items-center gap-3">
+      <span
+        class="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-base font-bold text-white"
+        style={`background-color:${data.brandColor}`}
+        aria-hidden="true"
+      >
+        {initial}
+      </span>
+      <div class="min-w-0">
+        <h2 id={`widget-${data.slug}`} class="truncate text-base font-bold text-ink-950">
+          {data.name}
+        </h2>
+        <p class="truncate text-xs text-ink-500">{data.category}</p>
+      </div>
+    </div>
+
+    {
+      data.rating && (
+        <div class="mt-3">
+          <RatingStars value={data.rating} size="sm" />
+        </div>
+      )
+    }
+
+    <p class="mt-3 text-sm leading-relaxed text-ink-600">{blurb}</p>
+
+    <dl class="mt-4 space-y-2 border-t border-ink-100 pt-4 text-xs">
+      <div class="flex items-center justify-between gap-2">
+        <dt class="text-ink-500">Starting price</dt>
+        <dd class="font-semibold text-ink-900">{data.startingPrice}</dd>
+      </div>
+      <div class="flex items-center justify-between gap-2">
+        <dt class="text-ink-500">Free tier</dt>
+        <dd class="font-semibold text-ink-900">{data.freeTier ? 'Yes' : 'No'}</dd>
+      </div>
+      {
+        data.nativeIntegrations > 0 && (
+          <div class="flex items-center justify-between gap-2">
+            <dt class="text-ink-500">Integrations</dt>
+            <dd class="font-semibold text-ink-900">
+              {data.nativeIntegrations.toLocaleString('en-US')}+
+            </dd>
+          </div>
+        )
+      }
+    </dl>
+
+    <AffiliateButton
+      href={href}
+      product={data.name}
+      campaign={campaign}
+      fullWidth
+      class="mt-4"
+      size="sm"
+    />
+  </div>
+</aside>
