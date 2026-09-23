@@ -176,28 +176,49 @@ tracking issue listing stale content.
 
 ## Deployment
 
-Push to `main` → `.github/workflows/deploy.yml`:
+Deployment is handled by the **Cloudflare Pages Git integration** — no API tokens or
+GitHub secrets required. Cloudflare watches the repository, builds on push, and
+publishes.
 
-1. Checkout, Node 22, `npm ci` from the lockfile (cached)
-2. Type-check, `npm run build`, run the compliance audit
-3. Verify required compliance artefacts exist
-4. `wrangler pages deploy dist --project-name=stack-pipeline`
-5. Ping IndexNow (optional)
+### Project settings
 
-Pull requests get preview deployments with the URL commented on the PR. Fork PRs skip
-deployment since secrets are unavailable.
-
-### Required repository secrets
-
-| Secret | Purpose |
+| Setting | Value |
 | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | Token with **Pages: Edit** |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
+| Project name | `stack-pipeline` |
+| Production branch | `main` |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Node version | from `.node-version` (22.12.0) |
+
+The project name **must** match `name` in `wrangler.toml`, or Cloudflare rejects the
+build.
+
+### How the quality gate survives
+
+`npm run build` chains `postbuild` → `scripts/audit-build.mjs`, so the compliance audit
+runs as part of the build itself rather than as a separate CI step. When the audit finds
+an error it exits non-zero, the build fails, and **Cloudflare refuses to publish** —
+the previously deployed version stays live.
+
+Verified by stripping `rel="sponsored"` from affiliate links: `npm run build` exited `1`
+with 16 errors and produced no deployable output.
+
+`.github/workflows/ci.yml` runs that same build on pull requests so regressions surface
+as a failed check before merge, instead of as a failed production deploy after it.
+
+### Environment variables
+
+Set these in **Cloudflare → Workers & Pages → stack-pipeline → Settings → Environment
+variables**, not as GitHub secrets. All are optional — the site builds and passes its
+audit with every one unset.
+
+| Variable | Purpose |
+| --- | --- |
 | `PUBLIC_ADSENSE_CLIENT` | `ca-pub-…` publisher ID |
-| `PUBLIC_ADSENSE_SLOT_*` | Manual ad unit IDs |
-| `PUBLIC_GA4_ID` | GA4 measurement ID (optional) |
-| `PUBLIC_CONTACT_ENDPOINT` | Contact form POST endpoint (optional) |
-| `INDEXNOW_KEY` | IndexNow key (optional) |
+| `PUBLIC_ADSENSE_SLOT_*` | Manual ad unit IDs (5 slots) |
+| `PUBLIC_GA4_ID` | GA4 measurement ID |
+| `PUBLIC_PLAUSIBLE_DOMAIN` | Plausible domain |
+| `PUBLIC_CONTACT_ENDPOINT` | Contact form POST endpoint |
 
 Edge caching, security headers and canonical-host redirects are configured in
 `public/_headers` and `public/_redirects`.
