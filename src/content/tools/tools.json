@@ -210,5 +210,23 @@
     "nativeIntegrations": 1200,
     "bestFor": "Enterprises needing governance, environments and audit trails",
     "g2Rating": 4.7
+  },
+  {
+    "id": "systeme-io",
+    "name": "Systeme.io",
+    "slug": "systeme-io",
+    "category": "All-in-one marketing",
+    "tagline": "All-in-one funnels, email, courses and affiliate management with a genuinely free forever plan.",
+    "description": "Systeme.io is an all-in-one marketing platform that bundles sales funnels, email marketing, online courses, membership sites, a blog builder, e-commerce checkout and affiliate program management into a single account. Its free forever plan is a working product rather than a trial, and paid tiers scale primarily on contact count, which makes it a common consolidation choice for solopreneurs and small teams replacing a stack of separate tools.",
+    "website": "https://systeme.io",
+    "affiliateUrl": "https://systeme.io/?sa=stackpipeline",
+    "brandColor": "#132c4f",
+    "startingPrice": "$17/mo (or free forever)",
+    "freeTier": true,
+    "rating": 4.5,
+    "apiAvailable": true,
+    "nativeIntegrations": 15,
+    "bestFor": "Solopreneurs and small teams consolidating funnels, email and courses on one budget",
+    "g2Rating": 4.8
   }
 ]
