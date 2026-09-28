@@ -155,7 +155,10 @@ const reviews = defineCollection({
         }),
       )
       .default([]),
-    /** Hands-on testing metadata — direct E-E-A-T signal. */
+    /** Hands-on testing metadata — direct E-E-A-T signal. Presence of this block is what
+     * the review page and the review-production tooling treat as "evidence-backed hands-on
+     * review": only reviews carrying a `testing` block may emit Review/AggregateRating
+     * JSON-LD, an "Editor's Choice" badge, or a "How we tested" section. */
     testing: z
       .object({
         hoursTested: z.number().min(0),
@@ -163,6 +166,68 @@ const reviews = defineCollection({
         periodStart: z.coerce.date().optional(),
         periodEnd: z.coerce.date().optional(),
         methodology: z.string().optional(),
+        /** Named workflows exercised during testing. Optional for backward compatibility
+         * with reviews written before the outsourced-review intake pipeline existed. */
+        workflowsTested: z.array(z.string()).optional(),
+      })
+      .optional(),
+    /**
+     * Transparent tester attribution for outsourced hands-on reviews.
+     * Entirely optional — organization-authored content (no outside tester) omits this
+     * and keeps rendering exactly as before. When present, the review page surfaces one
+     * of two sentences depending on `mode`, and never a fabricated Person schema:
+     *   - "named"     -> "Tested by {displayName}, edited by StackPipeline Editorial Team."
+     *   - "anonymous" -> "Hands-on testing was conducted by an independent contractor
+     *                     following the StackPipeline testing protocol."
+     * `displayName` must only be populated when the tester authorized public attribution;
+     * the intake pipeline enforces that upstream and never writes an unauthorized real name
+     * into tracked content.
+     */
+    attribution: z
+      .object({
+        mode: z.enum(['named', 'anonymous']),
+        /** Recorded independently of `displayName` so `review:validate` can re-check
+         * authorization without trusting the generator step that first wrote this file. */
+        authorized: z.boolean(),
+        displayName: z.string().optional(),
+        role: z.string().optional(),
+        relevantExperience: z.string().optional(),
+      })
+      .optional(),
+    /**
+     * Provenance and compliance metadata captured by the outsourced-review intake
+     * pipeline (`scripts/review-intake.mjs`). Optional for backward compatibility with
+     * organization-authored editorial content that predates this system.
+     */
+    provenance: z
+      .object({
+        schemaVersion: z.number().int().positive().default(1),
+        officialSourceUrls: z.array(z.string().url()).default([]),
+        pricingSources: z
+          .array(
+            z.object({
+              claim: z.string(),
+              sourceUrl: z.string().url(),
+              checkedDate: z.coerce.date(),
+            }),
+          )
+          .default([]),
+        comparisonProducts: z.array(z.string()).default([]),
+        /** Public, sanitized evidence assets only — never raw/private material. */
+        evidenceRefs: z
+          .array(
+            z.object({
+              description: z.string(),
+              publicPath: z.string(),
+            }),
+          )
+          .default([]),
+        conflictsOfInterest: z.string().optional(),
+        affiliateRelationship: z
+          .object({ disclosed: z.boolean(), detail: z.string().optional() })
+          .optional(),
+        editorialApprovalStatus: z.enum(['pending', 'approved', 'rejected']).default('pending'),
+        certifiedAccurate: z.boolean().default(false),
       })
       .optional(),
   }),

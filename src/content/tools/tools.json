@@ -45,13 +45,13 @@
     "website": "https://n8n.io",
     "affiliateUrl": "https://n8n.partnerlinks.io/stackpipeline",
     "brandColor": "#ea4b71",
-    "startingPrice": "$24/mo (or free self-hosted)",
+    "startingPrice": "$20/mo annual (or free self-hosted)",
     "freeTier": true,
-    "rating": 4.6,
+    "rating": 4.7,
     "apiAvailable": true,
-    "nativeIntegrations": 1100,
+    "nativeIntegrations": 2192,
     "bestFor": "Engineering teams that want self-hosted control and no per-task billing",
-    "g2Rating": 4.8
+    "g2Rating": 4.7
   },
   {
     "id": "hubspot",

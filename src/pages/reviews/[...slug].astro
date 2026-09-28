@@ -43,6 +43,17 @@ const pageUrl = absoluteUrl(`/reviews/${entry.id}/`);
 const readTime = data.readingTime ?? estimateReadingTime(entry.body ?? '');
 const affiliateUrl = data.affiliateLinkA?.url ?? tool.data.affiliateUrl ?? tool.data.website;
 
+/**
+ * Evidence gate.
+ *
+ * Only a review carrying a `testing` block documents an actual access level, period and/or
+ * methodology — the minimum bar the editorial policy and testing methodology require before
+ * a page may claim hands-on testing. Reviews without it (documentation-based assessments,
+ * like early entries written before the outsourced-testing pipeline existed) still publish,
+ * but must not emit Review/AggregateRating JSON-LD, an "Editor's Choice" badge, or a
+ * "How we tested" section — those are reserved for evidence-backed hands-on reviews.
+ */
+const hasHandsOnEvidence = Boolean(data.testing);
 
 const schema = [
   softwareProductSchema({
@@ -57,21 +68,25 @@ const schema = [
       ? (tool.data.startingPrice.match(/[\d.]+/)?.[0] ?? undefined)
       : undefined,
     priceCurrency: 'USD',
-    aggregateRating: { value: data.rating.value, count: data.rating.count, best: data.rating.best },
-    linkedReview: true,
+    aggregateRating: hasHandsOnEvidence
+      ? { value: data.rating.value, count: data.rating.count, best: data.rating.best }
+      : undefined,
+    linkedReview: hasHandsOnEvidence,
   }),
-  reviewSchema({
-    url: pageUrl,
-    itemName: tool.data.name,
-    itemUrl: tool.data.website,
-    headline: data.heading ?? data.title,
-    body: data.verdict,
-    rating: { value: data.rating.value, best: data.rating.best, worst: data.rating.worst },
-    datePublished: data.publishDate,
-    dateModified: data.updatedDate ?? data.publishDate,
-    pros: data.prosCons.pros,
-    cons: data.prosCons.cons,
-  }),
+  hasHandsOnEvidence
+    ? reviewSchema({
+        url: pageUrl,
+        itemName: tool.data.name,
+        itemUrl: tool.data.website,
+        headline: data.heading ?? data.title,
+        body: data.verdict,
+        rating: { value: data.rating.value, best: data.rating.best, worst: data.rating.worst },
+        datePublished: data.publishDate,
+        dateModified: data.updatedDate ?? data.publishDate,
+        pros: data.prosCons.pros,
+        cons: data.prosCons.cons,
+      })
+    : undefined,
   articleSchema({
     url: pageUrl,
     headline: data.heading ?? data.title,
@@ -84,6 +99,18 @@ const schema = [
   }),
   data.faq.length > 0 ? faqSchema(data.faq, pageUrl) : undefined,
 ];
+
+/**
+ * Transparent attribution sentence (see src/content.config.ts `attribution` field).
+ * Falls back to the pre-existing organization-only byline (rendered by
+ * <EditorialAttribution /> in the layout footer) when no outsourced tester is involved —
+ * this keeps every review written before this system unchanged.
+ */
+const attributionLine = !data.attribution
+  ? undefined
+  : data.attribution.mode === 'named' && data.attribution.authorized && data.attribution.displayName
+    ? `Tested by ${data.attribution.displayName}, edited by StackPipeline Editorial Team.`
+    : 'Hands-on testing was conducted by an independent contractor following the StackPipeline testing protocol.';
 
 const breadcrumbs = [
   { name: 'Home', href: '/' },
@@ -125,7 +152,7 @@ const pricingRows = data.pricing.length
   <Fragment slot="sidebar">
     <AffiliateWidget
       tool={tool}
-      badge={data.rating.value >= 4.5 ? "Editor's Choice" : 'Reviewed'}
+      badge={hasHandsOnEvidence && data.rating.value >= 4.5 ? "Editor's Choice" : 'Reviewed'}
       verdict={data.verdict.slice(0, 140)}
       affiliateUrl={affiliateUrl}
       campaign={data.affiliateLinkA?.campaign ?? `${entry.id}-sidebar`}
@@ -190,6 +217,12 @@ const pricingRows = data.pricing.length
   </div>
 
   {
+    attributionLine && (
+      <p class="not-prose -mt-6 mb-8 text-sm font-medium text-ink-600">{attributionLine}</p>
+    )
+  }
+
+  {
     data.testing && (
       <aside class="not-prose mb-10 rounded-xl border border-emerald-200 bg-emerald-50/60 p-5">
         <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-emerald-900">
@@ -231,6 +264,18 @@ const pricingRows = data.pricing.length
           <p class="mt-3.5 border-t border-emerald-200 pt-3.5 text-sm leading-relaxed text-emerald-900">
             {data.testing.methodology}
           </p>
+        )}
+        {data.testing.workflowsTested && data.testing.workflowsTested.length > 0 && (
+          <div class="mt-3.5 border-t border-emerald-200 pt-3.5">
+            <p class="text-xs text-emerald-800/70">Workflows tested</p>
+            <ul class="mt-1.5 flex flex-wrap gap-1.5">
+              {data.testing.workflowsTested.map((workflow) => (
+                <li class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-900">
+                  {workflow}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </aside>
     )
