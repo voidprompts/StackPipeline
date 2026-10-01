@@ -1,0 +1,50 @@
+name: Post-deploy smoke test
+
+# The CI workflow proves the build is internally consistent; this one proves the
+# PUBLIC SITE is. Cloudflare Pages deploys main via its Git integration, and a deploy
+# cutover can briefly serve mixed content (stale HTML next to a fresh sitemap — seen
+# live on 2026-10-01, when the sitemap advertised /tools/systeme-io/ while the route
+# returned 404). scripts/smoke-production.mjs compares the live site against
+# tools.json and fails if any sitemap URL 404s, a noindex page is advertised, or a
+# linked tool route is missing.
+#
+# Triggers:
+#   - push to main: runs right after the deploy Cloudflare kicks off for the same
+#     commit. The script retries for up to ~10 minutes to ride out propagation.
+#   - daily schedule: catches drift that happens outside deploys (rollbacks, edge
+#     cache anomalies, manual dashboard changes).
+on:
+  push:
+    branches: [main]
+  schedule:
+    # 03:17 UTC daily — off the top of the hour to avoid the cron thundering herd.
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Verify live site consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      # No npm ci — the script only uses Node built-ins (fetch, fs, timers).
+      - name: Run production smoke test
+        run: node scripts/smoke-production.mjs
+        env:
+          BASE_URL: https://stack-pipeline.pages.dev

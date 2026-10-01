@@ -1,0 +1,157 @@
+name: Auto-merge audited content
+
+# Merges content PRs WITHOUT a human only when every mechanical gate passes.
+#
+# Two-layer design:
+#   1. scripts/automerge-gate.mjs decides whether the DIFF is even eligible —
+#      only tool-catalog data, discovery data and blog posts qualify. Code,
+#      reviews, `indexable` flips and deletions always wait for a human
+#      (E-E-A-T sign-off and SEO-consequential changes are editorial acts).
+#   2. The full audit suite then runs against the PR head: unit tests, review
+#      validation, and the production build with its SEO / accessibility /
+#      ad-compliance / sitemap-integrity audit. Any failure leaves the PR open
+#      with a comment instead of merging.
+#
+# Triggers:
+#   - pull_request: human-opened PRs are evaluated as soon as they are pushed.
+#     (PRs created by workflows with GITHUB_TOKEN — e.g. tool discovery — do not
+#     fire this event; the scheduled sweep picks them up once marked ready.)
+#   - schedule: sweeps all open, ready-for-review PRs every 6 hours.
+#   - workflow_dispatch: manual sweep.
+#
+# Opt-outs and exclusions: draft PRs (the discovery workflow's drafts are an
+# editorial inbox by design), PRs labeled `no-automerge`, and fork PRs.
+#
+# After merging, this workflow runs the production smoke test itself: a merge
+# performed with GITHUB_TOKEN does not trigger the push-event workflows on main
+# (Actions' recursion guard), although Cloudflare Pages still deploys.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  schedule:
+    # Every 6 hours, off the top of the hour.
+    - cron: '23 1,7,13,19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-merge
+  cancel-in-progress: false
+
+jobs:
+  gate-and-merge:
+    name: Audit and merge eligible content PRs
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      # The gate rejects any PR touching package*.json, so dependencies from main
+      # are valid for every PR this job will ever build.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Evaluate and merge eligible PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            prs="$EVENT_PR"
+          else
+            prs=$(gh pr list --repo "$REPO" --state open --json number --jq '.[].number')
+          fi
+
+          [ -z "$prs" ] && { echo "No open PRs to evaluate."; exit 0; }
+
+          merged_any=0
+          for pr in $prs; do
+            echo "::group::PR #$pr"
+            meta=$(gh pr view "$pr" --repo "$REPO" \
+              --json isDraft,labels,headRefOid,headRepositoryOwner,mergeable,state)
+            draft=$(jq -r '.isDraft' <<<"$meta")
+            state=$(jq -r '.state' <<<"$meta")
+            owner=$(jq -r '.headRepositoryOwner.login' <<<"$meta")
+            sha=$(jq -r '.headRefOid' <<<"$meta")
+            optout=$(jq -r '[.labels[].name] | index("no-automerge") != null' <<<"$meta")
+
+            if [ "$state" != "OPEN" ] || [ "$draft" = "true" ] || [ "$optout" = "true" ] \
+               || [ "$owner" != "${REPO%%/*}" ]; then
+              echo "Skipping: state=$state draft=$draft no-automerge=$optout owner=$owner"
+              echo "::endgroup::"; continue
+            fi
+
+            git fetch -q origin "pull/$pr/head"
+            git checkout -q --force "$sha"
+
+            # Layer 1: is this diff even the kind automation may merge?
+            rc=0; node scripts/automerge-gate.mjs origin/main || rc=$?
+            if [ "$rc" -eq 2 ]; then
+              echo "Not eligible for auto-merge — leaving for human review."
+              echo "::endgroup::"; continue
+            elif [ "$rc" -ne 0 ]; then
+              echo "::error::Gate script errored on PR #$pr"; exit 1
+            fi
+
+            # Layer 2: full mechanical audit of the PR head.
+            audit_log=$(mktemp)
+            if npm test >>"$audit_log" 2>&1 \
+               && npm run review:validate >>"$audit_log" 2>&1 \
+               && npm run build >>"$audit_log" 2>&1; then
+              echo "All audits passed — merging."
+              gh pr comment "$pr" --repo "$REPO" --body "$(printf '%s\n' \
+                "<!-- automerge-gate:$sha -->" \
+                "**Auto-merged.** Diff was confined to auto-mergeable content (tool catalog data / blog posts), and at \`$sha\` all mechanical gates passed: unit tests, review validation, build with SEO/accessibility/ad-compliance/sitemap-integrity audit." \
+                "" \
+                "Not covered by automation: E-E-A-T editorial judgment. Reviews and \`indexable\` changes still require human approval by policy.")"
+              gh pr merge "$pr" --repo "$REPO" --squash --match-head-commit "$sha"
+              merged_any=1
+            else
+              echo "Audits FAILED for PR #$pr:"
+              tail -40 "$audit_log"
+              marker="automerge-gate:$sha"
+              if ! gh api "repos/$REPO/issues/$pr/comments" --paginate \
+                   --jq '.[].body' | grep -q "$marker"; then
+                gh pr comment "$pr" --repo "$REPO" --body "$(printf '%s\n' \
+                  "<!-- $marker -->" \
+                  "**Auto-merge declined at \`$sha\`** — the diff is eligible, but the audit suite failed. Last lines:" \
+                  '```' \
+                  "$(tail -25 "$audit_log")" \
+                  '```')"
+              fi
+            fi
+            echo "::endgroup::"
+          done
+
+          echo "merged_any=$merged_any" >> "$GITHUB_ENV"
+
+      # A GITHUB_TOKEN merge does not fire the push-triggered smoke workflow, so
+      # verify the deployment from here instead. Cloudflare Pages deploys the merge
+      # regardless; the retry window rides out build + propagation.
+      - name: Smoke-test production after merge
+        if: env.merged_any == '1'
+        run: |
+          git checkout -q --force origin/main
+          git pull -q origin main
+          node scripts/smoke-production.mjs
+        env:
+          BASE_URL: https://stack-pipeline.pages.dev
