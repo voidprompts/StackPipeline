@@ -104,6 +104,7 @@ const pageTitle = titleCandidates.find((candidate) => candidate.length <= TOPIC_
 <BaseLayout
   title={pageTitle}
   description={`${data.tagline} Pricing from ${data.startingPrice}. ${totalGuides} StackPipeline guides cover ${data.name}.`}
+  noindex={!data.indexable}
   schema={schema}
   breadcrumbs={breadcrumbs}
   pageType="ItemPage"
@@ -180,6 +181,14 @@ const pageTitle = titleCandidates.find((candidate) => candidate.length <= TOPIC_
         </section>
 
         <AdSlot slot="inArticleMid" format="in-article" />
+
+        {
+          !data.indexable && (
+            <aside class="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950" aria-label="Editorial status">
+              <strong class="font-semibold">Directory entry:</strong> We are still building the sourced review and supporting guides for {data.name}. This profile is not yet eligible for search indexing.
+            </aside>
+          )
+        }
 
         {/* ---------- Related content ---------- */}
         {

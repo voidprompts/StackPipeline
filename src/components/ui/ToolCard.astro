@@ -40,11 +40,15 @@ const initial = data.name.charAt(0).toUpperCase();
       <p class="truncate text-xs text-ink-500">{data.category}</p>
     </div>
     {
-      data.freeTier && (
+      data.freeTier ? (
         <span class="shrink-0 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
           Free tier
         </span>
-      )
+      ) : !data.indexable ? (
+        <span class="shrink-0 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+          Catalog entry
+        </span>
+      ) : null
     }
   </div>
 

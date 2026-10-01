@@ -15,7 +15,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 7000,
     "bestFor": "Teams that need the widest app coverage with zero engineering time",
-    "g2Rating": 4.5
+    "g2Rating": 4.5,
+    "indexable": true
   },
   {
     "id": "make",
@@ -33,7 +34,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 2000,
     "bestFor": "Complex branching logic and high-volume workflows on a budget",
-    "g2Rating": 4.6
+    "g2Rating": 4.6,
+    "indexable": true
   },
   {
     "id": "n8n",
@@ -51,7 +53,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 2192,
     "bestFor": "Engineering teams that want self-hosted control and no per-task billing",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": true
   },
   {
     "id": "hubspot",
@@ -69,7 +72,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 1700,
     "bestFor": "Mid-market teams consolidating marketing and sales on one platform",
-    "g2Rating": 4.4
+    "g2Rating": 4.4,
+    "indexable": true
   },
   {
     "id": "salesforce",
@@ -86,7 +90,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 5000,
     "bestFor": "Enterprise sales organisations with dedicated admin resources",
-    "g2Rating": 4.4
+    "g2Rating": 4.4,
+    "indexable": false
   },
   {
     "id": "airtable",
@@ -104,7 +109,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 1000,
     "bestFor": "Operational databases and staging layers between systems",
-    "g2Rating": 4.6
+    "g2Rating": 4.6,
+    "indexable": true
   },
   {
     "id": "clay",
@@ -122,7 +128,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 150,
     "bestFor": "Outbound teams that need the highest possible enrichment match rates",
-    "g2Rating": 4.9
+    "g2Rating": 4.9,
+    "indexable": true
   },
   {
     "id": "apollo",
@@ -140,7 +147,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 200,
     "bestFor": "Small outbound teams needing data and sequencing in one tool",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": false
   },
   {
     "id": "slack",
@@ -157,7 +165,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 2600,
     "bestFor": "Real-time alerting and human-in-the-loop approval steps",
-    "g2Rating": 4.5
+    "g2Rating": 4.5,
+    "indexable": true
   },
   {
     "id": "notion",
@@ -174,7 +183,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 300,
     "bestFor": "Human-in-the-loop review layers and internal documentation",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": false
   },
   {
     "id": "pipedrive",
@@ -192,7 +202,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 500,
     "bestFor": "Small sales teams that want pipeline clarity over feature breadth",
-    "g2Rating": 4.3
+    "g2Rating": 4.3,
+    "indexable": true
   },
   {
     "id": "workato",
@@ -209,7 +220,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 1200,
     "bestFor": "Enterprises needing governance, environments and audit trails",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": true
   },
   {
     "id": "systeme-io",
@@ -227,7 +239,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 15,
     "bestFor": "Solopreneurs and small teams consolidating funnels, email and courses on one budget",
-    "g2Rating": 4.8
+    "g2Rating": 4.8,
+    "indexable": true
   },
   {
     "id": "pipedream",
@@ -244,7 +257,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 2500,
     "bestFor": "Developers who need flexible API workflows without maintaining orchestration infrastructure",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": false
   },
   {
     "id": "activecampaign",
@@ -261,7 +275,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 900,
     "bestFor": "Growing businesses building behaviour-based email and sales journeys",
-    "g2Rating": 4.5
+    "g2Rating": 4.5,
+    "indexable": false
   },
   {
     "id": "brevo",
@@ -278,7 +293,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 150,
     "bestFor": "Small teams combining email, transactional messages and lightweight automation",
-    "g2Rating": 4.5
+    "g2Rating": 4.5,
+    "indexable": false
   },
   {
     "id": "typeform",
@@ -295,7 +311,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 300,
     "bestFor": "Branded lead forms and surveys where respondent experience matters",
-    "g2Rating": 4.5
+    "g2Rating": 4.5,
+    "indexable": false
   },
   {
     "id": "calendly",
@@ -312,7 +329,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 100,
     "bestFor": "Sales and service teams automating meeting booking and follow-up",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": false
   },
   {
     "id": "tally",
@@ -329,7 +347,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 50,
     "bestFor": "Lean teams that need capable forms without per-response pricing",
-    "g2Rating": 4.6
+    "g2Rating": 4.6,
+    "indexable": false
   },
   {
     "id": "linear",
@@ -346,7 +365,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 70,
     "bestFor": "Product and engineering teams that want a fast, opinionated issue tracker",
-    "g2Rating": 4.5
+    "g2Rating": 4.5,
+    "indexable": false
   },
   {
     "id": "webflow",
@@ -363,6 +383,7 @@
     "apiAvailable": true,
     "nativeIntegrations": 250,
     "bestFor": "Design-led marketing teams publishing structured websites without full-time developers",
-    "g2Rating": 4.4
+    "g2Rating": 4.4,
+    "indexable": false
   }
 ]
