@@ -11,7 +11,7 @@ npm run tools:fetch
 
 The command reads the explicit URL allowlist in `data/tool-sources.json`, fetches each vendor
 homepage, extracts basic public metadata, and writes `data/tool-candidates.json`. The generated
-file is ignored by Git because it is a dated fetch result, not source content.
+file is kept in a draft PR as an editorial inbox, not as published content.
 
 A candidate can be added to `src/content/tools/tools.json` only after an editor verifies its
 pricing, product claims, ratings, integration count, affiliate relationship and category. The

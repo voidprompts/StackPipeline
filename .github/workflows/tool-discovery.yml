@@ -9,7 +9,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   discover:
@@ -31,3 +32,38 @@ jobs:
           name: tool-candidates-${{ github.run_number }}
           path: data/tool-candidates.json
           retention-days: 30
+
+      # Opens or updates one draft PR. This is an editorial inbox, not publication:
+      # the candidate file is not loaded by Astro and cannot create a public page.
+      - name: Open draft editorial PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: automation/tool-discovery
+          delete-branch: true
+          draft: true
+          title: "chore: review newly discovered tool candidates"
+          commit-message: "chore: refresh tool discovery candidates"
+          add-paths: data/tool-candidates.json
+          labels: "content,editorial-review"
+          body: |
+            ## Editorial review required
+
+            This draft PR was generated from the explicitly approved URLs in `data/tool-sources.json`.
+            It contains discovery metadata only. It does **not** add tools to `tools.json`, create
+            public pages, or publish reviews.
+
+            Before merging, an editor must verify each candidate's official pricing, product claims,
+            integrations, ratings and affiliate relationship, then add only supported fields to the
+            directory through a normal content change.
+
+            Required pre-merge gates:
+
+            - `npm run check`
+            - `npm test`
+            - `npm run review:validate`
+            - `npm run build`
+            - Build audit must remain SEO, accessibility and ad-compliance clean.
+            - E-E-A-T is an editorial requirement, not something metadata scraping can certify:
+              every published review still needs attributable methodology, current sources and
+              human approval.
