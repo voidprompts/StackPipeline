@@ -310,6 +310,8 @@ const tools = defineCollection({
     nativeIntegrations: z.number().int().min(0).default(0),
     bestFor: z.string().optional(),
     g2Rating: z.number().min(0).max(5).optional(),
+    /** Only entries with substantive supporting content are eligible for indexing. */
+    indexable: z.boolean().default(false),
   }),
 });
 

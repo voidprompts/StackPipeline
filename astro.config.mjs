@@ -1,10 +1,20 @@
 // @ts-check
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 const SITE_URL = 'https://stack-pipeline.pages.dev';
+
+// Keep noindex tool profiles out of the sitemap as well as out of search results.
+// The JSON remains the single source of truth, so new catalog-only entries cannot
+// accidentally become crawl targets through a forgotten config edit.
+/** @type {Array<{slug: string, indexable?: boolean}>} */
+const tools = JSON.parse(readFileSync(new URL('./src/content/tools/tools.json', import.meta.url), 'utf8'));
+const NON_INDEXABLE_TOOL_SLUGS = new Set(
+  tools.filter((tool) => tool.indexable !== true).map((tool) => tool.slug),
+);
 
 /**
  * Depth-aware sitemap prioritisation.
@@ -108,9 +118,11 @@ export default defineConfig({
     mdx(),
     sitemap({
       // Keep utility routes and paginated duplicates out of the index.
-      filter: (page) =>
-        !page.includes('/404') &&
-        !/\/page\/1\/?$/.test(page),
+      filter: (page) => {
+        if (page.includes('/404') || /\/page\/1\/?$/.test(page)) return false;
+        const toolMatch = page.match(/\/tools\/([^/]+)\/?$/);
+        return !toolMatch || !NON_INDEXABLE_TOOL_SLUGS.has(toolMatch[1]);
+      },
       serialize(item) {
         const { priority, changefreq } = grade(item.url);
         return {

@@ -15,7 +15,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 7000,
     "bestFor": "Teams that need the widest app coverage with zero engineering time",
-    "g2Rating": 4.5
+    "g2Rating": 4.5,
+    "indexable": true
   },
   {
     "id": "make",
@@ -33,7 +34,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 2000,
     "bestFor": "Complex branching logic and high-volume workflows on a budget",
-    "g2Rating": 4.6
+    "g2Rating": 4.6,
+    "indexable": true
   },
   {
     "id": "n8n",
@@ -51,7 +53,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 2192,
     "bestFor": "Engineering teams that want self-hosted control and no per-task billing",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": true
   },
   {
     "id": "hubspot",
@@ -69,14 +72,15 @@
     "apiAvailable": true,
     "nativeIntegrations": 1700,
     "bestFor": "Mid-market teams consolidating marketing and sales on one platform",
-    "g2Rating": 4.4
+    "g2Rating": 4.4,
+    "indexable": true
   },
   {
     "id": "salesforce",
     "name": "Salesforce",
     "slug": "salesforce",
     "category": "CRM",
-    "tagline": "The enterprise CRM standard — infinitely customisable, with the deepest partner ecosystem available.",
+    "tagline": "The enterprise CRM standard \u2014 infinitely customisable, with the deepest partner ecosystem available.",
     "description": "Salesforce Sales Cloud is the enterprise CRM benchmark, offering near-unlimited customisation through objects, flows and Apex. Its AppExchange ecosystem and API coverage are unmatched, though total cost of ownership and administrative overhead are meaningfully higher than mid-market alternatives.",
     "website": "https://www.salesforce.com",
     "brandColor": "#00a1e0",
@@ -86,14 +90,15 @@
     "apiAvailable": true,
     "nativeIntegrations": 5000,
     "bestFor": "Enterprise sales organisations with dedicated admin resources",
-    "g2Rating": 4.4
+    "g2Rating": 4.4,
+    "indexable": false
   },
   {
     "id": "airtable",
     "name": "Airtable",
     "slug": "airtable",
     "category": "Database & spreadsheets",
-    "tagline": "Relational database with a spreadsheet interface — the connective tissue of most automation stacks.",
+    "tagline": "Relational database with a spreadsheet interface \u2014 the connective tissue of most automation stacks.",
     "description": "Airtable is a relational database wrapped in a spreadsheet UI, widely used as the staging layer between systems in an automation stack. Its REST API, webhooks, automations and interface designer make it a practical operational data store for teams without a data engineering function.",
     "website": "https://www.airtable.com",
     "affiliateUrl": "https://airtable.com/invite/r/stackpipeline",
@@ -104,7 +109,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 1000,
     "bestFor": "Operational databases and staging layers between systems",
-    "g2Rating": 4.6
+    "g2Rating": 4.6,
+    "indexable": true
   },
   {
     "id": "clay",
@@ -122,7 +128,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 150,
     "bestFor": "Outbound teams that need the highest possible enrichment match rates",
-    "g2Rating": 4.9
+    "g2Rating": 4.9,
+    "indexable": true
   },
   {
     "id": "apollo",
@@ -140,7 +147,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 200,
     "bestFor": "Small outbound teams needing data and sequencing in one tool",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": false
   },
   {
     "id": "slack",
@@ -148,7 +156,7 @@
     "slug": "slack",
     "category": "Communication",
     "tagline": "The default alerting surface for automated workflows and pipeline notifications.",
-    "description": "Slack is where most automation stacks surface their output — deal alerts, data quality warnings, approval requests. Its incoming webhooks, Block Kit message formatting and Workflow Builder make it a first-class automation destination rather than just a chat tool.",
+    "description": "Slack is where most automation stacks surface their output \u2014 deal alerts, data quality warnings, approval requests. Its incoming webhooks, Block Kit message formatting and Workflow Builder make it a first-class automation destination rather than just a chat tool.",
     "website": "https://slack.com",
     "brandColor": "#4a154b",
     "startingPrice": "$8.75 per seat/mo",
@@ -157,7 +165,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 2600,
     "bestFor": "Real-time alerting and human-in-the-loop approval steps",
-    "g2Rating": 4.5
+    "g2Rating": 4.5,
+    "indexable": true
   },
   {
     "id": "notion",
@@ -174,7 +183,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 300,
     "bestFor": "Human-in-the-loop review layers and internal documentation",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": false
   },
   {
     "id": "pipedrive",
@@ -192,7 +202,8 @@
     "apiAvailable": true,
     "nativeIntegrations": 500,
     "bestFor": "Small sales teams that want pipeline clarity over feature breadth",
-    "g2Rating": 4.3
+    "g2Rating": 4.3,
+    "indexable": true
   },
   {
     "id": "workato",
@@ -209,6 +220,170 @@
     "apiAvailable": true,
     "nativeIntegrations": 1200,
     "bestFor": "Enterprises needing governance, environments and audit trails",
-    "g2Rating": 4.7
+    "g2Rating": 4.7,
+    "indexable": true
+  },
+  {
+    "id": "systeme-io",
+    "name": "Systeme.io",
+    "slug": "systeme-io",
+    "category": "All-in-one marketing",
+    "tagline": "All-in-one funnels, email, courses and affiliate management with a genuinely free forever plan.",
+    "description": "Systeme.io is an all-in-one marketing platform that bundles sales funnels, email marketing, online courses, membership sites, a blog builder, e-commerce checkout and affiliate program management into a single account. Its free forever plan is a working product rather than a trial, and paid tiers scale primarily on contact count, which makes it a common consolidation choice for solopreneurs and small teams replacing a stack of separate tools.",
+    "website": "https://systeme.io",
+    "affiliateUrl": "https://systeme.io/?sa=stackpipeline",
+    "brandColor": "#132c4f",
+    "startingPrice": "$17/mo (or free forever)",
+    "freeTier": true,
+    "rating": 4.5,
+    "apiAvailable": true,
+    "nativeIntegrations": 15,
+    "bestFor": "Solopreneurs and small teams consolidating funnels, email and courses on one budget",
+    "g2Rating": 4.8,
+    "indexable": true
+  },
+  {
+    "id": "pipedream",
+    "name": "Pipedream",
+    "slug": "pipedream",
+    "category": "Workflow automation",
+    "tagline": "Developer-friendly workflow automation with code steps and prebuilt API components.",
+    "description": "Pipedream is a workflow automation platform for connecting APIs, SaaS products and custom code. Its event-driven workflows combine prebuilt components with JavaScript, Python or HTTP steps, making it a practical bridge between no-code automation and bespoke integrations.",
+    "website": "https://pipedream.com",
+    "brandColor": "#20c997",
+    "startingPrice": "Free tier / custom usage",
+    "freeTier": true,
+    "rating": 4.5,
+    "apiAvailable": true,
+    "nativeIntegrations": 2500,
+    "bestFor": "Developers who need flexible API workflows without maintaining orchestration infrastructure",
+    "g2Rating": 4.7,
+    "indexable": false
+  },
+  {
+    "id": "activecampaign",
+    "name": "ActiveCampaign",
+    "slug": "activecampaign",
+    "category": "Marketing automation",
+    "tagline": "Email marketing and customer automation with a strong visual journey builder.",
+    "description": "ActiveCampaign combines email marketing, CRM, sales automation and customer journeys. It is particularly useful for teams that need behavioural segmentation and multi-step follow-up sequences rather than one-off newsletter sends.",
+    "website": "https://www.activecampaign.com",
+    "brandColor": "#356ae6",
+    "startingPrice": "Custom pricing",
+    "freeTier": false,
+    "rating": 4.5,
+    "apiAvailable": true,
+    "nativeIntegrations": 900,
+    "bestFor": "Growing businesses building behaviour-based email and sales journeys",
+    "g2Rating": 4.5,
+    "indexable": false
+  },
+  {
+    "id": "brevo",
+    "name": "Brevo",
+    "slug": "brevo",
+    "category": "Marketing automation",
+    "tagline": "Accessible email, SMS and marketing automation with a contact-based free plan.",
+    "description": "Brevo provides email campaigns, transactional messaging, SMS, chat and marketing automation in one workspace. Its contact-based model and free daily sending allowance make it a practical starting point for small teams that need more than a newsletter tool.",
+    "website": "https://www.brevo.com",
+    "brandColor": "#0b996e",
+    "startingPrice": "Free / $9 per month",
+    "freeTier": true,
+    "rating": 4.5,
+    "apiAvailable": true,
+    "nativeIntegrations": 150,
+    "bestFor": "Small teams combining email, transactional messages and lightweight automation",
+    "g2Rating": 4.5,
+    "indexable": false
+  },
+  {
+    "id": "typeform",
+    "name": "Typeform",
+    "slug": "typeform",
+    "category": "Forms & surveys",
+    "tagline": "Conversational forms and surveys designed to improve completion rates.",
+    "description": "Typeform uses one-question-at-a-time forms, conditional logic and polished layouts for lead capture, research and feedback. Its API and integrations make submitted responses useful as triggers for downstream CRM and workflow automation.",
+    "website": "https://www.typeform.com",
+    "brandColor": "#262627",
+    "startingPrice": "Free / $25 per month",
+    "freeTier": true,
+    "rating": 4.5,
+    "apiAvailable": true,
+    "nativeIntegrations": 300,
+    "bestFor": "Branded lead forms and surveys where respondent experience matters",
+    "g2Rating": 4.5,
+    "indexable": false
+  },
+  {
+    "id": "calendly",
+    "name": "Calendly",
+    "slug": "calendly",
+    "category": "Scheduling",
+    "tagline": "Automated scheduling links that remove the back-and-forth from booking meetings.",
+    "description": "Calendly lets people book available meeting times through shareable event links, routing forms and calendar availability rules. Webhooks and integrations let teams trigger CRM updates, reminders and follow-up workflows from bookings.",
+    "website": "https://calendly.com",
+    "brandColor": "#006bff",
+    "startingPrice": "Free / $10 per seat/mo",
+    "freeTier": true,
+    "rating": 4.6,
+    "apiAvailable": true,
+    "nativeIntegrations": 100,
+    "bestFor": "Sales and service teams automating meeting booking and follow-up",
+    "g2Rating": 4.7,
+    "indexable": false
+  },
+  {
+    "id": "tally",
+    "name": "Tally",
+    "slug": "tally",
+    "category": "Forms & surveys",
+    "tagline": "Simple, generous online forms with a document-like editor and flexible embeds.",
+    "description": "Tally is a form builder with a document-style editing experience, conditional logic, payments and embeds. Its generous free tier and webhook support make it useful for lightweight intake forms that feed automation pipelines.",
+    "website": "https://tally.so",
+    "brandColor": "#000000",
+    "startingPrice": "Free / $29 per month",
+    "freeTier": true,
+    "rating": 4.6,
+    "apiAvailable": true,
+    "nativeIntegrations": 50,
+    "bestFor": "Lean teams that need capable forms without per-response pricing",
+    "g2Rating": 4.6,
+    "indexable": false
+  },
+  {
+    "id": "linear",
+    "name": "Linear",
+    "slug": "linear",
+    "category": "Project management",
+    "tagline": "Fast issue tracking and product planning for modern software teams.",
+    "description": "Linear combines issue tracking, projects, cycles, roadmaps and customer-request triage in a fast, keyboard-friendly interface. Its GraphQL API, webhooks and native integrations make project state available to the rest of an engineering workflow.",
+    "website": "https://linear.app",
+    "brandColor": "#5e6ad2",
+    "startingPrice": "Free / $8 per user/mo",
+    "freeTier": true,
+    "rating": 4.6,
+    "apiAvailable": true,
+    "nativeIntegrations": 70,
+    "bestFor": "Product and engineering teams that want a fast, opinionated issue tracker",
+    "g2Rating": 4.5,
+    "indexable": false
+  },
+  {
+    "id": "webflow",
+    "name": "Webflow",
+    "slug": "webflow",
+    "category": "Web & content",
+    "tagline": "Visual website builder with CMS controls for teams that need production-ready output.",
+    "description": "Webflow is a visual site builder and CMS that gives designers control over responsive layouts, interactions and structured content without hand-coding every page. Its CMS API and webhooks allow publishing workflows to connect with external systems.",
+    "website": "https://webflow.com",
+    "brandColor": "#146ef5",
+    "startingPrice": "Free / $14 per month",
+    "freeTier": true,
+    "rating": 4.4,
+    "apiAvailable": true,
+    "nativeIntegrations": 250,
+    "bestFor": "Design-led marketing teams publishing structured websites without full-time developers",
+    "g2Rating": 4.4,
+    "indexable": false
   }
 ]
