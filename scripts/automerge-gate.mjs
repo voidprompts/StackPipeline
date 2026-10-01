@@ -46,6 +46,7 @@ const ALLOWED_PATHS = [
   CONTENT_POST,
   /^data\/tool-candidates\.json$/,
   /^data\/tool-sources\.json$/,
+  /^data\/content-queue\.json$/,
 ];
 
 /**

@@ -86,3 +86,10 @@ test('truncated posts are rejected, substantive ones pass', () => {
   assert.ok(checkPost('g.mdx', `${frontmatter}too short`).length > 0);
   assert.deepEqual(checkPost('g.mdx', `${frontmatter}${'substantive word '.repeat(150)}`), []);
 });
+
+test('the daily content queue is auto-mergeable', () => {
+  assert.equal(
+    classifyDiff([{ status: 'M', file: 'data/content-queue.json' }]).eligible,
+    true,
+  );
+});

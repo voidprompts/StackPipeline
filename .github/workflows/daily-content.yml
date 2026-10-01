@@ -1,0 +1,96 @@
+name: Daily content pipeline
+
+# Publishes up to 3 posts per day from the human-curated queue in
+# data/content-queue.json, targeted at tier-1 English-speaking markets
+# (US/GB/CA/AU/NZ — see the queue metadata).
+#
+# Editorial model: a human approves TOPICS by adding them to the queue; this
+# workflow only executes that plan. The chain to production is:
+#   1. scripts/daily-content.mjs generates the posts (tool-data-driven, USD
+#      pricing, draft: false) and marks the queue items done
+#   2. this workflow runs the FULL validation suite before opening a PR, so the
+#      PR is born green
+#   3. the auto-merge workflow independently re-validates at the PR head
+#      (eligibility gate + tests + review validation + build audit) and merges
+#   4. after merge, production is smoke-tested
+#
+# Note: this PR is created with GITHUB_TOKEN, so pull_request-triggered
+# workflows (CI) do not run on it — by design, the auto-merge sweep performs
+# the same audits itself before merging. The sweep runs every 6 hours, so
+# content lands on main within ~5 hours of generation.
+#
+# Kill switch: disable this workflow in the Actions tab, or label the PR
+# `no-automerge` to hold a specific batch for manual review.
+
+on:
+  schedule:
+    # 02:41 UTC daily — off the top of the hour. Merged by the 07:23 UTC sweep.
+    - cron: '41 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: daily-content
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    name: Generate and propose daily posts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate posts from the queue
+        id: generate
+        run: node scripts/daily-content.mjs
+
+      - name: Validate before proposing (tests + build + audit)
+        if: steps.generate.outputs.generated != '0'
+        run: |
+          npm test
+          npm run review:validate
+          npm run build
+
+      - name: Open content PR
+        if: steps.generate.outputs.generated != '0'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/daily-content
+          base: main
+          add-paths: |
+            data/content-queue.json
+            src/content/integrations/*.mdx
+          commit-message: 'Publish daily integration guides from the content queue'
+          title: 'Daily content: scheduled integration guides (tier-1)'
+          body-path: daily-content-summary.md
+          labels: daily-content
+          delete-branch: true
+
+      - name: Open a refill issue when the queue runs low
+        if: fromJSON(steps.generate.outputs.remaining || '99') < 7
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Content queue running low"
+          if [ -z "$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[].number')" ]; then
+            gh issue create --title "$title" --body "$(printf '%s\n' \
+              "data/content-queue.json has fewer than 7 pending topics left — the daily pipeline will go idle when it empties." \
+              "" \
+              "Adding a row to the queue is the editorial approval for that topic. Keep topics aimed at tier-1 markets (US/GB/CA/AU/NZ) and ordered by priority.")"
+          fi

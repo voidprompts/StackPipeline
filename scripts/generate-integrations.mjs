@@ -20,6 +20,9 @@
  *   --all       Every automation-platform -> every other tool permutation
  *   --limit     Cap the number of files written (default 100)
  *   --force     Overwrite files that already exist (default: skip)
+ *   --publish   Emit draft: false (for the queue-curated daily pipeline, where the
+ *               topics were approved by a human in data/content-queue.json and the
+ *               output must still clear the auto-merge gate and full build audit)
  *   --dry-run   Print what would be written without touching disk
  *
  * DESIGN NOTE
@@ -58,6 +61,7 @@ function parseArgs(argv) {
     switch (key) {
       case 'all':
       case 'force':
+      case 'publish':
       case 'dry-run':
         args[key === 'dry-run' ? 'dryRun' : key] = true;
         break;
@@ -202,8 +206,36 @@ function buildMethods(a, b) {
   ];
 }
 
+/**
+ * Data-driven cost/plan section. Every sentence is derived from tools.json fields,
+ * so each generated page carries real, pair-specific substance (pricing, free tiers,
+ * connector counts, API availability) rather than name-swapped boilerplate. Prices
+ * are the vendors' published USD rates — the directory's primary audience is in
+ * tier-1 English-speaking markets (US, UK, Canada, Australia, New Zealand).
+ */
+function buildCostSection(a, b) {
+  const freeTierLine = a.freeTier
+    ? `${a.name} has a free tier that covers a basic, low-volume version of this workflow, with paid plans from ${a.startingPrice}.`
+    : `${a.name} has no free tier; plans start at ${a.startingPrice}.`;
+  const targetLine = b.freeTier
+    ? `${b.name} starts at ${b.startingPrice} and also offers a free tier, so you can validate the sync end to end before paying for either side.`
+    : `${b.name} starts at ${b.startingPrice} with no free tier, so budget for it from day one.`;
+  const apiLine =
+    a.apiAvailable && b.apiAvailable
+      ? `Both platforms expose a public API, which keeps the direct-integration option open if you outgrow the no-code route.`
+      : `${a.apiAvailable ? a.name : b.name} exposes a public API; check the other side's plan limits before committing to a custom build.`;
+
+  return `## What this setup costs
+
+${freeTierLine} ${targetLine} Prices are the vendors' published USD rates at the time of writing — check the linked pricing pages for current figures.
+
+Connector coverage matters more than price for this pair: ${a.name} lists ${a.nativeIntegrations} native integrations and ${b.name} lists ${b.nativeIntegrations}, so field-mapping options on both sides are unlikely to be your constraint. ${apiLine}
+
+**Where each fits:** ${a.bestFor.toLowerCase().replace(/\.$/, '')}; ${b.name} is built for ${b.bestFor.toLowerCase().replace(/\.$/, '')}.`;
+}
+
 /** Render one MDX file. */
-function renderMdx({ a, b, today }) {
+function renderMdx({ a, b, today, publish = false }) {
   const steps = buildSteps(a, b);
   const troubleshooting = buildTroubleshooting(a, b);
   const faq = buildFaq(a, b);
@@ -271,7 +303,7 @@ totalTime: "PT15M"
 estimatedCost:
   currency: "USD"
   value: 0
-draft: true
+draft: ${publish ? 'false' : 'true'}
 tags:
 ${yamlList([a.name, b.name, a.category, 'Automation'])}
 supplies:
@@ -305,6 +337,8 @@ junk records before they reach ${b.name}. Those three decisions prevent most pro
 You need a ${a.name} account, a ${b.name} account with permission to create and update
 records, and a decision about which field is your unique key. That last one is not
 optional.
+
+${buildCostSection(a, b)}
 
 ## What to monitor after launch
 
@@ -385,7 +419,7 @@ async function main() {
       continue;
     }
 
-    const content = renderMdx({ a, b, today });
+    const content = renderMdx({ a, b, today, publish: Boolean(args.publish) });
 
     if (args.dryRun) {
       console.log(`[dry-run] would write ${filename} (${content.length} bytes)`);
@@ -407,9 +441,14 @@ async function main() {
 
   if (written > 0 && !args.dryRun) {
     console.log(
-      '\nGenerated pages are marked `draft: true` on purpose — they will not build until an\n' +
-        'an editor verifies the content and removes the flag. Publishing untouched template pages\n' +
-        "at scale is what Google's scaled-content-abuse policy targets.",
+      args.publish
+        ? '\nPages were generated with `draft: false` (--publish). This mode is intended only\n' +
+            'for the queue-curated daily pipeline: topics must come from the human-approved\n' +
+            'data/content-queue.json, and the output must still clear the auto-merge gate and\n' +
+            'the full build audit before it reaches production.'
+        : '\nGenerated pages are marked `draft: true` on purpose — they will not build until an\n' +
+            'editor verifies the content and removes the flag. Publishing untouched template pages\n' +
+            "at scale is what Google's scaled-content-abuse policy targets.",
     );
   }
 }

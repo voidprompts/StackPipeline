@@ -1,0 +1,345 @@
+{
+  "//": "Human-curated publication queue for the daily content pipeline. Automation only ever publishes topics listed here — adding a row to this file IS the editorial approval for that topic. Ordered by priority; scripts/daily-content.mjs takes items top-down.",
+  "dailyLimit": 3,
+  "targetGeo": [
+    "US",
+    "GB",
+    "CA",
+    "AU",
+    "NZ"
+  ],
+  "language": "en",
+  "currency": "USD",
+  "queue": [
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "hubspot",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "hubspot",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "hubspot",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "salesforce",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "salesforce",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "salesforce",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "salesforce",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "pipedrive",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "pipedrive",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "pipedrive",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "pipedrive",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "activecampaign",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "activecampaign",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "activecampaign",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "activecampaign",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "systeme-io",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "systeme-io",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "systeme-io",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "systeme-io",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "brevo",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "brevo",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "brevo",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "brevo",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "calendly",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "calendly",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "calendly",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "calendly",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "typeform",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "typeform",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "typeform",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "typeform",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "airtable",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "airtable",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "airtable",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "airtable",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "slack",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "slack",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "slack",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "slack",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "notion",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "notion",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "notion",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "notion",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "webflow",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "webflow",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "webflow",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "webflow",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "tally",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "tally",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "tally",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "tally",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "zapier",
+      "target": "linear",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "make",
+      "target": "linear",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "n8n",
+      "target": "linear",
+      "status": "pending"
+    },
+    {
+      "type": "integration",
+      "source": "pipedream",
+      "target": "linear",
+      "status": "pending"
+    }
+  ]
+}

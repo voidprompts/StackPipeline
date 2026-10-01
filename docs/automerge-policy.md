@@ -14,6 +14,8 @@ A PR is auto-merged only if **both** layers pass:
    - `src/content/tools/tools.json` (with the restrictions below)
    - `src/content/guides/**`, `src/content/integrations/**`, `src/content/alternatives/**`
    - `data/tool-candidates.json`, `data/tool-sources.json`
+   - `data/content-queue.json` (the daily pipeline's publication queue — adding a
+     topic to the queue is itself the human editorial approval for that topic)
 2. **Audit** — at the exact head commit: `npm test`, `npm run review:validate`, and
    `npm run build` with its post-build audit (SEO, accessibility, ad-compliance,
    sitemap/indexability integrity).
