@@ -2,6 +2,19 @@
 #
 # Security headers are set here rather than in meta tags because Cloudflare serves the
 # static output directly — there is no server runtime to attach them at request time.
+#
+# IMPORTANT — _headers matching semantics: a request that matches multiple rules
+# inherits headers from ALL of them, and duplicate header names are comma-joined
+# (the more specific rule does NOT override the glob). For a singleton header like
+# Cache-Control that join produces conflicting directives, so every narrower rule
+# below first detaches the glob's value with `! Cache-Control` before setting its own.
+# Rules apply in file order: the `/*` rule must stay first for the detaches to work.
+#
+# The `/*` Cache-Control exists because Pages serves pages at extensionless pretty
+# URLs (`/tools/zapier/`, never `/tools/zapier/index.html`), so an `/*.html` rule
+# never matches real traffic. HTML must always revalidate — a stale cached page
+# after a deploy is how the directory and the sitemap end up telling different
+# stories (observed during the 2026-10-01 deploy cutover).
 
 /*
   X-Content-Type-Options: nosniff
@@ -11,46 +24,50 @@
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-DNS-Prefetch-Control: on
   Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cache-Control: public, max-age=0, must-revalidate
 
 # Fingerprinted build assets are immutable — cache them for a year.
 /_assets/*
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 
 # Images in /public are stable but may be replaced; cache for a week with revalidation.
 /og/*
+  ! Cache-Control
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
 
 /*.svg
+  ! Cache-Control
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
 
 /*.png
+  ! Cache-Control
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
 
 /*.ico
+  ! Cache-Control
   Cache-Control: public, max-age=604800
-
-# HTML: always revalidate so content updates are picked up immediately after a deploy.
-/*.html
-  Cache-Control: public, max-age=0, must-revalidate
 
 # ads.txt must stay fresh — Google re-crawls it roughly every 24 hours, and a stale
 # cached copy can cause ad serving to stop on newly added exchanges.
 /ads.txt
   Content-Type: text/plain; charset=utf-8
+  ! Cache-Control
   Cache-Control: public, max-age=3600
 
 /robots.txt
   Content-Type: text/plain; charset=utf-8
+  ! Cache-Control
   Cache-Control: public, max-age=86400
 
-/sitemap-index.xml
-  Content-Type: application/xml; charset=utf-8
-  Cache-Control: public, max-age=3600
-
+# Matches sitemap-index.xml as well as the numbered sitemap-N.xml chunks.
+# (A separate /sitemap-index.xml rule would double-match and comma-join Content-Type.)
 /sitemap-*.xml
   Content-Type: application/xml; charset=utf-8
+  ! Cache-Control
   Cache-Control: public, max-age=3600
 
 /rss.xml
   Content-Type: application/rss+xml; charset=utf-8
+  ! Cache-Control
   Cache-Control: public, max-age=3600
