@@ -17,6 +17,7 @@
     "check": "astro check",
     "audit": "node scripts/audit-build.mjs",
     "generate:integrations": "node scripts/generate-integrations.mjs",
+    "tools:fetch": "node scripts/fetch-tools.mjs",
     "editorial:review": "node scripts/editorial-review.mjs",
     "review:intake": "node scripts/review-intake.mjs",
     "review:validate": "node scripts/review-validate.mjs",

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "pipedream",
+    "name": "Pipedream",
+    "url": "https://pipedream.com",
+    "category": "Workflow automation"
+  },
+  {
+    "id": "activecampaign",
+    "name": "ActiveCampaign",
+    "url": "https://www.activecampaign.com",
+    "category": "Marketing automation"
+  },
+  {
+    "id": "brevo",
+    "name": "Brevo",
+    "url": "https://www.brevo.com",
+    "category": "Marketing automation"
+  },
+  {
+    "id": "typeform",
+    "name": "Typeform",
+    "url": "https://www.typeform.com",
+    "category": "Forms & surveys"
+  },
+  {
+    "id": "calendly",
+    "name": "Calendly",
+    "url": "https://calendly.com",
+    "category": "Scheduling"
+  },
+  {
+    "id": "tally",
+    "name": "Tally",
+    "url": "https://tally.so",
+    "category": "Forms & surveys"
+  },
+  {
+    "id": "linear",
+    "name": "Linear",
+    "url": "https://linear.app",
+    "category": "Project management"
+  },
+  {
+    "id": "webflow",
+    "name": "Webflow",
+    "url": "https://webflow.com",
+    "category": "Web & content"
+  },
+  {
+    "id": "posthog",
+    "name": "PostHog",
+    "url": "https://posthog.com",
+    "category": "Product analytics"
+  },
+  {
+    "id": "customer-io",
+    "name": "Customer.io",
+    "url": "https://customer.io",
+    "category": "Marketing automation"
+  },
+  {
+    "id": "asana",
+    "name": "Asana",
+    "url": "https://asana.com",
+    "category": "Project management"
+  },
+  {
+    "id": "miro",
+    "name": "Miro",
+    "url": "https://miro.com",
+    "category": "Collaboration"
+  },
+  {
+    "id": "resend",
+    "name": "Resend",
+    "url": "https://resend.com",
+    "category": "Email infrastructure"
+  },
+  {
+    "id": "twilio",
+    "name": "Twilio",
+    "url": "https://www.twilio.com",
+    "category": "Communication"
+  }
+]

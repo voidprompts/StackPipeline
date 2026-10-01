@@ -1,0 +1,33 @@
+name: Tool discovery
+
+# Fetches only the explicitly approved vendor URLs in data/tool-sources.json.
+# The output is an artifact for editorial triage; this workflow never publishes or edits
+# src/content/tools/tools.json automatically.
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: Fetch tool candidates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - name: Fetch approved sources
+        run: npm run tools:fetch
+      - name: Upload editorial queue
+        uses: actions/upload-artifact@v4
+        with:
+          name: tool-candidates-${{ github.run_number }}
+          path: data/tool-candidates.json
+          retention-days: 30
