@@ -23,6 +23,9 @@
  * Site-wide checks:
  *   - duplicate titles / descriptions / canonicals
  *   - required compliance routes exist (privacy, terms, disclosure, ads.txt, robots, sitemap)
+ *   - sitemap integrity: every sitemap URL has a generated file, no sitemap URL is
+ *     noindex, non-indexable tool profiles are excluded and indexable ones included
+ *     (guards the `indexable` gate in tools.json + astro.config.mjs against drift)
  *
  * Exits non-zero on ERROR-level findings so CI fails before a bad deploy.
  */
@@ -214,6 +217,79 @@ function auditPage(route, html) {
   return { title, description, canonical };
 }
 
+/**
+ * Sitemap ↔ indexability integrity.
+ *
+ * The `indexable` flag in tools.json drives two independent mechanisms: the robots
+ * meta on the page ([slug].astro) and the sitemap filter (astro.config.mjs). Nothing
+ * ties them together at build time, so a regression in either would ship silently —
+ * a sitemap URL that 404s, or a noindex page advertised to crawlers. This check makes
+ * the invariants explicit:
+ *   1. every sitemap URL corresponds to a file that was actually generated
+ *   2. no sitemap URL points at a page whose robots meta says noindex
+ *   3. no non-indexable tool slug appears in the sitemap
+ *   4. every indexable tool slug appears in the sitemap
+ */
+async function auditSitemap() {
+  let indexXml;
+  try {
+    indexXml = await readFile(path.join(DIST, 'sitemap-index.xml'), 'utf8');
+  } catch {
+    // Absence is already reported by the REQUIRED_FILES check.
+    return;
+  }
+
+  const locs = (xml) => [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].trim());
+
+  const urls = [];
+  for (const sitemapUrl of locs(indexXml)) {
+    const file = path.basename(new URL(sitemapUrl).pathname);
+    try {
+      urls.push(...locs(await readFile(path.join(DIST, file), 'utf8')));
+    } catch {
+      error('(sitemap)', `sitemap-index.xml references ${file}, but it was not generated`);
+    }
+  }
+
+  if (urls.length === 0) {
+    error('(sitemap)', 'Sitemap contains no URLs');
+    return;
+  }
+
+  // ---- 1 + 2: every URL has a file, and that file is not noindex ----
+  for (const url of urls) {
+    const pathname = new URL(url).pathname;
+    const relative = pathname.endsWith('/') ? `${pathname}index.html` : pathname;
+    const file = path.join(DIST, relative.replace(/^\//, ''));
+    let html;
+    try {
+      html = await readFile(file, 'utf8');
+    } catch {
+      error('(sitemap)', `Sitemap lists ${url} but ${relative} was not generated (would 404)`);
+      continue;
+    }
+    if (/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html)) {
+      error('(sitemap)', `Sitemap lists ${url} but the page is noindex`);
+    }
+  }
+
+  // ---- 3 + 4: tool indexability gate matches the sitemap exactly ----
+  const tools = JSON.parse(
+    await readFile(path.join(ROOT, 'src/content/tools/tools.json'), 'utf8'),
+  );
+  const inSitemap = (slug) => urls.some((url) => new URL(url).pathname === `/tools/${slug}/`);
+  for (const tool of tools) {
+    // Schema default is indexable: false, so only an explicit true counts.
+    if (tool.indexable === true) {
+      if (!inSitemap(tool.slug)) {
+        error('(sitemap)', `Indexable tool "${tool.slug}" is missing from the sitemap`);
+      }
+    } else if (inSitemap(tool.slug)) {
+      error('(sitemap)', `Non-indexable tool "${tool.slug}" leaked into the sitemap`);
+    }
+  }
+}
+
 async function main() {
   try {
     await stat(DIST);
@@ -236,6 +312,9 @@ async function main() {
   if (/pub-0{16}/.test(adsText)) {
     error('(site)', 'ads.txt contains the prohibited placeholder publisher ID');
   }
+
+  // ---- sitemap ↔ indexability integrity ----
+  await auditSitemap();
 
   // ---- per-page audit ----
   const files = await collectHtml(DIST);
