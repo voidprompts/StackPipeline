@@ -1,0 +1,122 @@
+---
+title: "Connect n8n to HubSpot"
+description: "Step-by-step guide to connecting n8n to HubSpot: triggers, field mapping, deduplication and the errors that break most setups."
+heading: "How to Connect n8n to HubSpot"
+schemaType: "HowTo"
+softwareA: "n8n"
+softwareB: "hubspot"
+affiliateLinkA:
+  url: "https://n8n.partnerlinks.io/stackpipeline"
+  label: "Try n8n"
+  campaign: "n8n-to-hubspot"
+affiliateLinkB:
+  url: "https://www.hubspot.com/products/crm?ref=stackpipeline"
+  label: "Try HubSpot"
+  campaign: "n8n-to-hubspot"
+publishDate: 2026-10-03
+updatedDate: 2026-10-03
+useCase: "Sync records from n8n into HubSpot automatically"
+difficulty: "beginner"
+totalTime: "PT15M"
+estimatedCost:
+  currency: "USD"
+  value: 0
+draft: false
+tags:
+  - "n8n"
+  - "HubSpot"
+  - "Workflow automation"
+  - "Automation"
+supplies:
+  - "A n8n account"
+  - "A HubSpot account with admin permissions"
+tools:
+  - "n8n"
+  - "HubSpot"
+methods:
+  - name: "n8n (no-code)"
+    bestFor: "Most teams — fastest path with no engineering time"
+    setupTime: "15-20 min"
+    cost: "$20/mo annual (or free self-hosted)"
+    codeRequired: false
+  - name: "Native integration"
+    bestFor: "Available if HubSpot lists n8n in its marketplace"
+    setupTime: "5 min"
+    cost: "Usually free"
+    codeRequired: false
+  - name: "Direct API integration"
+    bestFor: "High volume or complex transformation logic"
+    setupTime: "1-3 days"
+    cost: "Engineering time"
+    codeRequired: true
+steps:
+  - name: "Connect your n8n account"
+    text: "Sign in to n8n and create a new workflow. Authorise the connection to HubSpot using an account with permission to create and update records — using a personal account here is the most common cause of permission errors later."
+    tip: "Use a dedicated service account rather than a personal login so the integration survives staff changes."
+  - name: "Choose the trigger event"
+    text: "Select the event in n8n that should start the workflow. Prefer a specific, condition-based trigger over a generic \"record updated\" event — narrow triggers dramatically reduce noise and cost."
+  - name: "Add a lookup step to prevent duplicates"
+    text: "Before writing anything to HubSpot, add a search action that checks whether the record already exists. Match on email address or another unique identifier. Skipping this step is the single most common reason these syncs become unusable."
+    tip: "Deduplicate on a stable unique key such as email. Never match on name or company."
+  - name: "Map fields to HubSpot"
+    text: "Map each source field to its destination property in HubSpot. Use internal API field names rather than display labels — most platforms silently drop mismatched mappings instead of erroring."
+  - name: "Filter out junk records"
+    text: "Add a filter that requires the key fields to be present and excludes test or role-based addresses. Filtering before the write keeps your HubSpot record count — and the bill attached to it — clean."
+  - name: "Test with real data, then enable"
+    text: "Run a test with an actual record and verify every mapped field landed correctly in HubSpot, including custom properties. Then enable the workflow and monitor the run history for the first 24 hours."
+troubleshooting:
+  - problem: "Records are created but custom fields are empty"
+    fix: "You mapped a display label instead of the internal field name. Open the field settings in HubSpot, copy the internal name, and remap in n8n."
+  - problem: "Duplicate records appear for the same person"
+    fix: "Your workflow is creating instead of upserting. Add a search step keyed on a unique identifier and switch the action to create-or-update."
+  - problem: "The workflow fails with a 429 rate limit error"
+    fix: "HubSpot is throttling the request volume. Add a short delay between iterations or batch the operation rather than firing one call per record."
+  - problem: "The workflow silently stopped running"
+    fix: "Most platforms disable a workflow after repeated failures without emailing you. Open the run history in n8n, resolve the underlying error and re-enable it."
+faq:
+  - question: "Can you connect n8n to HubSpot without code?"
+    answer: "Yes. n8n provides a no-code connector for HubSpot, so the entire workflow described here is built through the interface. You only need custom code for unusual data transformations."
+  - question: "How much does it cost to connect n8n to HubSpot?"
+    answer: "n8n starts at $20/mo annual (or free self-hosted) and offers a free tier that covers basic single-step workflows. HubSpot starts at Free / $20 per seat. A simple sync usually fits within entry-level plans."
+  - question: "Will this sync historical n8n data to HubSpot?"
+    answer: "No. Trigger-based workflows only process records created or changed after the workflow is switched on. For a historical backfill, use a bulk import or a dedicated migration run."
+  - question: "Is a two-way sync possible between n8n and HubSpot?"
+    answer: "Yes, but it requires two separate workflows plus a guard condition to prevent an update loop. Add a \"last modified by integration\" flag and filter on it in both directions."
+relatedIntegrations: []
+---
+
+import Callout from '@components/ui/Callout.astro';
+
+Connecting n8n to HubSpot takes about fifteen minutes. The setup below is the one
+that survives contact with real data — most guides skip the deduplication step, which is
+why so many of these syncs produce duplicate records within a month.
+
+<Callout variant="shortcut" title="The short version">
+Add a lookup step before the write action, deduplicate on a unique identifier, and filter
+junk records before they reach HubSpot. Those three decisions prevent most problems.
+</Callout>
+
+## Before you start
+
+You need a n8n account, a HubSpot account with permission to create and update
+records, and a decision about which field is your unique key. That last one is not
+optional.
+
+## What this setup costs
+
+n8n has a free tier that covers a basic, low-volume version of this workflow, with paid plans from $20/mo annual (or free self-hosted). HubSpot starts at Free / $20 per seat and also offers a free tier, so you can validate the sync end to end before paying for either side. Prices are the vendors' published USD rates at the time of writing — check the linked pricing pages for current figures.
+
+Connector coverage matters more than price for this pair: n8n lists 2192 native integrations and HubSpot lists 1700, so field-mapping options on both sides are unlikely to be your constraint. Both platforms expose a public API, which keeps the direct-integration option open if you outgrow the no-code route.
+
+**Where each fits:** engineering teams that want self-hosted control and no per-task billing; HubSpot is built for mid-market teams consolidating marketing and sales on one platform.
+
+## What to monitor after launch
+
+Check the run history daily for the first week. Watch for repeated failures on the same
+record, which indicates a mapping problem, and for rising execution counts without a
+matching rise in records, which indicates a filter problem.
+
+<Callout variant="tip" title="Alert on failure">
+Configure failure notifications before you need them. Silent failures are the reason most
+integrations quietly drift out of trust.
+</Callout>
