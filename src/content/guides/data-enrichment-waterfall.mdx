@@ -1,66 +1,70 @@
 ---
 title: "Waterfall Enrichment Explained"
-description: "Why querying data providers in sequence beats any single vendor, how to order the waterfall, and what it actually costs per matched contact."
-heading: "Waterfall Enrichment: Why One Data Provider Is Never Enough"
+description: "How sequential enrichment can improve coverage, where it can add cost, and how to test whether an extra provider earns its place."
+heading: "Waterfall Enrichment: When One Provider Is Not Enough"
 schemaType: "Article"
 publishDate: 2026-04-09
-updatedDate: 2026-09-02
+updatedDate: 2026-10-07
 lastReviewedDate: 2026-09-02
 tags: ["Data enrichment", "Clay", "Outbound", "Automation"]
 faq:
   - question: "What is waterfall enrichment?"
-    answer: "Waterfall enrichment queries multiple data providers in a defined sequence, stopping at the first one that returns a result for a given field. You only pay for the provider that actually succeeds, and overall match rates improve because no single vendor has complete coverage."
+    answer: "Waterfall enrichment queries multiple data providers in sequence until a field is returned or the configured providers are exhausted. It can increase coverage, but results, accuracy and charges depend on the providers, billing rules and list being tested."
   - question: "How many providers should be in a waterfall?"
-    answer: "Three to five covers most of the achievable gain. Our testing showed the first three providers capture roughly 85% of total matches; providers six and beyond typically add under two percentage points each while adding latency."
+    answer: "There is no universal number. Measure each provider's incremental verified matches, effective cost and added latency on your own representative sample. Stop when another provider's marginal value no longer justifies its cost and complexity."
   - question: "Does waterfall enrichment cost more than a single provider?"
-    answer: "Per lookup, no — you pay only for the successful call. Total spend usually rises because your match rate rises, so you enrich more records successfully. Cost per matched contact almost always falls."
+    answer: "It can. The answer depends on provider billing rules, no-match charges, credits, overlap and how many records each step processes. Compare total spend per manually verified contact against a single-provider baseline using the same sample."
 ---
 
 import Callout from '@components/ui/Callout.astro';
 
-No B2B data provider has complete coverage. The best single vendors we have measured top
-out around 78% on work email for a mixed US and European list, and coverage varies
-dramatically by region, company size and seniority. Waterfall enrichment is the
-architectural response to that reality.
+No single data provider should be assumed to match every record. Coverage varies with
+geography, company size, seniority, source data and the field being requested. A waterfall
+can improve coverage by trying multiple providers in sequence, but the outcome depends on
+overlap, accuracy and billing rules. Benchmark it on a representative sample before rollout.
 
 ## How a waterfall works
 
 A waterfall queries providers in sequence. Provider one is asked for the field; if it
-returns nothing, provider two is asked, and so on until a result comes back or the list is
-exhausted. Crucially, you are only billed for the call that succeeds.
+returns no result, provider two is asked, and so on until a result is returned or the list
+is exhausted. Billing varies: a provider may charge for attempted lookups, successful
+matches, credits consumed, or a combination. Confirm no-match billing before estimating cost.
 
-<Callout variant="tip" title="Order by cost-adjusted hit rate">
-Put your cheapest high-coverage provider first, not your most accurate one. The expensive
-specialist should sit at position three or four, where it only runs on the records the
-cheap providers could not resolve.
+<Callout variant="tip" title="Optimize for verified value, not raw hit rate">
+Start with providers that offer a useful balance of accuracy, incremental matches, cost
+and latency on your target segment. A high raw return rate is not a win if the results
+are inaccurate or the calls are expensive.
 </Callout>
 
 ## Ordering the sequence
 
-The ordering rule that works: sort by hit rate divided by cost per call, descending. This
-maximises the proportion of records resolved by cheap providers and reserves expensive
-lookups for genuinely hard cases.
+Hit rate divided by effective cost can be a useful starting heuristic, but it is not a
+universal ordering rule. Include match accuracy, overlap between providers, charges for
+failed lookups, latency and the value of a correct result. Compare each provider's
+incremental verified matches on the same sample before deciding its position.
 
-Segment the waterfall where your data is heterogeneous. If you sell into both North
-America and Europe, a single ordering will underperform — European coverage rankings
-differ substantially from US rankings, so run two waterfalls keyed on contact region.
+Segment the waterfall where your data is heterogeneous. If geography, company size or
+seniority changes the provider's yield, measure those segments separately and use an
+ordering that reflects your own validated results.
 
 ## What it costs
 
-Cost per *lookup* rises slightly, because failed calls at earlier positions add overhead.
-Cost per *matched contact* almost always falls, because your denominator improves. In our
-testing the effective cost per verified contact dropped from roughly $0.11 with a single
-premium provider to $0.084 across a seven-provider waterfall — with a 13-point higher
-match rate.
+Calculate total spend using each provider's actual billing rules, including unsuccessful
+attempts and platform credits. Divide by manually verified matches—not merely returned
+fields—to estimate cost per correct contact. A waterfall may improve or worsen that cost
+compared with a single provider, so compare both approaches on the same list, with the same
+field definitions and validation method. Record the sample size, date, segment mix and
+verification process so the estimate can be reproduced.
 
 ## Where waterfalls do not help
 
-If your list is homogeneous and one provider dominates that segment, a waterfall adds
-complexity for marginal gain. Test with a sample of 500 records before committing.
+If your list is homogeneous and one provider performs well on a representative, manually
+validated sample, a waterfall may add complexity for little gain. Choose a sample large
+enough to represent your segments and make the result useful for the decision.
 
 <Callout variant="warn" title="Verify, do not trust reported match rates">
-Providers report a match whenever they return *something*. That is not the same as
-returning something correct. Manually verify a random sample of at least 200 records
-before you trust any vendor's headline number — reported and actual accuracy routinely
-differ by 5 to 15 percentage points.
+A provider's returned result is not necessarily correct. Manually verify a random sample
+of records before relying on a headline match rate, and document the sample size, field
+being checked and criteria for a valid match. Reported coverage and verified accuracy are
+different measures.
 </Callout>

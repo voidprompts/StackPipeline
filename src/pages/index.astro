@@ -15,10 +15,11 @@ import { SITE } from '@config/site';
 import { itemListSchema } from '@lib/schema';
 import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
 
-const [integrations, reviews, alternatives, tools] = await Promise.all([
+const [integrations, reviews, alternatives, guides, tools] = await Promise.all([
   getCollection('integrations', ({ data }) => !data.draft),
   getCollection('reviews', ({ data }) => !data.draft),
   getCollection('alternatives', ({ data }) => !data.draft),
+  getCollection('guides', ({ data }) => !data.draft),
   getCollection('tools'),
 ]);
 
@@ -27,6 +28,7 @@ const latest = [
   ...integrations.map((entry) => ({ entry, type: 'Integration', base: '/integrations' })),
   ...reviews.map((entry) => ({ entry, type: 'Review', base: '/reviews' })),
   ...alternatives.map((entry) => ({ entry, type: 'Comparison', base: '/alternatives' })),
+  ...guides.map((entry) => ({ entry, type: 'Guide', base: '/guides' })),
 ]
   .sort(
     (a, b) =>
@@ -39,7 +41,7 @@ const featuredTools = [...tools]
   .sort((a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0))
   .slice(0, 6);
 
-const totalGuides = integrations.length + reviews.length + alternatives.length;
+const totalGuides = integrations.length + reviews.length + alternatives.length + guides.length;
 
 const schema = [
   itemListSchema(
@@ -67,7 +69,7 @@ const SECTIONS = [
     href: '/reviews/',
     title: 'Software reviews',
     description:
-      'Hands-on scorecards built from paid-plan testing, with verified pricing and match-rate data you can check yourself.',
+      'Structured product assessments that distinguish hands-on testing from documentation-based research, with scope and limitations made clear.',
     count: reviews.length,
     icon: 'M11.48 3.5a.56.56 0 0 1 1.04 0l2.13 4.32 4.77.7c.46.06.64.63.31.95l-3.45 3.36.81 4.75c.08.46-.4.81-.81.59L12 15.92l-4.27 2.25c-.41.22-.89-.13-.81-.59l.81-4.75-3.45-3.36a.56.56 0 0 1 .31-.95l4.77-.7z',
   },
@@ -78,6 +80,13 @@ const SECTIONS = [
       'Ranked breakdowns of competing tools with the assumptions and limitations readers need to assess.',
     count: alternatives.length,
     icon: 'M3 6h18M3 12h18M3 18h18',
+  },
+  {
+    href: '/guides/',
+    title: 'Long-form guides',
+    description: 'In-depth playbooks for data enrichment, automation design and operating your SaaS stack.',
+    count: guides.length,
+    icon: 'M5 4.5A2.5 2.5 0 0 1 7.5 2H20v16H7.5A2.5 2.5 0 0 0 5 20.5zM5 4.5v16M8 6h8M8 10h8M8 14h5',
   },
   {
     href: '/tools/',
@@ -176,7 +185,7 @@ const SECTIONS = [
       answer.
     </p>
 
-    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {
         SECTIONS.map((section) => (
           <a

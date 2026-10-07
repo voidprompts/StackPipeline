@@ -170,10 +170,21 @@ const winner = contenders[0];
                 </div>
 
                 <div class="shrink-0 text-right">
-                  <p class="text-xs text-ink-400">From</p>
-                  <p class="text-lg font-bold text-ink-950">
-                    {contender.startingPrice ?? tool.data.startingPrice}
-                  </p>
+                  {contender.startingPrice ? (
+                    <>
+                      <p class="text-xs text-ink-400">From</p>
+                      <p class="text-lg font-bold text-ink-950">{contender.startingPrice}</p>
+                    </>
+                  ) : (
+                    <a
+                      href={tool.data.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-sm font-semibold text-emerald-700 underline underline-offset-4"
+                    >
+                      Check current pricing
+                    </a>
+                  )}
                 </div>
               </div>
 

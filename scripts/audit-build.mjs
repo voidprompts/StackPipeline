@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Post-build SEO, accessibility and AdSense-compliance audit.
+ * Post-build technical SEO, accessibility, structured-data and ad-markup audit.
+ * It does not certify AdSense approval, account setup, legal publisher readiness, privacy-consent requirements or content quality.
  *
  * Runs automatically after `npm run build` and inspects the real emitted HTML rather than
  * the source, so it catches regressions that only appear after rendering. It is the
@@ -40,7 +41,7 @@ const DIST = path.join(ROOT, 'dist');
 const TITLE_MAX = 60;
 const DESCRIPTION_MAX = 155;
 
-/** Routes that must exist for AdSense review + technical SEO. */
+/** Technical and policy routes that should exist; presence does not prove policy completeness. */
 const REQUIRED_FILES = [
   'index.html',
   '404.html',
@@ -381,7 +382,10 @@ async function main() {
   }
 
   if (!errors.length && !warnings.length) {
-    console.log('✓ All checks passed — SEO, accessibility and ad-compliance clean.\n');
+    console.log(
+      '✓ Technical build checks passed — metadata, accessibility, schema, sitemap and ad-markup integrity.\n' +
+        '  This is not an AdSense approval or publisher-readiness check.\n',
+    );
   } else if (!errors.length) {
     console.log(`✓ No errors. ${warnings.length} warning(s) to review.\n`);
   }
