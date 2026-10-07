@@ -10,8 +10,6 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import Breadcrumbs from '@components/ui/Breadcrumbs.astro';
 import ContentCard from '@components/ui/ContentCard.astro';
 import AffiliateButton from '@components/ui/AffiliateButton.astro';
-import RatingStars from '@components/ui/RatingStars.astro';
-import AdSlot from '@components/ads/AdSlot.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { absoluteUrl } from '@lib/seo';
 import { softwareProductSchema, itemListSchema } from '@lib/schema';
@@ -28,11 +26,13 @@ interface Props {
 
 const { tool } = Astro.props;
 const data = tool.data;
+const evaluationNotes = data.evaluationNotes ?? [];
 
-const [integrations, reviews, alternatives] = await Promise.all([
+const [integrations, reviews, alternatives, guides] = await Promise.all([
   getCollection('integrations', ({ data: item }) => !item.draft),
   getCollection('reviews', ({ data: item }) => !item.draft),
   getCollection('alternatives', ({ data: item }) => !item.draft),
+  getCollection('guides', ({ data: item }) => !item.draft),
 ]);
 
 const relatedIntegrations = integrations.filter(
@@ -44,6 +44,15 @@ const relatedAlternatives = alternatives.filter(
     entry.data.softwareA.id === tool.id ||
     entry.data.contenders.some((contender) => contender.tool.id === tool.id),
 );
+const normalizeTopic = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+const toolTopics = new Set([normalizeTopic(data.name), normalizeTopic(data.slug)]);
+const relatedGuides = guides.filter((entry) => {
+  const referenced = [entry.data.softwareA?.id, entry.data.softwareB?.id]
+    .filter((value): value is string => Boolean(value))
+    .map(normalizeTopic);
+  const tagged = entry.data.tags.map(normalizeTopic);
+  return [...referenced, ...tagged].some((topic) => toolTopics.has(topic));
+});
 
 const pageUrl = absoluteUrl(`/tools/${data.slug}/`);
 const affiliateUrl = data.affiliateUrl ?? data.website;
@@ -55,12 +64,18 @@ const schema = [
     description: data.description,
     brand: data.name,
     category: data.category,
-    offerUrl: data.website,
-    price: /\d/.test(data.startingPrice)
-      ? (data.startingPrice.match(/[\d.]+/)?.[0] ?? undefined)
-      : undefined,
-    aggregateRating: data.rating ? { value: data.rating, count: 1 } : undefined,
   }),
+  relatedGuides.length > 0
+    ? itemListSchema(
+        relatedGuides.map((entry, index) => ({
+          position: index + 1,
+          name: entry.data.heading ?? entry.data.title,
+          url: `/guides/${entry.id}/`,
+        })),
+        pageUrl,
+        `${data.name} guides`,
+      )
+    : undefined,
   relatedIntegrations.length > 0
     ? itemListSchema(
         relatedIntegrations.map((entry, index) => ({
@@ -82,7 +97,10 @@ const breadcrumbs = [
 
 const initial = data.name.charAt(0).toUpperCase();
 const totalGuides =
-  relatedIntegrations.length + relatedReviews.length + relatedAlternatives.length;
+  relatedGuides.length +
+  relatedIntegrations.length +
+  relatedReviews.length +
+  relatedAlternatives.length;
 
 /**
  * Title budget: 60 chars total, minus " | StackPipeline" (16) = 44 for the topic.
@@ -103,8 +121,9 @@ const pageTitle = titleCandidates.find((candidate) => candidate.length <= TOPIC_
 
 <BaseLayout
   title={pageTitle}
-  description={`${data.tagline} Pricing from ${data.startingPrice}. ${totalGuides} StackPipeline guides cover ${data.name}.`}
+  description={`${data.name}: ${data.category.toLowerCase()} profile with practical evaluation notes and related guides. Verify current pricing with the vendor.`}
   noindex={!data.indexable}
+  adsEnabled={false}
   schema={schema}
   breadcrumbs={breadcrumbs}
   pageType="ItemPage"
@@ -131,39 +150,27 @@ const pageTitle = titleCandidates.find((candidate) => candidate.length <= TOPIC_
               {data.name}
             </h1>
             <p class="mt-2 text-lg leading-relaxed text-ink-600">{data.tagline}</p>
-            {
-              data.rating && (
-                <div class="mt-3">
-                  <RatingStars value={data.rating} />
-                </div>
-              )
-            }
           </div>
         </header>
 
-        {/* ---------- Key facts ---------- */}
-        <dl class="mt-8 grid grid-cols-2 gap-4 rounded-2xl border border-ink-200 bg-white p-5 shadow-card sm:grid-cols-4">
+        {/* ---------- Reference facts ---------- */}
+        <dl class="mt-8 grid grid-cols-2 gap-4 rounded-2xl border border-ink-200 bg-white p-5 shadow-card">
           <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Starting price</dt>
+            <dt class="text-xs uppercase tracking-wider text-ink-400">Catalog price</dt>
             <dd class="mt-1 font-bold text-ink-950">{data.startingPrice}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Free tier</dt>
+            <dt class="text-xs uppercase tracking-wider text-ink-400">Free tier listed</dt>
             <dd class="mt-1 font-bold text-ink-950">{data.freeTier ? 'Yes' : 'No'}</dd>
           </div>
-          <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Integrations</dt>
-            <dd class="mt-1 font-bold text-ink-950">
-              {data.nativeIntegrations > 0
-                ? `${data.nativeIntegrations.toLocaleString('en-US')}+`
-                : '—'}
-            </dd>
-          </div>
-          <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Public API</dt>
-            <dd class="mt-1 font-bold text-ink-950">{data.apiAvailable ? 'Yes' : 'No'}</dd>
-          </div>
         </dl>
+        <p class="mt-3 text-xs leading-relaxed text-ink-500">
+          These are catalog reference values, not a live quote. Plan terms can change, and connector counts
+          are not directly comparable across vendors. Confirm current details on the{' '}
+          <a href={data.website} target="_blank" rel="noopener noreferrer" class="font-semibold text-emerald-800 underline underline-offset-2">
+            official {data.name} site
+          </a>.
+        </p>
 
         {/* ---------- Overview ---------- */}
         <section class="mt-10" aria-labelledby="overview-heading">
@@ -180,17 +187,55 @@ const pageTitle = titleCandidates.find((candidate) => candidate.length <= TOPIC_
           }
         </section>
 
-        <AdSlot slot="inArticleMid" format="in-article" />
+        {
+          evaluationNotes.length > 0 && (
+            <section class="mt-10" aria-labelledby="evaluation-heading" data-tool-evaluation="true">
+              <h2 id="evaluation-heading" class="text-2xl font-bold text-ink-950">
+                What to verify before choosing {data.name}
+              </h2>
+              <ul class="mt-4 space-y-3">
+                {evaluationNotes.map((note) => (
+                  <li class="rounded-xl border border-ink-200 bg-white p-4 text-sm leading-relaxed text-ink-700">
+                    {note}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
 
         {
           !data.indexable && (
             <aside class="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950" aria-label="Editorial status">
-              <strong class="font-semibold">Directory entry:</strong> We are still building the sourced review and supporting guides for {data.name}. This profile is not yet eligible for search indexing.
+              <strong class="font-semibold">Catalog entry, not a full review:</strong> We are still developing useful, source-supported coverage for {data.name}. Check the vendor's official site for current details and use any linked editorial pages below for context.
             </aside>
           )
         }
 
         {/* ---------- Related content ---------- */}
+        {
+          relatedGuides.length > 0 && (
+            <section class="mt-10" aria-labelledby="guides-heading">
+              <h2 id="guides-heading" class="text-2xl font-bold text-ink-950">
+                {data.name} guides and explainers
+              </h2>
+              <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                {relatedGuides.map((entry) => (
+                  <ContentCard
+                    href={`/guides/${entry.id}/`}
+                    title={entry.data.heading ?? entry.data.title}
+                    description={entry.data.description}
+                    eyebrow="Guide"
+                    date={entry.data.publishDate}
+                    updatedDate={entry.data.updatedDate}
+                    headingLevel="h3"
+                  />
+                ))}
+              </div>
+            </section>
+          )
+        }
+
         {
           relatedIntegrations.length > 0 && (
             <section class="mt-10" aria-labelledby="integrations-heading">
@@ -272,28 +317,42 @@ const pageTitle = titleCandidates.find((candidate) => candidate.length <= TOPIC_
 
       {/* ---------- Sidebar ---------- */}
       <aside class="min-w-0">
-        <div class="space-y-6 lg:sticky lg:top-24">
+        <div class="lg:sticky lg:top-24">
           <div class="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-card">
             <div class="bg-ink-950 px-5 py-3">
-              <h2 class="text-sm font-bold text-white">Try {data.name}</h2>
+              <h2 class="text-sm font-bold text-white">
+                {data.indexable ? `About ${data.name}` : `${data.name} official site`}
+              </h2>
             </div>
             <div class="p-5">
               <p class="text-sm leading-relaxed text-ink-600">{data.tagline}</p>
-              <AffiliateButton
-                href={affiliateUrl}
-                product={data.name}
-                campaign={`tool-page-${data.slug}`}
-                fullWidth
-                class="mt-4"
-                size="sm"
-              />
-              <p class="mt-3 border-t border-ink-100 pt-3 text-xs leading-relaxed text-ink-400">
-                {DISCLOSURE.short}
-              </p>
+              <a
+                href={data.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-ink-200 px-4 py-2.5 text-sm font-semibold text-ink-800 transition hover:border-emerald-300 hover:bg-emerald-50"
+              >
+                Visit official website
+              </a>
+              {
+                data.indexable && data.affiliateUrl && (
+                  <>
+                    <AffiliateButton
+                      href={affiliateUrl}
+                      product={data.name}
+                      campaign={`tool-page-${data.slug}`}
+                      fullWidth
+                      class="mt-3"
+                      size="sm"
+                    />
+                    <p class="mt-3 border-t border-ink-100 pt-3 text-xs leading-relaxed text-ink-400">
+                      {DISCLOSURE.short}
+                    </p>
+                  </>
+                )
+              }
             </div>
           </div>
-
-          <AdSlot slot="sidebar" format="sidebar" />
         </div>
       </aside>
     </div>

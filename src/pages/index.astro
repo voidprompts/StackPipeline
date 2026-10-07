@@ -15,10 +15,11 @@ import { SITE } from '@config/site';
 import { itemListSchema } from '@lib/schema';
 import { absoluteUrl, readingTime as estimateReadingTime } from '@lib/seo';
 
-const [integrations, reviews, alternatives, tools] = await Promise.all([
+const [integrations, reviews, alternatives, guides, tools] = await Promise.all([
   getCollection('integrations', ({ data }) => !data.draft),
   getCollection('reviews', ({ data }) => !data.draft),
   getCollection('alternatives', ({ data }) => !data.draft),
+  getCollection('guides', ({ data }) => !data.draft),
   getCollection('tools'),
 ]);
 
@@ -27,6 +28,7 @@ const latest = [
   ...integrations.map((entry) => ({ entry, type: 'Integration', base: '/integrations' })),
   ...reviews.map((entry) => ({ entry, type: 'Review', base: '/reviews' })),
   ...alternatives.map((entry) => ({ entry, type: 'Comparison', base: '/alternatives' })),
+  ...guides.map((entry) => ({ entry, type: 'Guide', base: '/guides' })),
 ]
   .sort(
     (a, b) =>
@@ -36,10 +38,11 @@ const latest = [
   .slice(0, 6);
 
 const featuredTools = [...tools]
-  .sort((a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0))
+  .filter((tool) => tool.data.indexable)
+  .sort((a, b) => a.data.name.localeCompare(b.data.name))
   .slice(0, 6);
 
-const totalGuides = integrations.length + reviews.length + alternatives.length;
+const totalGuides = integrations.length + reviews.length + alternatives.length + guides.length;
 
 const schema = [
   itemListSchema(
@@ -67,7 +70,7 @@ const SECTIONS = [
     href: '/reviews/',
     title: 'Software reviews',
     description:
-      'Hands-on scorecards built from paid-plan testing, with verified pricing and match-rate data you can check yourself.',
+      'Structured product assessments that distinguish hands-on testing from documentation-based research, with scope and limitations made clear.',
     count: reviews.length,
     icon: 'M11.48 3.5a.56.56 0 0 1 1.04 0l2.13 4.32 4.77.7c.46.06.64.63.31.95l-3.45 3.36.81 4.75c.08.46-.4.81-.81.59L12 15.92l-4.27 2.25c-.41.22-.89-.13-.81-.59l.81-4.75-3.45-3.36a.56.56 0 0 1 .31-.95l4.77-.7z',
   },
@@ -80,10 +83,17 @@ const SECTIONS = [
     icon: 'M3 6h18M3 12h18M3 18h18',
   },
   {
+    href: '/guides/',
+    title: 'Long-form guides',
+    description: 'In-depth playbooks for data enrichment, automation design and operating your SaaS stack.',
+    count: guides.length,
+    icon: 'M5 4.5A2.5 2.5 0 0 1 7.5 2H20v16H7.5A2.5 2.5 0 0 0 5 20.5zM5 4.5v16M8 6h8M8 10h8M8 14h5',
+  },
+  {
     href: '/tools/',
     title: 'Tool directory',
     description:
-      'Normalised pricing, integration counts and category data for every vendor we cover, in one sortable index.',
+      'Browse selected tool profiles and related guides; confirm changing plan details directly with vendors.',
     count: tools.length,
     icon: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
   },
@@ -144,7 +154,7 @@ const SECTIONS = [
           </a>
         </div>
 
-        <dl class="mt-12 grid max-w-2xl grid-cols-2 gap-6 border-t border-white/10 pt-8 sm:grid-cols-4">
+        <dl class="mt-12 grid max-w-2xl grid-cols-2 gap-6 border-t border-white/10 pt-8 sm:grid-cols-3">
           <div>
             <dt class="text-xs uppercase tracking-wider text-ink-400">Tools tracked</dt>
             <dd class="mt-1 text-2xl font-bold">{tools.length}</dd>
@@ -156,10 +166,6 @@ const SECTIONS = [
           <div>
             <dt class="text-xs uppercase tracking-wider text-ink-400">Attribution</dt>
             <dd class="mt-1 text-2xl font-bold">Organization</dd>
-          </div>
-          <div>
-            <dt class="text-xs uppercase tracking-wider text-ink-400">Display ads</dt>
-            <dd class="mt-1 text-2xl font-bold text-emerald-400">Disabled</dd>
           </div>
         </dl>
       </div>
@@ -176,7 +182,7 @@ const SECTIONS = [
       answer.
     </p>
 
-    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {
         SECTIONS.map((section) => (
           <a
@@ -265,7 +271,7 @@ const SECTIONS = [
           <h2 id="tools-heading" class="text-2xl font-bold text-ink-950 sm:text-3xl">
             Tools in the directory
           </h2>
-          <p class="mt-2 text-ink-600">Browse normalized product information and published assessments.</p>
+            <p class="mt-2 text-ink-600">Browse selected tool profiles and their related editorial coverage.</p>
         </div>
         <a
           href="/tools/"

@@ -304,13 +304,12 @@ const tools = defineCollection({
     brandColor: z.string().regex(/^#([0-9a-fA-F]{6})$/).default('#354c6e'),
     startingPrice: z.string().default('Custom'),
     freeTier: z.boolean().default(false),
-    /** Populated on review pages; also feeds directory sorting. */
-    rating: z.number().min(0).max(5).optional(),
     apiAvailable: z.boolean().default(true),
     nativeIntegrations: z.number().int().min(0).default(0),
     bestFor: z.string().optional(),
-    g2Rating: z.number().min(0).max(5).optional(),
-    /** Only entries with substantive supporting content are eligible for indexing. */
+    /** Original evaluation prompts shown on profiles with supporting editorial coverage. */
+    evaluationNotes: z.array(z.string().min(80).max(600)).max(4).optional(),
+    /** Only profiles with specific evaluation guidance and linked editorial coverage are indexable. */
     indexable: z.boolean().default(false),
   }),
 });

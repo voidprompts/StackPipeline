@@ -88,7 +88,7 @@ const isUpdated = Boolean(updatedDate && updatedDate.getTime() > publishDate.get
             <path d="M12 8v4l3 2" />
             <circle cx="12" cy="12" r="9" />
           </svg>
-          Verified <time datetime={isoDate(lastReviewedDate)}>{formatDate(lastReviewedDate)}</time>
+          Last reviewed <time datetime={isoDate(lastReviewedDate)}>{formatDate(lastReviewedDate)}</time>
         </span>
       )
     }

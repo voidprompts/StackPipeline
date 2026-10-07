@@ -1,6 +1,6 @@
 ---
 /**
- * Tool directory — grouped by category.
+ * Tool directory — grouped alphabetically by category and product name.
  */
 import ListingLayout from '@layouts/ListingLayout.astro';
 import ToolCard from '@components/ui/ToolCard.astro';
@@ -9,9 +9,11 @@ import { itemListSchema } from '@lib/schema';
 import { absoluteUrl } from '@lib/seo';
 
 const tools = await getCollection('tools');
+const collator = new Intl.Collator('en', { sensitivity: 'base' });
+const sortedTools = [...tools].sort((a, b) => collator.compare(a.data.name, b.data.name));
 
 const byCategory = new Map<string, typeof tools>();
-for (const tool of tools) {
+for (const tool of sortedTools) {
   const bucket = byCategory.get(tool.data.category) ?? [];
   bucket.push(tool);
   byCategory.set(tool.data.category, bucket);
@@ -21,20 +23,18 @@ const categories = [...byCategory.entries()]
   .map(([name, items]) => ({
     name,
     slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-    items: items.sort((a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0)),
+    items,
   }))
-  .sort((a, b) => b.items.length - a.items.length);
+  .sort((a, b) => collator.compare(a.name, b.name));
 
 const schema = [
   itemListSchema(
-    [...tools]
-      .sort((a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0))
-      .map((tool, index) => ({
-        position: index + 1,
-        name: tool.data.name,
-        description: tool.data.tagline,
-        url: `/tools/${tool.data.slug}/`,
-      })),
+    sortedTools.map((tool, index) => ({
+      position: index + 1,
+      name: tool.data.name,
+      description: tool.data.tagline,
+      url: `/tools/${tool.data.slug}/`,
+    })),
     absoluteUrl('/tools/'),
     'B2B automation and data tooling directory',
   ),
@@ -43,13 +43,45 @@ const schema = [
 
 <ListingLayout
   title="Automation Tool Directory"
-  heading="The automation tool directory"
-  description="Normalised pricing, integration counts and tested scores for every workflow automation, CRM and data enrichment tool we cover."
+  heading="B2B automation tool directory"
+  description="Browse automation, CRM, and data tools with reference pricing and related guides. Verify current plans and features with each vendor."
+  intro="This is a curated discovery directory, not a complete market census or a ranked list. We group products by category and name; commercial relationships do not determine placement. Catalog prices and free-tier labels are reference notes, not live quotes, and we do not yet publish a source URL and checked date for every field. Product counts also use vendor-specific definitions, so we omit connector totals rather than imply an apples-to-apples comparison."
   count={tools.length}
-  countLabel="tools tracked"
+  countLabel="tools in this directory"
   schema={schema}
   breadcrumbLeaf="Tools"
+  adsEnabled={false}
+  showAdSlot={false}
 >
+  <section class="mb-12 rounded-2xl border border-ink-200 bg-ink-50/60 p-6" aria-labelledby="directory-method-heading">
+    <h2 id="directory-method-heading" class="text-xl font-bold text-ink-950">
+      How to use this directory
+    </h2>
+    <ul class="mt-4 grid gap-3 text-sm leading-relaxed text-ink-700 sm:grid-cols-2">
+      <li>
+        <strong class="font-semibold text-ink-950">Treat prices as starting points.</strong>
+        Plans, usage limits, and free tiers change. Follow the official-vendor link on a profile
+        to confirm current terms before making a decision.
+      </li>
+      <li>
+        <strong class="font-semibold text-ink-950">Compare the workflow, not just the tool name.</strong>
+        Check the exact trigger, action, volume, permissions, and recovery behavior you need.
+        Vendor-reported connector counts are not standardized.
+      </li>
+      <li>
+        <strong class="font-semibold text-ink-950">Look for supporting editorial coverage.</strong>
+        Profiles marked as catalog entries are still being developed and are not standalone
+        reviews. Use the linked reviews and guides for evidence and limitations.
+      </li>
+      <li>
+        <strong class="font-semibold text-ink-950">Understand our commercial relationship.</strong>
+        Some links may earn a commission. Read our
+        <a class="font-semibold text-emerald-800 underline underline-offset-2" href="/affiliate-disclosure/">affiliate disclosure</a>
+        and <a class="font-semibold text-emerald-800 underline underline-offset-2" href="/how-we-test/">review methodology</a>.
+      </li>
+    </ul>
+  </section>
+
   <nav class="mb-10" aria-label="Tool categories">
     <h2 class="text-xs font-bold uppercase tracking-[0.14em] text-ink-500">Jump to category</h2>
     <ul class="mt-3 flex flex-wrap gap-2">

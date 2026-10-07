@@ -30,6 +30,10 @@ interface Props {
   sectionHeading?: string;
   /** Hide the section heading visually while keeping it in the accessibility tree. */
   sectionHeadingVisible?: boolean;
+  /** Disable the global AdSense loader for low-content directory pages. */
+  adsEnabled?: boolean;
+  /** Hide the manual ad placement when the listing has limited editorial content. */
+  showAdSlot?: boolean;
 }
 
 const {
@@ -45,6 +49,8 @@ const {
   noindex = false,
   sectionHeading = 'All results',
   sectionHeadingVisible = false,
+  adsEnabled = true,
+  showAdSlot = true,
 } = Astro.props;
 
 const h1 = heading ?? title;
@@ -59,6 +65,7 @@ const trail = breadcrumbsFromPath(Astro.url.pathname, breadcrumbLeaf ?? h1);
   pageType="CollectionPage"
   breadcrumbs={trail}
   noindex={noindex}
+  adsEnabled={adsEnabled}
 >
   {/* Hero */}
   <section class="border-b border-ink-200 bg-ink-950 text-white">
@@ -107,6 +114,6 @@ const trail = breadcrumbsFromPath(Astro.url.pathname, breadcrumbLeaf ?? h1);
       <slot />
     </section>
 
-    <AdSlot slot="listing" format="leaderboard" class="mt-12" />
+    {showAdSlot && <AdSlot slot="listing" format="leaderboard" class="mt-12" />}
   </div>
 </BaseLayout>

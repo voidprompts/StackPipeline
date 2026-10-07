@@ -2,12 +2,11 @@
 /**
  * Featured affiliate widget for the sticky sidebar rail.
  *
- * Highest-CTR unit on the site: brand mark, rating, one-line verdict, price anchor and a
- * single unambiguous CTA. Kept deliberately short — sidebar units that scroll are ignored.
+ * Compact sidebar callout: brand mark, one-line verdict, catalog price and a single CTA.
+ * The catalog does not display unsupported ratings or vendor-reported connector counts.
  */
 import type { CollectionEntry } from 'astro:content';
 import AffiliateButton from './AffiliateButton.astro';
-import RatingStars from './RatingStars.astro';
 
 interface Props {
   tool: CollectionEntry<'tools'>;
@@ -69,36 +68,25 @@ const initial = data.name.charAt(0).toUpperCase();
       </div>
     </div>
 
-    {
-      data.rating && (
-        <div class="mt-3">
-          <RatingStars value={data.rating} size="sm" />
-        </div>
-      )
-    }
-
     <p class="mt-3 text-sm leading-relaxed text-ink-600">{blurb}</p>
 
     <dl class="mt-4 space-y-2 border-t border-ink-100 pt-4 text-xs">
       <div class="flex items-center justify-between gap-2">
-        <dt class="text-ink-500">Starting price</dt>
+        <dt class="text-ink-500">Catalog price</dt>
         <dd class="font-semibold text-ink-900">{data.startingPrice}</dd>
       </div>
       <div class="flex items-center justify-between gap-2">
         <dt class="text-ink-500">Free tier</dt>
         <dd class="font-semibold text-ink-900">{data.freeTier ? 'Yes' : 'No'}</dd>
       </div>
-      {
-        data.nativeIntegrations > 0 && (
-          <div class="flex items-center justify-between gap-2">
-            <dt class="text-ink-500">Integrations</dt>
-            <dd class="font-semibold text-ink-900">
-              {data.nativeIntegrations.toLocaleString('en-US')}+
-            </dd>
-          </div>
-        )
-      }
     </dl>
+
+    <p class="mt-3 text-[11px] leading-relaxed text-ink-500">
+      Catalog prices can change. Confirm current terms on the
+      <a href={data.website} target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">
+        official vendor site
+      </a>.
+    </p>
 
     <AffiliateButton
       href={href}
