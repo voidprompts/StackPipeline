@@ -11,11 +11,14 @@
     "brandColor": "#ff4f00",
     "startingPrice": "$29.99/mo",
     "freeTier": true,
-    "rating": 4.5,
     "apiAvailable": true,
     "nativeIntegrations": 7000,
     "bestFor": "Teams that need the widest app coverage with zero engineering time",
-    "g2Rating": 4.5,
+    "evaluationNotes": [
+      "Check app support at the event/action level, not just by app name: confirm that the exact trigger, action, fields, and update behavior your workflow needs are available. Test with representative records before migration.",
+      "Estimate monthly usage from real runs and include each billable step, retries, replays, and error handling. Compare total cost and maintenance burden with other approaches rather than comparing advertised entry prices alone.",
+      "For CRM syncs, agree on the source of truth, deduplication key, field ownership, consent state, and failure alerts before writes begin. Run a pilot in parallel and verify both successful and rejected records."
+    ],
     "indexable": true
   },
   {
@@ -30,12 +33,10 @@
     "brandColor": "#6d00cc",
     "startingPrice": "$10.59/mo",
     "freeTier": true,
-    "rating": 4.4,
     "apiAvailable": true,
     "nativeIntegrations": 2000,
     "bestFor": "Complex branching logic and high-volume workflows on a budget",
-    "g2Rating": 4.6,
-    "indexable": true
+    "indexable": false
   },
   {
     "id": "n8n",
@@ -49,11 +50,14 @@
     "brandColor": "#ea4b71",
     "startingPrice": "$20/mo annual (or free self-hosted)",
     "freeTier": true,
-    "rating": 4.7,
     "apiAvailable": true,
     "nativeIntegrations": 2192,
     "bestFor": "Engineering teams that want self-hosted control and no per-task billing",
-    "g2Rating": 4.7,
+    "evaluationNotes": [
+      "Choose the deployment model before comparing headline prices. With self-hosting, include infrastructure, backups, monitoring, upgrades, and incident ownership in total cost; with a managed plan, verify current execution and concurrency limits.",
+      "Check the current license against your actual use, especially if you plan to embed, resell, or expose workflows to customers. The linked review distinguishes source-available licensing from OSI-approved open source; verify the license terms directly before a procurement decision.",
+      "Pilot a representative workflow with retries, credentials, and expected peak load. Measure execution volume, concurrency, and recovery behavior; a successful small demo does not prove a production deployment is ready."
+    ],
     "indexable": true
   },
   {
@@ -68,11 +72,14 @@
     "brandColor": "#ff7a59",
     "startingPrice": "Free / $20 per seat",
     "freeTier": true,
-    "rating": 4.4,
     "apiAvailable": true,
     "nativeIntegrations": 1700,
     "bestFor": "Mid-market teams consolidating marketing and sales on one platform",
-    "g2Rating": 4.4,
+    "evaluationNotes": [
+      "Before syncing, define the system of record for each field, your duplicate-matching rule, and whether new records should overwrite manually curated values. Test create, update, and duplicate cases.",
+      "Keep consent, unsubscribe, and suppression state mapped and respected at every handoff; filter test or junk leads before CRM writes. Verify how imported contacts affect the current plan and billing.",
+      "Test normal and peak volume, log rejected records, and verify how the chosen connector handles retries and rate limits. The linked setup guide covers a Zapier-based path; it is not a substitute for testing another connector."
+    ],
     "indexable": true
   },
   {
@@ -86,11 +93,9 @@
     "brandColor": "#00a1e0",
     "startingPrice": "$25 per seat/mo",
     "freeTier": false,
-    "rating": 4.2,
     "apiAvailable": true,
     "nativeIntegrations": 5000,
     "bestFor": "Enterprise sales organisations with dedicated admin resources",
-    "g2Rating": 4.4,
     "indexable": false
   },
   {
@@ -105,11 +110,14 @@
     "brandColor": "#fcb400",
     "startingPrice": "$20 per seat/mo",
     "freeTier": true,
-    "rating": 4.3,
     "apiAvailable": true,
     "nativeIntegrations": 1000,
     "bestFor": "Operational databases and staging layers between systems",
-    "g2Rating": 4.6,
+    "evaluationNotes": [
+      "Decide whether Airtable is a temporary review queue or the system of record. Define stable record identifiers, field ownership, and who may edit data that automations will update.",
+      "For Slack notifications, trigger on a meaningful state change or condition rather than every record edit. Include context and a record link, then pilot in a low-noise channel before routing broadly.",
+      "Check access permissions, retention, and the current plan allowance against your expected volume. The linked Airtable-to-Slack guide covers one scenario; it does not verify every connector or plan limit."
+    ],
     "indexable": true
   },
   {
@@ -124,11 +132,14 @@
     "brandColor": "#3b2ff5",
     "startingPrice": "$149/mo",
     "freeTier": true,
-    "rating": 4.7,
     "apiAvailable": true,
     "nativeIntegrations": 150,
     "bestFor": "Outbound teams that need the highest possible enrichment match rates",
-    "g2Rating": 4.9,
+    "evaluationNotes": [
+      "Run your own representative list and manually verify a sample of returned emails or fields. Segment results by geography and company type; a raw match count says little about correctness for your target market.",
+      "Track credits consumed per verified usable record, including failed lookups, overlapping providers, and retries. Compare the waterfall with a single-provider baseline before estimating any savings.",
+      "Check downstream deduplication, CRM field mapping, consent and data provenance, and ownership of ongoing spend. Our review records the scope and limits of one test; your list and plan may behave differently."
+    ],
     "indexable": true
   },
   {
@@ -143,11 +154,9 @@
     "brandColor": "#2f4de0",
     "startingPrice": "$49 per seat/mo",
     "freeTier": true,
-    "rating": 4.1,
     "apiAvailable": true,
     "nativeIntegrations": 200,
     "bestFor": "Small outbound teams needing data and sequencing in one tool",
-    "g2Rating": 4.7,
     "indexable": false
   },
   {
@@ -161,11 +170,14 @@
     "brandColor": "#4a154b",
     "startingPrice": "$8.75 per seat/mo",
     "freeTier": true,
-    "rating": 4.5,
     "apiAvailable": true,
     "nativeIntegrations": 2600,
     "bestFor": "Real-time alerting and human-in-the-loop approval steps",
-    "g2Rating": 4.5,
+    "evaluationNotes": [
+      "Design around meaningful state changes rather than every update. Include enough context and a direct record link so recipients can decide whether to act without searching for the source.",
+      "Separate urgent alerts from routine notifications and assign an owner for follow-up. Pilot with a small channel before expanding; an unowned or noisy feed quickly stops being useful.",
+      "Limit customer or deal data sent into messages, and confirm channel membership and retention match your access policy. The linked Airtable guide is one example, not an endorsement of every integration path."
+    ],
     "indexable": true
   },
   {
@@ -179,11 +191,9 @@
     "brandColor": "#191919",
     "startingPrice": "$10 per seat/mo",
     "freeTier": true,
-    "rating": 4.3,
     "apiAvailable": true,
     "nativeIntegrations": 300,
     "bestFor": "Human-in-the-loop review layers and internal documentation",
-    "g2Rating": 4.7,
     "indexable": false
   },
   {
@@ -198,12 +208,10 @@
     "brandColor": "#017737",
     "startingPrice": "$14 per seat/mo",
     "freeTier": false,
-    "rating": 4.2,
     "apiAvailable": true,
     "nativeIntegrations": 500,
     "bestFor": "Small sales teams that want pipeline clarity over feature breadth",
-    "g2Rating": 4.3,
-    "indexable": true
+    "indexable": false
   },
   {
     "id": "workato",
@@ -216,12 +224,10 @@
     "brandColor": "#3f20ba",
     "startingPrice": "Custom (from ~$10k/yr)",
     "freeTier": false,
-    "rating": 4.3,
     "apiAvailable": true,
     "nativeIntegrations": 1200,
     "bestFor": "Enterprises needing governance, environments and audit trails",
-    "g2Rating": 4.7,
-    "indexable": true
+    "indexable": false
   },
   {
     "id": "systeme-io",
@@ -235,11 +241,14 @@
     "brandColor": "#132c4f",
     "startingPrice": "$17/mo (or free forever)",
     "freeTier": true,
-    "rating": 4.5,
     "apiAvailable": true,
     "nativeIntegrations": 15,
     "bestFor": "Solopreneurs and small teams consolidating funnels, email and courses on one budget",
-    "g2Rating": 4.8,
+    "evaluationNotes": [
+      "List the tools you expect the platform to replace and map the data that must move between them. Verify current native integrations and webhooks for each required handoff instead of assuming bundled features integrate seamlessly.",
+      "Test the whole customer journey—from signup and confirmation emails through checkout, payment failure, cancellation, and unsubscribe. Verify payment-gateway fees and email-consent handling separately from subscription price.",
+      "If organic search is a core channel, check the actual page controls you need—indexability, canonical URLs, structured data, redirects, and sitemap output—before choosing a built-in blog as your publishing platform."
+    ],
     "indexable": true
   },
   {
@@ -253,11 +262,9 @@
     "brandColor": "#20c997",
     "startingPrice": "Free tier / custom usage",
     "freeTier": true,
-    "rating": 4.5,
     "apiAvailable": true,
     "nativeIntegrations": 2500,
     "bestFor": "Developers who need flexible API workflows without maintaining orchestration infrastructure",
-    "g2Rating": 4.7,
     "indexable": false
   },
   {
@@ -271,11 +278,9 @@
     "brandColor": "#356ae6",
     "startingPrice": "Custom pricing",
     "freeTier": false,
-    "rating": 4.5,
     "apiAvailable": true,
     "nativeIntegrations": 900,
     "bestFor": "Growing businesses building behaviour-based email and sales journeys",
-    "g2Rating": 4.5,
     "indexable": false
   },
   {
@@ -289,11 +294,9 @@
     "brandColor": "#0b996e",
     "startingPrice": "Free / $9 per month",
     "freeTier": true,
-    "rating": 4.5,
     "apiAvailable": true,
     "nativeIntegrations": 150,
     "bestFor": "Small teams combining email, transactional messages and lightweight automation",
-    "g2Rating": 4.5,
     "indexable": false
   },
   {
@@ -307,11 +310,9 @@
     "brandColor": "#262627",
     "startingPrice": "Free / $25 per month",
     "freeTier": true,
-    "rating": 4.5,
     "apiAvailable": true,
     "nativeIntegrations": 300,
     "bestFor": "Branded lead forms and surveys where respondent experience matters",
-    "g2Rating": 4.5,
     "indexable": false
   },
   {
@@ -325,11 +326,9 @@
     "brandColor": "#006bff",
     "startingPrice": "Free / $10 per seat/mo",
     "freeTier": true,
-    "rating": 4.6,
     "apiAvailable": true,
     "nativeIntegrations": 100,
     "bestFor": "Sales and service teams automating meeting booking and follow-up",
-    "g2Rating": 4.7,
     "indexable": false
   },
   {
@@ -343,11 +342,9 @@
     "brandColor": "#000000",
     "startingPrice": "Free / $29 per month",
     "freeTier": true,
-    "rating": 4.6,
     "apiAvailable": true,
     "nativeIntegrations": 50,
     "bestFor": "Lean teams that need capable forms without per-response pricing",
-    "g2Rating": 4.6,
     "indexable": false
   },
   {
@@ -361,11 +358,9 @@
     "brandColor": "#5e6ad2",
     "startingPrice": "Free / $8 per user/mo",
     "freeTier": true,
-    "rating": 4.6,
     "apiAvailable": true,
     "nativeIntegrations": 70,
     "bestFor": "Product and engineering teams that want a fast, opinionated issue tracker",
-    "g2Rating": 4.5,
     "indexable": false
   },
   {
@@ -379,11 +374,9 @@
     "brandColor": "#146ef5",
     "startingPrice": "Free / $14 per month",
     "freeTier": true,
-    "rating": 4.4,
     "apiAvailable": true,
     "nativeIntegrations": 250,
     "bestFor": "Design-led marketing teams publishing structured websites without full-time developers",
-    "g2Rating": 4.4,
     "indexable": false
   }
 ]

@@ -38,7 +38,8 @@ const latest = [
   .slice(0, 6);
 
 const featuredTools = [...tools]
-  .sort((a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0))
+  .filter((tool) => tool.data.indexable)
+  .sort((a, b) => a.data.name.localeCompare(b.data.name))
   .slice(0, 6);
 
 const totalGuides = integrations.length + reviews.length + alternatives.length + guides.length;
@@ -92,7 +93,7 @@ const SECTIONS = [
     href: '/tools/',
     title: 'Tool directory',
     description:
-      'Normalised pricing, integration counts and category data for every vendor we cover, in one sortable index.',
+      'Browse selected tool profiles and related guides; confirm changing plan details directly with vendors.',
     count: tools.length,
     icon: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
   },
@@ -270,7 +271,7 @@ const SECTIONS = [
           <h2 id="tools-heading" class="text-2xl font-bold text-ink-950 sm:text-3xl">
             Tools in the directory
           </h2>
-          <p class="mt-2 text-ink-600">Browse normalized product information and published assessments.</p>
+            <p class="mt-2 text-ink-600">Browse selected tool profiles and their related editorial coverage.</p>
         </div>
         <a
           href="/tools/"

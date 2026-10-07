@@ -49,6 +49,8 @@ interface Props {
   preloadImage?: string;
   /** Extra classes on <main>. */
   mainClass?: string;
+  /** Disable both the AdSense loader and Auto Ads on low-content utility pages. */
+  adsEnabled?: boolean;
 }
 
 const {
@@ -71,6 +73,7 @@ const {
   pageType = 'WebPage',
   preloadImage,
   mainClass = '',
+  adsEnabled = true,
 } = Astro.props;
 
 const pageUrl = absoluteUrl(canonical ?? Astro.url.pathname);
@@ -120,7 +123,7 @@ const graph: Array<JsonLdNode | undefined | false | null> = [
       schema={graph}
       preloadImage={preloadImage}
     />
-    <AdSenseHead />
+    {adsEnabled && <AdSenseHead />}
     <Analytics />
     <slot name="head" />
   </head>

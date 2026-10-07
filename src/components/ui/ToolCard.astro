@@ -4,7 +4,6 @@
  * Used on /tools/ and in "related tools" rails.
  */
 import type { CollectionEntry } from 'astro:content';
-import RatingStars from './RatingStars.astro';
 
 interface Props {
   tool: CollectionEntry<'tools'>;
@@ -37,41 +36,35 @@ const initial = data.name.charAt(0).toUpperCase();
           {data.name}
         </a>
       </Heading>
-      <p class="truncate text-xs text-ink-500">{data.category}</p>
+      <p class="text-xs text-ink-500">{data.category}</p>
     </div>
     {
-      data.freeTier ? (
-        <span class="shrink-0 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
-          Free tier
-        </span>
-      ) : !data.indexable ? (
+      !data.indexable && (
         <span class="shrink-0 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
           Catalog entry
         </span>
-      ) : null
+      )
     }
   </div>
 
-  <p class="mt-3 flex-1 text-sm leading-relaxed text-ink-600">{data.tagline}</p>
+  <p class="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-ink-600">{data.tagline}</p>
+
+  {
+    data.bestFor && (
+      <p class="mt-3 text-xs leading-relaxed text-ink-600">
+        <strong class="font-semibold text-ink-800">Consider for:</strong> {data.bestFor}
+      </p>
+    )
+  }
 
   <dl class="mt-4 grid grid-cols-2 gap-3 border-t border-ink-100 pt-3.5 text-xs">
     <div>
-      <dt class="text-ink-400">From</dt>
+      <dt class="text-ink-400">Catalog price</dt>
       <dd class="font-semibold text-ink-900">{data.startingPrice}</dd>
     </div>
     <div>
-      <dt class="text-ink-400">Integrations</dt>
-      <dd class="font-semibold text-ink-900">
-        {data.nativeIntegrations > 0 ? `${data.nativeIntegrations.toLocaleString('en-US')}+` : '—'}
-      </dd>
+      <dt class="text-ink-400">Free tier listed</dt>
+      <dd class="font-semibold text-ink-900">{data.freeTier ? 'Yes' : 'No'}</dd>
     </div>
   </dl>
-
-  {
-    data.rating && (
-      <div class="mt-3">
-        <RatingStars value={data.rating} size="sm" />
-      </div>
-    )
-  }
 </article>

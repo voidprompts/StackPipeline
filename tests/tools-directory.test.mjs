@@ -58,3 +58,24 @@ test('indexable is an explicit boolean on every entry', () => {
     );
   }
 });
+
+test('indexable profiles have specific evaluation notes', () => {
+  const indexable = tools.filter((tool) => tool.indexable);
+  assert.ok(indexable.length > 0, 'at least one profile should be indexable');
+  for (const tool of indexable) {
+    assert.ok(
+      Array.isArray(tool.evaluationNotes) && tool.evaluationNotes.length >= 2,
+      `${tool.slug}: indexable profiles need at least two useful evaluation notes`,
+    );
+    for (const note of tool.evaluationNotes) {
+      assert.ok(note.trim().length >= 80, `${tool.slug}: evaluation note is too short to be useful`);
+    }
+  }
+});
+
+test('catalog data does not expose unsupported aggregate rating fields', () => {
+  for (const tool of tools) {
+    assert.ok(!('rating' in tool), `${tool.slug}: remove the undocumented directory rating`);
+    assert.ok(!('g2Rating' in tool), `${tool.slug}: remove G2 figures without source and checked date`);
+  }
+});

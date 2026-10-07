@@ -27,6 +27,8 @@
  *   - sitemap integrity: every sitemap URL has a generated file, no sitemap URL is
  *     noindex, non-indexable tool profiles are excluded and indexable ones included
  *     (guards the `indexable` gate in tools.json + astro.config.mjs against drift)
+ *   - tool-profile safety: directory profiles have no ad loader/slots; indexable profiles
+ *     carry specific evaluation notes and link to supporting editorial coverage
  *
  * Exits non-zero on ERROR-level findings so CI fails before a bad deploy.
  */
@@ -291,6 +293,64 @@ async function auditSitemap() {
   }
 }
 
+/**
+ * Tool-profile quality guard. A green technical SEO build is not a content-quality
+ * verdict, but the catalog can at least prevent clearly underwritten profiles from
+ * being indexable or carrying ad placements by accident.
+ */
+async function auditToolProfiles() {
+  const tools = JSON.parse(
+    await readFile(path.join(ROOT, 'src/content/tools/tools.json'), 'utf8'),
+  );
+  const adMarkup = /adsbygoogle|sp-ad-slot|Reserved space\s*[—-]|aria-label=["']Advertisement["']/i;
+  const editorialLink = /href=["']\/(?:reviews|integrations|alternatives|guides)\/[a-z0-9][^"']*/i;
+
+  for (const tool of tools) {
+    const route = `/tools/${tool.slug}/`;
+    let html;
+    try {
+      html = await readFile(path.join(DIST, 'tools', tool.slug, 'index.html'), 'utf8');
+    } catch {
+      error(route, 'Tool profile has no generated HTML file');
+      continue;
+    }
+
+    const noindex = /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html);
+    if (tool.indexable === true && noindex) {
+      error(route, 'Catalog marks this profile indexable, but rendered robots metadata says noindex');
+    }
+    if (tool.indexable !== true && !noindex) {
+      error(route, 'Catalog-only profile must render noindex metadata');
+    }
+    if (adMarkup.test(html)) {
+      error(route, 'Tool profiles must remain free of manual and Auto Ads placements while this template is a short directory profile');
+    }
+
+    if (tool.indexable === true) {
+      if (!Array.isArray(tool.evaluationNotes) || tool.evaluationNotes.length < 2) {
+        error(route, 'Indexable profiles need at least two specific evaluation notes');
+      }
+      if (!html.includes('data-tool-evaluation="true"')) {
+        error(route, 'Indexable profile is missing its rendered evaluation section');
+      }
+      if (!editorialLink.test(html)) {
+        error(route, 'Indexable profile must link to at least one related review, guide, integration, or comparison');
+      }
+    }
+  }
+
+  let directoryHtml;
+  try {
+    directoryHtml = await readFile(path.join(DIST, 'tools', 'index.html'), 'utf8');
+  } catch {
+    error('/tools/', 'Tool directory has no generated HTML file');
+    return;
+  }
+  if (adMarkup.test(directoryHtml)) {
+    error('/tools/', 'The tool directory is an ad-free discovery page until it has fuller editorial coverage');
+  }
+}
+
 async function main() {
   try {
     await stat(DIST);
@@ -316,6 +376,7 @@ async function main() {
 
   // ---- sitemap ↔ indexability integrity ----
   await auditSitemap();
+  await auditToolProfiles();
 
   // ---- per-page audit ----
   const files = await collectHtml(DIST);
