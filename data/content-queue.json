@@ -15,19 +15,25 @@
       "type": "integration",
       "source": "make",
       "target": "hubspot",
-      "status": "pending"
+      "status": "published",
+      "publishedOn": "2026-10-10",
+      "slug": "make-to-hubspot"
     },
     {
       "type": "integration",
       "source": "n8n",
       "target": "hubspot",
-      "status": "pending"
+      "status": "published",
+      "publishedOn": "2026-10-10",
+      "slug": "n8n-to-hubspot"
     },
     {
       "type": "integration",
       "source": "pipedream",
       "target": "hubspot",
-      "status": "pending"
+      "status": "published",
+      "publishedOn": "2026-10-10",
+      "slug": "pipedream-to-hubspot"
     },
     {
       "type": "integration",
